@@ -7,7 +7,7 @@ android {
     namespace 'com.nitishsharma.chatapp'
     compileSdk 32
 
-    buildFeatures{
+    buildFeatures {
         viewBinding = true
     }
 

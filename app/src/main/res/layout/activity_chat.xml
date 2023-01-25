@@ -11,7 +11,9 @@
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/messageEdit" />
+        android:layout_above="@id/messageEdit"
+        android:orientation="vertical"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
     <EditText
         android:id="@+id/messageEdit"

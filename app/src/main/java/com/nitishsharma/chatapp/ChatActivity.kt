@@ -1,34 +1,72 @@
 package com.nitishsharma.chatapp
 
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Base64
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.nitishsharma.chatapp.databinding.ActivityChatBinding
 import okhttp3.*
+import org.json.JSONException
+import org.json.JSONObject
+import java.io.ByteArrayOutputStream
+import java.io.FileNotFoundException
 
 
 class ChatActivity : AppCompatActivity(), TextWatcher {
     private lateinit var binding: ActivityChatBinding
     private lateinit var name: String
     private lateinit var webSocket: WebSocket
-    private var SERVER_PATH = ""
+    private var SERVER_PATH = "https://echo.websocket.events/.ws"
+    private val IMAGE_REQUEST_ID = 1
+    private lateinit var messageAdapter: MessageAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityChatBinding.inflate(layoutInflater)
-
-        name = intent.getStringExtra("name").toString()
-//        initiateSocketConnection()
-        initializeViews()
         setContentView(binding.root)
+        name = intent.getStringExtra("name").toString()
+        initiateSocketConnection()
+
+        binding.sendBtn.setOnClickListener {
+            sendTextMessage()
+        }
+
+        binding.pickImgBtn.setOnClickListener {
+            pickAndSendImage()
+        }
+    }
+
+    private fun pickAndSendImage() {
+        val intent = Intent(Intent.ACTION_GET_CONTENT)
+        intent.type = "image/*"
+        startActivityForResult(Intent.createChooser(intent, "Pick Image"), IMAGE_REQUEST_ID)
+    }
+
+    private fun sendTextMessage() {
+        val jsonObject = JSONObject()
+        try {
+            jsonObject.put("name", name)
+            jsonObject.put("message", binding.messageEdit.text.toString())
+            webSocket.send(jsonObject.toString())
+            jsonObject.put("isSent", true)
+            messageAdapter.addItem(jsonObject)
+            resetEditMessage()
+        } catch (e: Exception) {
+            Log.e("Msg Delivery Fail ", e.toString())
+        }
     }
 
     private fun initiateSocketConnection() {
         val client = OkHttpClient()
-        val request = Request.Builder().url(SERVER_PATH).build()
+        val request: Request = Request.Builder().url(SERVER_PATH).build()
         webSocket = client.newWebSocket(request, SocketListener())
     }
 
@@ -43,11 +81,55 @@ class ChatActivity : AppCompatActivity(), TextWatcher {
 
         override fun onMessage(webSocket: WebSocket, text: String) {
             super.onMessage(webSocket, text)
+            this@ChatActivity.runOnUiThread {
+                try {
+                    val jsonObject = JSONObject(text)
+                    jsonObject.put("isSent", false)
+                    messageAdapter.addItem(jsonObject)
+                } catch (e: Exception) {
+                    Log.e("Unable to show message", e.toString())
+                }
+            }
         }
     }
 
     private fun initializeViews() {
-        binding.messageEdit.addTextChangedListener(this@ChatActivity)
+        binding.messageEdit.addTextChangedListener(this)
+        messageAdapter = MessageAdapter(layoutInflater)
+        binding.recyclerView.adapter = messageAdapter
+        binding.recyclerView.layoutManager = LinearLayoutManager(this)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == IMAGE_REQUEST_ID && resultCode == RESULT_OK) {
+            try {
+                val inputStream = data?.data?.let { contentResolver.openInputStream(it) }
+                val image = BitmapFactory.decodeStream(inputStream)
+                sendImage(image)
+            } catch (e: FileNotFoundException) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    private fun sendImage(image: Bitmap) {
+        val outputStream = ByteArrayOutputStream()
+        image.compress(Bitmap.CompressFormat.JPEG, 50, outputStream)
+        val base64String: String = Base64.encodeToString(
+            outputStream.toByteArray(),
+            Base64.DEFAULT
+        )
+        val jsonObject = JSONObject()
+        try {
+            jsonObject.put("name", name)
+            jsonObject.put("image", base64String)
+            webSocket.send(jsonObject.toString())
+            jsonObject.put("isSent", true)
+            messageAdapter.addItem(jsonObject)
+        } catch (e: JSONException) {
+            e.printStackTrace()
+        }
     }
 
     override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
