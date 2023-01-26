@@ -38,18 +38,18 @@
         android:padding="10dp"
         android:text="Send"
         android:textColor="@color/purple_200"
-        android:visibility="invisible" />
+        android:visibility="visible" />
 
-    <ImageView
-        android:id="@+id/pickImgBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="16dp"
-        android:layout_toEndOf="@id/messageEdit"
-        android:padding="8dp"
-        android:src="@drawable/ic_image_black_24dp"
-        app:tint="@color/purple_200" />
+    <!--    <ImageView-->
+    <!--        android:id="@+id/sendBtn"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:layout_alignParentEnd="true"-->
+    <!--        android:layout_alignParentBottom="true"-->
+    <!--        android:layout_marginBottom="16dp"-->
+    <!--        android:layout_toEndOf="@id/messageEdit"-->
+    <!--        android:padding="8dp"-->
+    <!--        android:src="@drawable/ic_send"-->
+    <!--        app:tint="@color/purple_200" />-->
 
 </RelativeLayout>

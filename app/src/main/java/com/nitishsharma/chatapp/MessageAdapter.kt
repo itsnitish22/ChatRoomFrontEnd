@@ -1,14 +1,10 @@
 package com.nitishsharma.chatapp
 
 import android.annotation.SuppressLint
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.util.Base64
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import org.json.JSONException
@@ -28,15 +24,6 @@ class MessageAdapter(private val inflater: LayoutInflater) :
         }
     }
 
-    inner class SentImageHolder(itemView: View) :
-        RecyclerView.ViewHolder(itemView) {
-        var imageView: ImageView
-
-        init {
-            imageView = itemView.findViewById(R.id.imageView)
-        }
-    }
-
     inner class ReceivedMessageHolder(itemView: View) :
         RecyclerView.ViewHolder(itemView) {
         var nameTxt: TextView
@@ -48,17 +35,6 @@ class MessageAdapter(private val inflater: LayoutInflater) :
         }
     }
 
-    inner class ReceivedImageHolder(itemView: View) :
-        RecyclerView.ViewHolder(itemView) {
-        var imageView: ImageView
-        var nameTxt: TextView
-
-        init {
-            imageView = itemView.findViewById(R.id.imageView)
-            nameTxt = itemView.findViewById(R.id.nameTxt)
-        }
-    }
-
     inner class EmptyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     }
 
@@ -66,9 +42,10 @@ class MessageAdapter(private val inflater: LayoutInflater) :
         val message = messages[position]
         try {
             return if (message.getBoolean("isSent")) {
-                if (message.has("message")) TYPE_MESSAGE_SENT else TYPE_IMAGE_SENT
+                if (message.has("message"))
+                    TYPE_MESSAGE_SENT else -1
             } else {
-                if (message.has("message")) TYPE_MESSAGE_RECEIVED else TYPE_IMAGE_RECEIVED
+                if (message.has("message")) TYPE_MESSAGE_RECEIVED else -1
             }
         } catch (e: JSONException) {
             e.printStackTrace()
@@ -87,14 +64,6 @@ class MessageAdapter(private val inflater: LayoutInflater) :
                 view = inflater.inflate(R.layout.item_received_message, parent, false)
                 return ReceivedMessageHolder(view)
             }
-            TYPE_IMAGE_SENT -> {
-                view = inflater.inflate(R.layout.item_sent_image, parent, false)
-                return SentImageHolder(view)
-            }
-            TYPE_IMAGE_RECEIVED -> {
-                view = inflater.inflate(R.layout.item_received_image, parent, false)
-                return ReceivedImageHolder(view)
-            }
         }
         view = inflater.inflate(R.layout.item_sent_message, parent, false)
         return EmptyViewHolder(view)
@@ -108,31 +77,17 @@ class MessageAdapter(private val inflater: LayoutInflater) :
                 if (message.has("message")) {
                     val messageHolder = holder as SentMessageHolder
                     messageHolder.messageTxt.text = message.getString("message")
-                } else {
-                    val imageHolder = holder as SentImageHolder
-                    val bitmap = getBitmapFromString(message.getString("image"))
-                    imageHolder.imageView.setImageBitmap(bitmap)
                 }
             } else {
                 if (message.has("message")) {
                     val messageHolder = holder as ReceivedMessageHolder
                     messageHolder.nameTxt.text = message.getString("name")
                     messageHolder.messageTxt.text = message.getString("message")
-                } else {
-                    val imageHolder = holder as ReceivedImageHolder
-                    imageHolder.nameTxt.text = message.getString("name")
-                    val bitmap = getBitmapFromString(message.getString("image"))
-                    imageHolder.imageView.setImageBitmap(bitmap)
                 }
             }
         } catch (e: JSONException) {
             e.printStackTrace()
         }
-    }
-
-    private fun getBitmapFromString(image: String): Bitmap {
-        val bytes: ByteArray = Base64.decode(image, Base64.DEFAULT)
-        return BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
     }
 
     override fun getItemCount(): Int {
@@ -149,7 +104,5 @@ class MessageAdapter(private val inflater: LayoutInflater) :
     companion object {
         private const val TYPE_MESSAGE_SENT = 0
         private const val TYPE_MESSAGE_RECEIVED = 1
-        private const val TYPE_IMAGE_SENT = 2
-        private const val TYPE_IMAGE_RECEIVED = 3
     }
 }
