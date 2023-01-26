@@ -24,7 +24,8 @@ class ChatActivity : AppCompatActivity(), TextWatcher {
     private lateinit var binding: ActivityChatBinding
     private lateinit var name: String
     private lateinit var webSocket: WebSocket
-    private var SERVER_PATH = "https://echo.websocket.events/.ws"
+    private var SERVER_PATH =
+        "wss://s8293.blr1.piesocket.com/v3/1?api_key=GoHXyxyEaNrhLpxXbs2oFtog93M7OiS7Q2TTgPWf&notify_self=1"
     private val IMAGE_REQUEST_ID = 1
     private lateinit var messageAdapter: MessageAdapter
 
@@ -33,8 +34,8 @@ class ChatActivity : AppCompatActivity(), TextWatcher {
         binding = ActivityChatBinding.inflate(layoutInflater)
         setContentView(binding.root)
         name = intent.getStringExtra("name").toString()
+        initializeViews()
         initiateSocketConnection()
-
         binding.sendBtn.setOnClickListener {
             sendTextMessage()
         }
@@ -76,7 +77,6 @@ class ChatActivity : AppCompatActivity(), TextWatcher {
             this@ChatActivity.runOnUiThread {
                 Toast.makeText(this@ChatActivity, "Connection made", Toast.LENGTH_SHORT).show()
             }
-            initializeViews()
         }
 
         override fun onMessage(webSocket: WebSocket, text: String) {
@@ -86,9 +86,17 @@ class ChatActivity : AppCompatActivity(), TextWatcher {
                     val jsonObject = JSONObject(text)
                     jsonObject.put("isSent", false)
                     messageAdapter.addItem(jsonObject)
+                    Log.i("ChatActivity: MsgSucc", text)
                 } catch (e: Exception) {
-                    Log.e("Unable to show message", e.toString())
+                    Log.e("ChatActivity: MsgFail", e.toString())
                 }
+            }
+        }
+
+        override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
+            super.onFailure(webSocket, t, response)
+            this@ChatActivity.runOnUiThread {
+                Log.e("ChatActivity: Failure", "$t; Response: $response")
             }
         }
     }
