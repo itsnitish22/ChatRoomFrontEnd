@@ -14,8 +14,8 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var binding: ActivityChatBinding
     private lateinit var name: String
     private lateinit var webSocket: WebSocket
-    private var SERVER_PATH =
-        "wss://s8293.blr1.piesocket.com/v3/1?api_key=GoHXyxyEaNrhLpxXbs2oFtog93M7OiS7Q2TTgPWf&notify_self=1"
+//    private var SERVER_PATH = "wss://s8293.blr1.piesocket.com/v3/1?api_key=GoHXyxyEaNrhLpxXbs2oFtog93M7OiS7Q2TTgPWf&notify_self=1"
+    private var SERVER_PATH = "wss://chatappbackendws.azurewebsites.net/"
     private lateinit var messageAdapter: MessageAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,12 +61,14 @@ class ChatActivity : AppCompatActivity() {
 
         override fun onMessage(webSocket: WebSocket, text: String) {
             super.onMessage(webSocket, text)
+            Log.i("ChatActivity: MsgSucc", text)
             this@ChatActivity.runOnUiThread {
                 try {
-                    val jsonObject = JSONObject(text)
+                    val jsonObject =
+                        JSONObject(text.substring(text.indexOf("{"), text.lastIndexOf("}") + 1))
                     jsonObject.put("isSent", false)
                     messageAdapter.addItem(jsonObject)
-                    binding.recyclerView.smoothScrollToPosition(messageAdapter.getItemCount() - 1);
+                    binding.recyclerView.smoothScrollToPosition(messageAdapter.itemCount - 1)
                     Log.i("ChatActivity: MsgSucc", text)
                 } catch (e: Exception) {
                     Log.e("ChatActivity: MsgFail", e.toString())
