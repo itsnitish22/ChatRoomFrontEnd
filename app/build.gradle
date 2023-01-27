@@ -18,6 +18,12 @@ android {
         versionCode 1
         versionName "1.0"
 
+        Properties properties = new Properties()
+        properties.load(project.rootProject.file("local.properties").newDataInputStream())
+        buildConfigField "String", "PIESOCKET_API_KEY", "\"${properties.getProperty("PIESOCKET_API_KEY")}\""
+        buildConfigField "String", "PIESOCKET_CLUSTER_ID", "\"${properties.getProperty("PIESOCKET_CLUSTER_ID")}\""
+        buildConfigField "String", "PIESOCKET_ROOM_ID", "\"${properties.getProperty("PIESOCKET_ROOM_ID")}\""
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 

@@ -1,4 +1,4 @@
-package com.nitishsharma.chatapp
+package com.nitishsharma.chatapp.adapters
 
 import android.annotation.SuppressLint
 import android.util.Log
@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.nitishsharma.chatapp.R
 import org.json.JSONException
 import org.json.JSONObject
 

@@ -1,11 +1,13 @@
-package com.nitishsharma.chatapp
+package com.nitishsharma.chatapp.chats
 
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.nitishsharma.chatapp.adapters.MessageAdapter
 import com.nitishsharma.chatapp.databinding.ActivityChatBinding
+import com.nitishsharma.chatapp.utils.Utility
 import okhttp3.*
 import org.json.JSONObject
 
@@ -14,22 +16,26 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var binding: ActivityChatBinding
     private lateinit var name: String
     private lateinit var webSocket: WebSocket
-//    private var SERVER_PATH = "wss://s8293.blr1.piesocket.com/v3/1?api_key=GoHXyxyEaNrhLpxXbs2oFtog93M7OiS7Q2TTgPWf&notify_self=1"
-    private var SERVER_PATH = "wss://chatappbackendws.azurewebsites.net/"
     private lateinit var messageAdapter: MessageAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityChatBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        //getting user's name from intent
         name = intent.getStringExtra("name").toString()
-        initializeViews()
+
+        //initializing stuff
+        initializeRecyclerAdapter()
         initiateSocketConnection()
+
         binding.sendBtn.setOnClickListener {
             sendTextMessage()
         }
     }
 
+    //sending text msg to socket server
     private fun sendTextMessage() {
         val jsonObject = JSONObject()
         try {
@@ -38,19 +44,33 @@ class ChatActivity : AppCompatActivity() {
             webSocket.send(jsonObject.toString())
             jsonObject.put("isSent", true)
             messageAdapter.addItem(jsonObject)
-            binding.recyclerView.smoothScrollToPosition(messageAdapter.getItemCount() - 1);
+            binding.recyclerView.smoothScrollToPosition(messageAdapter.itemCount - 1);
             resetEditMessage()
         } catch (e: Exception) {
             Log.e("Msg Delivery Fail ", e.toString())
         }
     }
 
+    //initiating socket connection
     private fun initiateSocketConnection() {
         val client = OkHttpClient()
-        val request: Request = Request.Builder().url(SERVER_PATH).build()
+        val request: Request = Request.Builder().url(Utility.SERVER_PATH).build()
         webSocket = client.newWebSocket(request, SocketListener())
     }
 
+    //initializing recycler adapter
+    private fun initializeRecyclerAdapter() {
+        messageAdapter = MessageAdapter(layoutInflater)
+        binding.recyclerView.adapter = messageAdapter
+        binding.recyclerView.layoutManager = LinearLayoutManager(this)
+    }
+
+    //resetting the edit text on msg sent
+    private fun resetEditMessage() {
+        binding.messageEdit.setText("")
+    }
+
+    //socket listener stuff
     inner class SocketListener : WebSocketListener() {
         override fun onOpen(webSocket: WebSocket, response: Response) {
             super.onOpen(webSocket, response)
@@ -84,13 +104,4 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-    private fun initializeViews() {
-        messageAdapter = MessageAdapter(layoutInflater)
-        binding.recyclerView.adapter = messageAdapter
-        binding.recyclerView.layoutManager = LinearLayoutManager(this)
-    }
-
-    private fun resetEditMessage() {
-        binding.messageEdit.setText("")
-    }
 }

@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import com.nitishsharma.chatapp.chats.ChatActivity
 import com.nitishsharma.chatapp.databinding.ActivityMainBinding
 
 
@@ -17,6 +18,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        //asking permission for media (not useful currently)
         if (ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.READ_EXTERNAL_STORAGE
@@ -27,6 +29,7 @@ class MainActivity : AppCompatActivity() {
             10
         )
 
+        //enter room -> chat room
         binding.enterRoomBtn.setOnClickListener {
             if (binding.nameEditText.text.toString().isEmpty())
                 Toast.makeText(this, "Enter name first", Toast.LENGTH_LONG).show()
