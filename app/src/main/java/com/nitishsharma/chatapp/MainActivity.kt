@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity() {
             10
         )
 
-        //enter room -> chat room
+        //enter room button -> chat room
         binding.enterRoomBtn.setOnClickListener {
             if (binding.nameEditText.text.toString().isEmpty())
                 Toast.makeText(this, "Enter name first", Toast.LENGTH_LONG).show()
