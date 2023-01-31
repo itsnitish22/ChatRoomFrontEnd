@@ -5,7 +5,6 @@ import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.nitishsharma.chatapp.adapters.MessageAdapter
 import com.nitishsharma.chatapp.databinding.ActivityChatBinding
 import com.nitishsharma.chatapp.utils.Utility
 import okhttp3.*

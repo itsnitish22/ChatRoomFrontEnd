@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".onboarding.RegisterFragment">
+
+    <EditText
+        android:id="@+id/nameEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:background="@drawable/edit_text_design"
+        android:hint="Enter your name"
+        android:padding="10dp"
+        android:textSize="16sp" />
+
+    <Button
+        android:id="@+id/enterRoomBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/nameEditText"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:background="@color/cardview_dark_background"
+        android:text="Enter room"
+        android:textColor="#ffffff" />
+
+</RelativeLayout>

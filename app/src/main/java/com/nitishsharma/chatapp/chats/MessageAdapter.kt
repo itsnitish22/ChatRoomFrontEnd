@@ -1,4 +1,4 @@
-package com.nitishsharma.chatapp.adapters
+package com.nitishsharma.chatapp.chats
 
 import android.annotation.SuppressLint
 import android.util.Log

@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "467369143362",
+    "project_id": "chatroom-b75bb",
+    "storage_bucket": "chatroom-b75bb.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:467369143362:android:c07d876eb3c1a11e4411db",
+        "android_client_info": {
+          "package_name": "com.nitishsharma.chatapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "467369143362-eiqiduvklv7h1vid9cqdfsmtbogiem46.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.nitishsharma.chatapp",
+            "certificate_hash": "407298f9d1544f448d9184497564725a3e3af956"
+          }
+        },
+        {
+          "client_id": "467369143362-3b46fmfeqc7k347rmvf08406ne5vhng9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyChvXeNJ5Ms-XHYc78JOcVrY5OICiYhER4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "467369143362-3b46fmfeqc7k347rmvf08406ne5vhng9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
