@@ -21,7 +21,6 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.nitishsharma.chatapp.R
 import com.nitishsharma.chatapp.databinding.FragmentOnboardingBinding
 
-
 class OnboardingFragment : Fragment() {
     private lateinit var auth: FirebaseAuth
     private lateinit var binding: FragmentOnboardingBinding

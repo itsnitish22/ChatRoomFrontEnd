@@ -21,26 +21,26 @@ class SplashFragment : Fragment(R.layout.fragment_splash) {
         binding = FragmentSplashBinding.inflate(inflater, container, false)
 
         if (checkLoggedInStatus())
-            navigateToRegisterFragment()
-        else //change to login
-            navigateToLoginFragment()
+            navigateToHomeScreen()
+        else //change to home
+            navigateToOnboardingScreen()
 
         return binding.root
 
     }
 
-    private fun navigateToLoginFragment() {
+    private fun navigateToOnboardingScreen() {
         Handler().postDelayed({
             view?.post {
-                findNavController().navigate(SplashFragmentDirections.actionSplashFragmentToRegisterFragment())
+                findNavController().navigate(SplashFragmentDirections.actionSplashFragmentToOnboardingFragment())
             }
         }, 3000)
     }
 
-    private fun navigateToRegisterFragment() {
+    private fun navigateToHomeScreen() {
         Handler().postDelayed({
             view?.post {
-                findNavController().navigate(SplashFragmentDirections.actionSplashFragmentToRegisterFragment())
+                findNavController().navigate(SplashFragmentDirections.actionSplashFragmentToOnboardingFragment())
             }
         }, 3000)
     }
