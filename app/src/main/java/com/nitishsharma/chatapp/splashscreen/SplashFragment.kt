@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.nitishsharma.chatapp.R
 import com.nitishsharma.chatapp.databinding.FragmentSplashBinding
 
@@ -20,34 +21,40 @@ class SplashFragment : Fragment(R.layout.fragment_splash) {
     ): View? {
         binding = FragmentSplashBinding.inflate(inflater, container, false)
 
-        if (checkLoggedInStatus())
-            navigateToRegisterFragment()
-        else //change to login
-            navigateToLoginFragment()
+        val userInfo = checkLoggedInStatus()
+        if (userInfo != null)
+            navigateToHomeScreen(userInfo)
+        else
+            navigateToOnboardingScreen()
 
         return binding.root
 
     }
 
-    private fun navigateToLoginFragment() {
+    private fun navigateToOnboardingScreen() {
         Handler().postDelayed({
             view?.post {
-                findNavController().navigate(SplashFragmentDirections.actionSplashFragmentToRegisterFragment())
+                findNavController().navigate(SplashFragmentDirections.actionSplashFragmentToOnboardingFragment())
             }
         }, 3000)
     }
 
-    private fun navigateToRegisterFragment() {
+    private fun navigateToHomeScreen(userInfo: FirebaseUser) {
         Handler().postDelayed({
             view?.post {
-                findNavController().navigate(SplashFragmentDirections.actionSplashFragmentToRegisterFragment())
+                findNavController().navigate(
+                    SplashFragmentDirections.actionSplashFragmentToHomeFragment(
+                        userInfo
+                    )
+                )
             }
         }, 3000)
     }
 
-    private fun checkLoggedInStatus(): Boolean {
-        if (FirebaseAuth.getInstance().currentUser != null)
-            return true
-        return false
+    private fun checkLoggedInStatus(): FirebaseUser? {
+        FirebaseAuth.getInstance().currentUser?.let {
+            return it
+        }
+        return null
     }
 }
