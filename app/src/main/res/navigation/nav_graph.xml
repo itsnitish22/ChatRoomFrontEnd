@@ -47,5 +47,12 @@
             android:defaultValue="@null"
             app:argType="com.google.firebase.auth.FirebaseUser"
             app:nullable="true" />
+        <action
+            android:id="@+id/action_homeFragment_to_onboardingFragment"
+            app:destination="@id/onboardingFragment"
+            app:enterAnim="@anim/slide_in"
+            app:exitAnim="@anim/fade_out"
+            app:popUpTo="@+id/homeFragment"
+            app:popUpToInclusive="true" />
     </fragment>
 </navigation>
