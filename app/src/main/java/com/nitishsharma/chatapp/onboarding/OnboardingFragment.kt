@@ -10,6 +10,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -33,9 +34,13 @@ class OnboardingFragment : Fragment() {
         binding = FragmentOnboardingBinding.inflate(inflater, container, false)
 
         initializeInstances() //initialize instances
+        FirebaseAuth.getInstance().currentUser?.let {
+            Log.i("Onboarding Current", it.displayName.toString())
+        }
 
         //on click signInWithGoogle
         binding.signInWithGoogle.setOnClickListener {
+            binding.progressBar.visibility = View.VISIBLE
             authenticateWithGoogle()
         }
 
@@ -57,13 +62,11 @@ class OnboardingFragment : Fragment() {
             .build()
 
         googleSignInClient = GoogleSignIn.getClient(requireContext(), gso)
-        googleSignInClient.revokeAccess()
     }
 
     //authenticating with google
     private fun authenticateWithGoogle() {
-        val signInIntent = googleSignInClient.signInIntent
-        launcher.launch(signInIntent)
+        launcher.launch(googleSignInClient.signInIntent)
     }
 
     //launcher dealing w results
@@ -79,11 +82,9 @@ class OnboardingFragment : Fragment() {
     private fun handleResults(task: Task<GoogleSignInAccount>) {
         if (task.isSuccessful) {
             val account: GoogleSignInAccount? = task.result
-            if (account != null) {
-                updateUI(account)
+            account?.let {
+                updateUI(it)
             }
-        } else {
-            Log.i("OnboardingFrag", "Failed login task")
         }
     }
 
@@ -92,7 +93,14 @@ class OnboardingFragment : Fragment() {
         val credential = GoogleAuthProvider.getCredential(account.idToken, null)
         auth.signInWithCredential(credential).addOnCompleteListener {
             if (it.isSuccessful) {
-                Toast.makeText(requireContext(), "Success", Toast.LENGTH_SHORT).show()
+                binding.progressBar.visibility = View.GONE
+                findNavController().navigate(
+                    OnboardingFragmentDirections.actionOnboardingFragmentToHomeFragment(
+                        firebaseUser = auth.currentUser
+                    )
+                )
+            } else {
+                Toast.makeText(requireContext(), "Some error occurred", Toast.LENGTH_SHORT).show()
             }
         }
     }
