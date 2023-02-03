@@ -3,6 +3,7 @@ package com.nitishsharma.chatapp.home
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -17,6 +18,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.nitishsharma.chatapp.MainActivity
 import com.nitishsharma.chatapp.chats.ChatActivity
 import com.nitishsharma.chatapp.databinding.FragmentHomeBinding
+import com.nitishsharma.chatapp.splashscreen.SplashFragmentDirections
 import de.hdodenhof.circleimageview.CircleImageView
 import io.socket.client.Socket
 import org.json.JSONObject
@@ -74,7 +76,9 @@ class HomeFragment : Fragment() {
         intent.putExtra("name", firebaseInstance.currentUser?.displayName.toString())
         intent.putExtra("roomID", roomId.toString())
         Log.i("ChatAct1", "${firebaseInstance.currentUser?.displayName}, $roomId")
-        startActivity(intent)
+        Handler().postDelayed({
+            startActivity(intent)
+        }, 3000)
     }
 
     //logging out

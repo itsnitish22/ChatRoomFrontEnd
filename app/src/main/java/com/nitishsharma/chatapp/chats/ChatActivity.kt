@@ -39,9 +39,21 @@ class ChatActivity : AppCompatActivity() {
             if (socketIOInstance?.connected() == true && binding.messageEdit.text.toString()
                     .isNotEmpty()
             ) {
-                sendTextMessage()
+                sendTextMessageEvent()
             }
         }
+    }
+
+    //sending leave room event
+    override fun onDestroy() {
+        super.onDestroy()
+        sendUserLeaveRoomEvent()
+    }
+
+    //leave room event function
+    private fun sendUserLeaveRoomEvent() {
+        val sendingData = jsonFromData()
+        chatActivityViewModel.sendUserLeaveRoomEvent(socketIOInstance, sendingData)
     }
 
     //initializing observers
@@ -59,9 +71,9 @@ class ChatActivity : AppCompatActivity() {
     }
 
     //fun to send text message
-    private fun sendTextMessage() {
+    private fun sendTextMessageEvent() {
         val sendingData = jsonFromData()
-        chatActivityViewModel.sendTextMessage(socketIOInstance, sendingData)
+        chatActivityViewModel.sendTextMessageEvent(socketIOInstance, sendingData)
         sendDataToAdapter(sendingData)
         resetEditMessage()
     }
