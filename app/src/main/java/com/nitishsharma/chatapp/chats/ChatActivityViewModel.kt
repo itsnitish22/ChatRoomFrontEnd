@@ -44,7 +44,7 @@ class ChatActivityViewModel : ViewModel() {
     }
 
 
-    //socket emmitters
+    //socket emitters
     /**
      * below are all [Socket] emitters
      * */
