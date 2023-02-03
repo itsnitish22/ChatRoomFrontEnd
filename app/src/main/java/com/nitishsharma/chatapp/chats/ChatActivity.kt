@@ -1,60 +1,75 @@
 package com.nitishsharma.chatapp.chats
 
 import android.os.Bundle
-import android.util.Log
-import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.nitishsharma.chatapp.application.FirstChat
 import com.nitishsharma.chatapp.databinding.ActivityChatBinding
-import com.nitishsharma.chatapp.utils.Utility
-import okhttp3.*
+import io.socket.client.Socket
 import org.json.JSONObject
 
 
 class ChatActivity : AppCompatActivity() {
     private lateinit var binding: ActivityChatBinding
     private lateinit var name: String
-    private lateinit var webSocket: WebSocket
+    private lateinit var roomID: String
     private lateinit var messageAdapter: MessageAdapter
+    private val chatActivityViewModel: ChatActivityViewModel by viewModels()
+    var socketIOInstance: Socket? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityChatBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        //getting user's name from intent
+        //initializing global variables
+        socketIOInstance = (application as FirstChat).socketIO
         name = intent.getStringExtra("name").toString()
+        roomID = intent.getStringExtra("roomID").toString()
 
         //initializing stuff
         initializeRecyclerAdapter()
-        initiateSocketConnection()
+        initializeSocketListeners()
+        initializeObservers()
 
+        //click on send button
         binding.sendBtn.setOnClickListener {
-            sendTextMessage()
+            if (socketIOInstance?.connected() == true && binding.messageEdit.text.toString()
+                    .isNotEmpty()
+            ) {
+                sendTextMessage()
+            }
         }
     }
 
-    //sending text msg to socket server
+    //initializing observers
+    private fun initializeObservers() {
+        chatActivityViewModel.receivedData.observe(this, Observer { receivedData ->
+            receivedData?.let {
+                sendDataToAdapter(receivedData)
+            }
+        })
+    }
+
+    //initializing socket listeners
+    private fun initializeSocketListeners() {
+        chatActivityViewModel.initializeSocketListeners(socketIOInstance)
+    }
+
+    //fun to send text message
     private fun sendTextMessage() {
-        val jsonObject = JSONObject()
-        try {
-            jsonObject.put("name", name)
-            jsonObject.put("message", binding.messageEdit.text.toString())
-            webSocket.send(jsonObject.toString())
-            jsonObject.put("isSent", true)
-            messageAdapter.addItem(jsonObject)
-            binding.recyclerView.smoothScrollToPosition(messageAdapter.itemCount - 1);
-            resetEditMessage()
-        } catch (e: Exception) {
-            Log.e("Msg Delivery Fail ", e.toString())
-        }
+        val sendingData = jsonFromData()
+        chatActivityViewModel.sendTextMessage(socketIOInstance, sendingData)
+        sendDataToAdapter(sendingData)
+        resetEditMessage()
     }
 
-    //initiating socket connection
-    private fun initiateSocketConnection() {
-        val client = OkHttpClient()
-        val request: Request = Request.Builder().url(Utility.SERVER_PATH).build()
-        webSocket = client.newWebSocket(request, SocketListener())
+    //sending data to adapter
+    private fun sendDataToAdapter(dataToAdapter: JSONObject) {
+        messageAdapter.addItem(dataToAdapter)
+        binding.recyclerView.smoothScrollToPosition(messageAdapter.itemCount - 1)
     }
 
     //initializing recycler adapter
@@ -69,38 +84,14 @@ class ChatActivity : AppCompatActivity() {
         binding.messageEdit.setText("")
     }
 
-    //socket listener stuff
-    inner class SocketListener : WebSocketListener() {
-        override fun onOpen(webSocket: WebSocket, response: Response) {
-            super.onOpen(webSocket, response)
-            this@ChatActivity.runOnUiThread {
-                Toast.makeText(this@ChatActivity, "Connection made", Toast.LENGTH_SHORT).show()
-            }
-        }
+    //convert json from the data (RAW)
+    private fun jsonFromData(): JSONObject {
+        val jsonData = JSONObject()
+        jsonData.put("name", name)
+        jsonData.put("message", binding.messageEdit.text.toString())
+        jsonData.put("roomid", roomID)
+        jsonData.put("isSent", true)
 
-        override fun onMessage(webSocket: WebSocket, text: String) {
-            super.onMessage(webSocket, text)
-            Log.i("ChatActivity: MsgSucc", text)
-            this@ChatActivity.runOnUiThread {
-                try {
-                    val jsonObject =
-                        JSONObject(text.substring(text.indexOf("{"), text.lastIndexOf("}") + 1))
-                    jsonObject.put("isSent", false)
-                    messageAdapter.addItem(jsonObject)
-                    binding.recyclerView.smoothScrollToPosition(messageAdapter.itemCount - 1)
-                    Log.i("ChatActivity: MsgSucc", text)
-                } catch (e: Exception) {
-                    Log.e("ChatActivity: MsgFail", e.toString())
-                }
-            }
-        }
-
-        override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
-            super.onFailure(webSocket, t, response)
-            this@ChatActivity.runOnUiThread {
-                Log.e("ChatActivity: Failure", "$t; Response: $response")
-            }
-        }
+        return jsonData
     }
-
 }
