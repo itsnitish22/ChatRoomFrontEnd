@@ -2,7 +2,6 @@ package com.nitishsharma.chatapp.onboarding
 
 import android.app.Activity
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -34,9 +33,6 @@ class OnboardingFragment : Fragment() {
         binding = FragmentOnboardingBinding.inflate(inflater, container, false)
 
         initializeInstances() //initialize instances
-        FirebaseAuth.getInstance().currentUser?.let {
-            Log.i("Onboarding Current", it.displayName.toString())
-        }
 
         //on click signInWithGoogle
         binding.signInWithGoogle.setOnClickListener {
@@ -46,6 +42,12 @@ class OnboardingFragment : Fragment() {
 
         return binding.root
     }
+
+
+    /**
+    this is [google] authentication/ sign in
+    no need to touch anything here
+     */
 
     //initializing instances
     private fun initializeInstances() {
