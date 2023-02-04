@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:backgroundTint="#D6D6D6">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="2dp">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/enterRoom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:hint="Enter room id">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/enterRoomEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <Button
+            android:id="@+id/joinRoomButton"
+            android:layout_width="wrap_content"
+            android:layout_height="60dp"
+            android:layout_below="@id/enterRoom"
+            android:layout_centerHorizontal="true"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:backgroundTint="#1bb3f5"
+            android:fontFamily="@font/sharp_grotesk_medium20"
+            android:text="Join room"
+            android:textAllCaps="false"
+            app:cornerRadius="10dp" />
+
+    </RelativeLayout>
+
+</androidx.cardview.widget.CardView>
