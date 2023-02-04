@@ -1,6 +1,5 @@
 package com.nitishsharma.chatapp.chats
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -16,11 +15,19 @@ class ChatActivityViewModel : ViewModel() {
     val receivedData: LiveData<JSONObject?>
         get() = _receivedData
 
+    private val _roomError: MutableLiveData<String?> = MutableLiveData()
+    val roomError: LiveData<String?>
+        get() = _roomError
+
+    private val _roomEvent: MutableLiveData<String?> = MutableLiveData()
+    val roomEvent: LiveData<String?>
+        get() = _roomEvent
+
 
     //socket listeners
     /**
-    * below are all [Socket] listeners
-    * */
+     * below are all [Socket] listeners
+     * */
 
     fun initializeSocketListeners(socketIOInstance: Socket?) {
         socketIOInstance?.on("chat-message", onNewChatMessageEvent)
@@ -36,11 +43,13 @@ class ChatActivityViewModel : ViewModel() {
         }
 
     private val onRoomError = Emitter.Listener { args ->
-        Log.i("ChatActVM E", JSONArray(Gson().toJson(args))[0].toString())
+        _roomError.postValue(null)
+        _roomError.postValue(JSONArray(Gson().toJson(args))[0].toString())
     }
 
     private val onRoomEvent = Emitter.Listener { args ->
-        Log.i("ChatActVM R", JSONArray(Gson().toJson(args))[0].toString())
+        _roomEvent.postValue(null)
+        _roomEvent.postValue(JSONArray(Gson().toJson(args))[0].toString())
     }
 
 
@@ -53,7 +62,7 @@ class ChatActivityViewModel : ViewModel() {
         socketIOInstance?.emit("chat-message", dataToSend)
     }
 
-    fun sendUserLeaveRoomEvent(socketIOInstance: Socket?, dataToSend: JSONObject){
+    fun sendUserLeaveRoomEvent(socketIOInstance: Socket?, dataToSend: JSONObject) {
         socketIOInstance?.emit("leave-room", dataToSend)
     }
 

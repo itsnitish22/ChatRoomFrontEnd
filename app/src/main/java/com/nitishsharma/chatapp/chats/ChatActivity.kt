@@ -1,6 +1,7 @@
 package com.nitishsharma.chatapp.chats
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
@@ -62,6 +63,14 @@ class ChatActivity : AppCompatActivity() {
             receivedData?.let {
                 sendDataToAdapter(receivedData)
             }
+        })
+
+        chatActivityViewModel.roomEvent.observe(this, Observer { roomEvent ->
+            Toast.makeText(this, roomEvent, Toast.LENGTH_SHORT).show()
+        })
+
+        chatActivityViewModel.roomError.observe(this, Observer { roomError ->
+            Toast.makeText(this, roomError, Toast.LENGTH_SHORT).show()
         })
     }
 
