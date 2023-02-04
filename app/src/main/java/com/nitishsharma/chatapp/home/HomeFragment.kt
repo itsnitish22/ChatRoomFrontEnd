@@ -18,7 +18,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.nitishsharma.chatapp.MainActivity
 import com.nitishsharma.chatapp.chats.ChatActivity
 import com.nitishsharma.chatapp.databinding.FragmentHomeBinding
-import com.nitishsharma.chatapp.splashscreen.SplashFragmentDirections
 import de.hdodenhof.circleimageview.CircleImageView
 import io.socket.client.Socket
 import org.json.JSONObject
@@ -43,15 +42,15 @@ class HomeFragment : Fragment() {
         initViews()
 
         //on click profile pic
-        binding.profilePic.setOnClickListener {
-            logOutAccount()
-        }
-
-        binding.joinRoom.setOnClickListener {
-            val roomID = createRoom(socketIOInstance)
-            joinRoom(roomID)
-            startChatActivity(roomID)
-        }
+//        binding.profilePic.setOnClickListener {
+//            logOutAccount()
+//        }
+//
+//        binding.joinRoom.setOnClickListener {
+//            val roomID = createRoom(socketIOInstance)
+//            joinRoom(roomID)
+//            startChatActivity(roomID)
+//        }
 
         return binding.root
     }
