@@ -14,8 +14,9 @@ import org.json.JSONObject
 
 class ChatActivity : AppCompatActivity() {
     private lateinit var binding: ActivityChatBinding
-    private lateinit var name: String
+    private lateinit var userName: String
     private lateinit var roomID: String
+    private lateinit var roomName: String
     private lateinit var messageAdapter: MessageAdapter
     private val chatActivityViewModel: ChatActivityViewModel by viewModels()
     var socketIOInstance: Socket? = null
@@ -27,10 +28,12 @@ class ChatActivity : AppCompatActivity() {
 
         //initializing global variables
         socketIOInstance = (application as FirstChat).socketIO
-        name = intent.getStringExtra("name").toString()
+        userName = intent.getStringExtra("userName").toString()
         roomID = intent.getStringExtra("roomID").toString()
+        roomName = intent.getStringExtra("roomName").toString()
 
         //initializing stuff
+        initViews()
         initializeRecyclerAdapter()
         initializeSocketListeners()
         initializeObservers()
@@ -43,6 +46,11 @@ class ChatActivity : AppCompatActivity() {
                 sendTextMessageEvent()
             }
         }
+    }
+
+    private fun initViews() {
+        binding.roomNameTv.text = roomName
+        binding.roomIdTv.text = roomID
     }
 
     //sending leave room event
@@ -97,7 +105,10 @@ class ChatActivity : AppCompatActivity() {
     private fun initializeRecyclerAdapter() {
         messageAdapter = MessageAdapter(layoutInflater)
         binding.recyclerView.adapter = messageAdapter
-        binding.recyclerView.layoutManager = LinearLayoutManager(this)
+        val layoutManager = LinearLayoutManager(this)
+        layoutManager.stackFromEnd = true
+        binding.recyclerView.layoutManager = layoutManager
+
     }
 
     //resetting the edit text on msg sent
@@ -108,9 +119,9 @@ class ChatActivity : AppCompatActivity() {
     //convert json from the data (RAW)
     private fun jsonFromData(): JSONObject {
         val jsonData = JSONObject()
-        jsonData.put("name", name)
+        jsonData.put("userName", userName)
         jsonData.put("message", binding.messageEdit.text.toString())
-        jsonData.put("roomid", roomID)
+        jsonData.put("roomId", roomID)
         jsonData.put("isSent", true)
 
         return jsonData

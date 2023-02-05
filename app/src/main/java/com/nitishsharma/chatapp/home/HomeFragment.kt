@@ -13,11 +13,13 @@ import android.widget.Button
 import android.widget.EditText
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.FirebaseAuth
 import com.nitishsharma.chatapp.MainActivity
 import com.nitishsharma.chatapp.R
@@ -46,6 +48,8 @@ class HomeFragment : Fragment() {
 
         //initializing the views
         initViews()
+        initializeSocketListeners()
+        initializeObservers()
 
         //on click profile pic
         binding.profilePic.setOnClickListener {
@@ -53,30 +57,59 @@ class HomeFragment : Fragment() {
         }
 
         binding.createRoomButton.setOnClickListener {
-            startChatActivity(createAndJoinRoom())
+            showBottomSheet("Create room", "Room's nick name", 1)
         }
 
         binding.joinRoomButton.setOnClickListener {
-            showJoinRoomBottomSheet()
+            showBottomSheet("Join room", "Enter room id", 2)
         }
 
         return binding.root
     }
 
-    private fun showJoinRoomBottomSheet() {
+    private fun initializeObservers() {
+        homeFragmentVM.receivedRoomName.observe(requireActivity(), Observer { receivedName ->
+            Log.i("HomeFrag", receivedName.toString())
+            roomId?.let {
+                startChatActivity(it, receivedName.toString())
+            }
+        })
+    }
+
+    private fun initializeSocketListeners() {
+        homeFragmentVM.initializeSocketListeners(socketIOInstance)
+    }
+
+    private fun showBottomSheet(buttonText: String, editTextHint: String, eventType: Int) {
         val view = layoutInflater.inflate(R.layout.join_room_bottom_sheet, null)
         bottomSheetDialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
 
-        val joinButton = view.findViewById<Button>(R.id.joinRoomButton)
-        val roomIdEditText = view.findViewById<EditText>(R.id.enterRoomEditText)
-        joinButton.setOnClickListener {
-            if (roomIdEditText.text.toString().isNotEmpty()) {
-                roomId = roomIdEditText.text.toString()
-                bottomSheetDialog.dismiss()
-                roomId?.let {
-                    startChatActivity(joinChatRoom(it))
+        val button = view.findViewById<Button>(R.id.joinRoomButton)
+        val enterEditText = view.findViewById<EditText>(R.id.enterRoomEditText)
+        val editText = view.findViewById<TextInputLayout>(R.id.enterRoom)
+
+        button.text = buttonText
+        editText.hint = editTextHint
+
+
+        if (eventType == 1) {
+            button.setOnClickListener {
+                if (enterEditText.text.toString().isNotEmpty()) {
+                    bottomSheetDialog.dismiss()
+                    roomId = createAndJoinRoom(enterEditText.text.toString())
                 }
             }
+        } else {
+            button.setOnClickListener {
+                if (enterEditText.text.toString().isNotEmpty()) {
+                    roomId = enterEditText.text.toString()
+                    bottomSheetDialog.dismiss()
+                    roomId?.let {
+                        joinChatRoom(it)
+                    }
+                }
+            }
+
         }
 
         bottomSheetDialog.setCancelable(true)
@@ -88,17 +121,18 @@ class HomeFragment : Fragment() {
         return homeFragmentVM.joinRoom(socketIOInstance, roomId, firebaseInstance)
     }
 
-    private fun createAndJoinRoom(): String {
-        return homeFragmentVM.createAndJoinRoom(socketIOInstance, firebaseInstance)
+    private fun createAndJoinRoom(roomName: String): String {
+        return homeFragmentVM.createAndJoinRoom(socketIOInstance, firebaseInstance, roomName)
     }
 
 
     //starting chat activity
-    private fun startChatActivity(roomId: String) {
+    private fun startChatActivity(roomId: String, roomName: String) {
         val intent = Intent(activity, ChatActivity::class.java)
-        intent.putExtra("name", firebaseInstance.currentUser?.displayName.toString())
+        intent.putExtra("userName", firebaseInstance.currentUser?.displayName.toString())
         intent.putExtra("roomID", roomId)
-        Log.i("ChatAct1", "${firebaseInstance.currentUser?.displayName}, $roomId")
+        intent.putExtra("roomName", roomName)
+        Log.i("ChatAct1", "${firebaseInstance.currentUser?.displayName}, $roomId, $roomName")
         Handler().postDelayed({
             startActivity(intent)
         }, 3000)
