@@ -13,6 +13,7 @@ import android.widget.Button
 import android.widget.EditText
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
@@ -47,6 +48,8 @@ class HomeFragment : Fragment() {
 
         //initializing the views
         initViews()
+        initializeSocketListeners()
+        initializeObservers()
 
         //on click profile pic
         binding.profilePic.setOnClickListener {
@@ -54,17 +57,30 @@ class HomeFragment : Fragment() {
         }
 
         binding.createRoomButton.setOnClickListener {
-            showJoinRoomBottomSheet("Create room", "Room's nick name", 1)
+            showBottomSheet("Create room", "Room's nick name", 1)
         }
 
         binding.joinRoomButton.setOnClickListener {
-            showJoinRoomBottomSheet("Join room", "Enter room id", 2)
+            showBottomSheet("Join room", "Enter room id", 2)
         }
 
         return binding.root
     }
 
-    private fun showJoinRoomBottomSheet(buttonText: String, editTextHint: String, eventType: Int) {
+    private fun initializeObservers() {
+        homeFragmentVM.receivedRoomName.observe(requireActivity(), Observer { receivedName ->
+            Log.i("HomeFrag", receivedName.toString())
+            roomId?.let {
+                startChatActivity(it, receivedName.toString())
+            }
+        })
+    }
+
+    private fun initializeSocketListeners() {
+        homeFragmentVM.initializeSocketListeners(socketIOInstance)
+    }
+
+    private fun showBottomSheet(buttonText: String, editTextHint: String, eventType: Int) {
         val view = layoutInflater.inflate(R.layout.join_room_bottom_sheet, null)
         bottomSheetDialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
 
@@ -80,7 +96,7 @@ class HomeFragment : Fragment() {
             button.setOnClickListener {
                 if (enterEditText.text.toString().isNotEmpty()) {
                     bottomSheetDialog.dismiss()
-                    startChatActivity(createAndJoinRoom(enterEditText.text.toString()))
+                    roomId = createAndJoinRoom(enterEditText.text.toString())
                 }
             }
         } else {
@@ -89,7 +105,7 @@ class HomeFragment : Fragment() {
                     roomId = enterEditText.text.toString()
                     bottomSheetDialog.dismiss()
                     roomId?.let {
-                        startChatActivity(joinChatRoom(it))
+                        joinChatRoom(it)
                     }
                 }
             }
@@ -111,11 +127,12 @@ class HomeFragment : Fragment() {
 
 
     //starting chat activity
-    private fun startChatActivity(roomId: String) {
+    private fun startChatActivity(roomId: String, roomName: String) {
         val intent = Intent(activity, ChatActivity::class.java)
         intent.putExtra("userName", firebaseInstance.currentUser?.displayName.toString())
         intent.putExtra("roomID", roomId)
-        Log.i("ChatAct1", "${firebaseInstance.currentUser?.displayName}, $roomId")
+        intent.putExtra("roomName", roomName)
+        Log.i("ChatAct1", "${firebaseInstance.currentUser?.displayName}, $roomId, $roomName")
         Handler().postDelayed({
             startActivity(intent)
         }, 3000)

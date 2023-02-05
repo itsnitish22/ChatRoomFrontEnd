@@ -1,12 +1,20 @@
 package com.nitishsharma.chatapp.home
 
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
+import com.google.gson.Gson
 import io.socket.client.Socket
+import io.socket.emitter.Emitter
+import org.json.JSONArray
 import org.json.JSONObject
 import java.util.*
 
 class HomeFragmentViewModel : ViewModel() {
+    private val _receivedRoomName: MutableLiveData<String?> = MutableLiveData()
+    val receivedRoomName: MutableLiveData<String?>
+        get() = _receivedRoomName
+
 
     fun createAndJoinRoom(
         socketIOInstance: Socket?,
@@ -50,4 +58,13 @@ class HomeFragmentViewModel : ViewModel() {
     private fun generateUUID(): String {
         return UUID.randomUUID().toString()
     }
+
+    fun initializeSocketListeners(socketIOInstance: Socket?) {
+        socketIOInstance?.on("join-room-name", onReceivedRoomName)
+    }
+
+    private val onReceivedRoomName =
+        Emitter.Listener { args ->
+            _receivedRoomName.postValue(JSONArray(Gson().toJson(args))[0].toString())
+        }
 }

@@ -16,6 +16,7 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var binding: ActivityChatBinding
     private lateinit var userName: String
     private lateinit var roomID: String
+    private lateinit var roomName: String
     private lateinit var messageAdapter: MessageAdapter
     private val chatActivityViewModel: ChatActivityViewModel by viewModels()
     var socketIOInstance: Socket? = null
@@ -29,8 +30,10 @@ class ChatActivity : AppCompatActivity() {
         socketIOInstance = (application as FirstChat).socketIO
         userName = intent.getStringExtra("userName").toString()
         roomID = intent.getStringExtra("roomID").toString()
+        roomName = intent.getStringExtra("roomName").toString()
 
         //initializing stuff
+        initViews()
         initializeRecyclerAdapter()
         initializeSocketListeners()
         initializeObservers()
@@ -43,6 +46,11 @@ class ChatActivity : AppCompatActivity() {
                 sendTextMessageEvent()
             }
         }
+    }
+
+    private fun initViews() {
+        binding.roomNameTv.text = roomName
+        binding.roomIdTv.text = roomID
     }
 
     //sending leave room event
@@ -97,7 +105,10 @@ class ChatActivity : AppCompatActivity() {
     private fun initializeRecyclerAdapter() {
         messageAdapter = MessageAdapter(layoutInflater)
         binding.recyclerView.adapter = messageAdapter
-        binding.recyclerView.layoutManager = LinearLayoutManager(this)
+        val layoutManager = LinearLayoutManager(this)
+        layoutManager.stackFromEnd = true
+        binding.recyclerView.layoutManager = layoutManager
+
     }
 
     //resetting the edit text on msg sent
