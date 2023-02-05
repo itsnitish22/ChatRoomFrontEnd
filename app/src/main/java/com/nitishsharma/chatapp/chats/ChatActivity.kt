@@ -14,7 +14,7 @@ import org.json.JSONObject
 
 class ChatActivity : AppCompatActivity() {
     private lateinit var binding: ActivityChatBinding
-    private lateinit var name: String
+    private lateinit var userName: String
     private lateinit var roomID: String
     private lateinit var messageAdapter: MessageAdapter
     private val chatActivityViewModel: ChatActivityViewModel by viewModels()
@@ -27,7 +27,7 @@ class ChatActivity : AppCompatActivity() {
 
         //initializing global variables
         socketIOInstance = (application as FirstChat).socketIO
-        name = intent.getStringExtra("name").toString()
+        userName = intent.getStringExtra("userName").toString()
         roomID = intent.getStringExtra("roomID").toString()
 
         //initializing stuff
@@ -108,9 +108,9 @@ class ChatActivity : AppCompatActivity() {
     //convert json from the data (RAW)
     private fun jsonFromData(): JSONObject {
         val jsonData = JSONObject()
-        jsonData.put("name", name)
+        jsonData.put("userName", userName)
         jsonData.put("message", binding.messageEdit.text.toString())
-        jsonData.put("roomid", roomID)
+        jsonData.put("roomId", roomID)
         jsonData.put("isSent", true)
 
         return jsonData

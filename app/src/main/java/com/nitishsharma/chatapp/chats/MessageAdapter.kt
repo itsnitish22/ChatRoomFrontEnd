@@ -82,7 +82,7 @@ class MessageAdapter(private val inflater: LayoutInflater) :
             } else {
                 if (message.has("message")) {
                     val messageHolder = holder as ReceivedMessageHolder
-                    messageHolder.nameTxt.text = message.getString("name")
+                    messageHolder.nameTxt.text = message.getString("userName")
                     messageHolder.messageTxt.text = message.getString("message")
                 }
             }

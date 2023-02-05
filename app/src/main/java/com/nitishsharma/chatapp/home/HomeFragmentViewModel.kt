@@ -8,12 +8,15 @@ import java.util.*
 
 class HomeFragmentViewModel : ViewModel() {
 
-    fun createAndJoinRoom(socketIOInstance: Socket?, firebaseInstance: FirebaseAuth): String {
+    fun createAndJoinRoom(
+        socketIOInstance: Socket?,
+        firebaseInstance: FirebaseAuth,
+        roomName: String
+    ): String {
         val roomId = generateUUID()
-        socketIOInstance?.emit("create-room", roomId)
-        joinRoom(socketIOInstance, roomId, firebaseInstance)
-
-        return roomId
+        val data = mapToJSON2(roomId, roomName)
+        socketIOInstance?.emit("create-room", data)
+        return joinRoom(socketIOInstance, roomId, firebaseInstance)
     }
 
     fun joinRoom(
@@ -30,8 +33,16 @@ class HomeFragmentViewModel : ViewModel() {
 
     private fun mapToJSON(roomId: String, firebaseInstance: FirebaseAuth): JSONObject {
         val jsonObject = JSONObject()
-        jsonObject.put("roomid", roomId)
-        jsonObject.put("name", firebaseInstance.currentUser?.displayName)
+        jsonObject.put("roomId", roomId)
+        jsonObject.put("userName", firebaseInstance.currentUser?.displayName)
+
+        return jsonObject
+    }
+
+    private fun mapToJSON2(roomId: String, roomName: String): JSONObject {
+        val jsonObject = JSONObject()
+        jsonObject.put("roomId", roomId)
+        jsonObject.put("roomName", roomName)
 
         return jsonObject
     }

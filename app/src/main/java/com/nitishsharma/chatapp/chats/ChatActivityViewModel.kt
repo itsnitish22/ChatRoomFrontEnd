@@ -77,9 +77,9 @@ class ChatActivityViewModel : ViewModel() {
             parseMessage(JSONArray(Gson().toJson(args))[0].toString())
 
         val mappedData = JSONObject()
-        mappedData.put("name", receivedMessageFromServer.name)
+        mappedData.put("userName", receivedMessageFromServer.userName)
         mappedData.put("message", receivedMessageFromServer.message)
-        mappedData.put("roomid", receivedMessageFromServer.roomid)
+        mappedData.put("roomId", receivedMessageFromServer.roomId)
         mappedData.put("isSent", false)
 
         return mappedData

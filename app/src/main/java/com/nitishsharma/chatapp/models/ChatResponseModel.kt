@@ -3,18 +3,18 @@ package com.nitishsharma.chatapp.models
 import org.json.JSONObject
 
 data class Message(
-    val name: String,
+    val userName: String,
     val message: String,
-    val roomid: String,
+    val roomId: String,
     val isSent: Boolean
 )
 
 fun parseMessage(json: String): Message {
     val nameValuePairs = JSONObject(json).getJSONObject("nameValuePairs")
     return Message(
-        name = nameValuePairs.getString("name"),
+        userName = nameValuePairs.getString("userName"),
         message = nameValuePairs.getString("message"),
-        roomid = nameValuePairs.getString("roomid"),
+        roomId = nameValuePairs.getString("roomId"),
         isSent = nameValuePairs.getBoolean("isSent")
     )
 }

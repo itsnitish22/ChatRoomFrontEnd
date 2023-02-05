@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:backgroundTint="#D6D6D6">
@@ -17,7 +18,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
-            android:hint="Enter room id">
+            tools:hint="Enter room id">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/enterRoomEditText"
@@ -38,9 +39,9 @@
             android:layout_marginEnd="10dp"
             android:backgroundTint="#1bb3f5"
             android:fontFamily="@font/sharp_grotesk_medium20"
-            android:text="Join room"
             android:textAllCaps="false"
-            app:cornerRadius="10dp" />
+            app:cornerRadius="10dp"
+            tools:text="Join room" />
 
     </RelativeLayout>
 
