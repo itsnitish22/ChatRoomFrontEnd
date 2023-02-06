@@ -27,7 +27,7 @@
             app:layout_constraintBottom_toBottomOf="@+id/chatTopCl"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/back" />
+            app:srcCompat="@drawable/ic_back" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="wrap_content"
@@ -72,6 +72,19 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
 
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:paddingLeft="16dp"
+            android:paddingTop="16dp"
+            android:paddingRight="16dp"
+            android:paddingBottom="16dp"
+            android:src="@drawable/ic_share"
+            app:layout_constraintBottom_toBottomOf="@id/chatTopCl"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -111,7 +124,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/send" />
+            app:srcCompat="@drawable/ic_send" />
 
         <androidx.appcompat.widget.AppCompatEditText
             android:id="@+id/messageEdit"
