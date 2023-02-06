@@ -1,16 +1,16 @@
 package com.nitishsharma.chatapp.home
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.view.WindowManager
+import android.view.*
 import android.widget.Button
 import android.widget.EditText
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -37,7 +37,9 @@ class HomeFragment : Fragment() {
     private lateinit var bottomSheetDialog: BottomSheetDialog
     var roomId: String? = null
     var socketIOInstance: Socket? = null
+    lateinit var drawerLayout: DrawerLayout
 
+    @SuppressLint("UseRequireInsteadOfGet")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -45,6 +47,8 @@ class HomeFragment : Fragment() {
         binding = FragmentHomeBinding.inflate(inflater, container, false)
         bottomSheetDialog = BottomSheetDialog(requireContext())
         socketIOInstance = (activity as MainActivity).socketIOInstance
+        setHasOptionsMenu(true)
+        drawerLayout = binding.drawerLayout
 
         //initializing the views
         initViews()
@@ -64,8 +68,13 @@ class HomeFragment : Fragment() {
             showBottomSheet("Join room", "Enter room id", 2)
         }
 
+        binding.moreOptions.setOnClickListener {
+            drawerLayout.openDrawer(GravityCompat.END)
+        }
+
         return binding.root
     }
+
 
     private fun initializeObservers() {
         homeFragmentVM.receivedRoomName.observe(requireActivity(), Observer { receivedName ->
@@ -157,5 +166,11 @@ class HomeFragment : Fragment() {
             .centerCrop()
 
         Glide.with(this).load(photoUrl).apply(options).into(profilePic)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        val menuId = R.menu.home_menu
+        inflater.inflate(menuId, menu)
+        super.onCreateOptionsMenu(menu, inflater)
     }
 }
