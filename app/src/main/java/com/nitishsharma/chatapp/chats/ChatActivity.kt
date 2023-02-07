@@ -1,5 +1,6 @@
 package com.nitishsharma.chatapp.chats
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -46,6 +47,26 @@ class ChatActivity : AppCompatActivity() {
                 sendTextMessageEvent()
             }
         }
+
+        binding.backIv.setOnClickListener {
+            finish()
+        }
+
+        binding.shareRoomId.setOnClickListener {
+            shareRoomId(roomID, roomName)
+        }
+    }
+
+    private fun shareRoomId(roomID: String, roomName: String) {
+        val shareIntent = Intent().apply {
+            action = Intent.ACTION_SEND
+            type = "text/html"
+            putExtra(
+                Intent.EXTRA_TEXT,
+                "Join my Room: $roomName\nusing\nRoomID: $roomID"
+            )
+        }
+        startActivity(Intent.createChooser(shareIntent, "Share RoomID using"))
     }
 
     private fun initViews() {
