@@ -73,6 +73,7 @@
 
 
         <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/shareRoomId"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:paddingLeft="16dp"
@@ -80,9 +81,9 @@
             android:paddingRight="16dp"
             android:paddingBottom="16dp"
             android:src="@drawable/ic_share"
-            app:layout_constraintBottom_toBottomOf="@id/chatTopCl"
+            app:layout_constraintBottom_toBottomOf="@id/backIv"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="@id/backIv" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -91,7 +92,6 @@
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_margin="10dp"
         android:orientation="vertical"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toTopOf="@+id/messageBoxCl"

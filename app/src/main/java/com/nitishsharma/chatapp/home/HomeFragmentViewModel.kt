@@ -1,5 +1,6 @@
 package com.nitishsharma.chatapp.home
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -11,9 +12,20 @@ import org.json.JSONObject
 import java.util.*
 
 class HomeFragmentViewModel : ViewModel() {
+    private val firebaseInstance = FirebaseAuth.getInstance()
+
     private val _receivedRoomName: MutableLiveData<String?> = MutableLiveData()
     val receivedRoomName: MutableLiveData<String?>
         get() = _receivedRoomName
+
+    private val _successSignOut: MutableLiveData<Boolean> = MutableLiveData()
+    val successSignOut: LiveData<Boolean>
+        get() = _successSignOut
+
+    fun signOutUser() {
+        firebaseInstance.signOut()
+        _successSignOut.value = true
+    }
 
 
     fun createAndJoinRoom(

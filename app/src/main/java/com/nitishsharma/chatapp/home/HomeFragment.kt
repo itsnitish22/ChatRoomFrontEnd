@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
+import android.text.InputType
 import android.util.Log
 import android.view.*
 import android.widget.Button
@@ -47,18 +48,12 @@ class HomeFragment : Fragment() {
         binding = FragmentHomeBinding.inflate(inflater, container, false)
         bottomSheetDialog = BottomSheetDialog(requireContext())
         socketIOInstance = (activity as MainActivity).socketIOInstance
-        setHasOptionsMenu(true)
         drawerLayout = binding.drawerLayout
 
         //initializing the views
         initViews()
         initializeSocketListeners()
         initializeObservers()
-
-        //on click profile pic
-        binding.profilePic.setOnClickListener {
-            logOutAccount()
-        }
 
         binding.createRoomButton.setOnClickListener {
             showBottomSheet("Create room", "Room's nick name", 1)
@@ -83,6 +78,12 @@ class HomeFragment : Fragment() {
                 startChatActivity(it, receivedName.toString())
             }
         })
+
+        homeFragmentVM.successSignOut.observe(requireActivity(), Observer { signOut ->
+            if (signOut) {
+                navigateToOnboardingFragment()
+            }
+        })
     }
 
     private fun initializeSocketListeners() {
@@ -102,6 +103,8 @@ class HomeFragment : Fragment() {
 
 
         if (eventType == 1) {
+            enterEditText.inputType =
+                InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_WORDS
             button.setOnClickListener {
                 if (enterEditText.text.toString().isNotEmpty()) {
                     bottomSheetDialog.dismiss()
@@ -148,8 +151,9 @@ class HomeFragment : Fragment() {
     }
 
     //logging out
-    private fun logOutAccount() {
-        firebaseInstance.signOut()
+    private fun navigateToOnboardingFragment() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.END))
+            Log.i("HomeFrag", "YESYES")
         findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToOnboardingFragment())
     }
 
@@ -166,11 +170,5 @@ class HomeFragment : Fragment() {
             .centerCrop()
 
         Glide.with(this).load(photoUrl).apply(options).into(profilePic)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        val menuId = R.menu.home_menu
-        inflater.inflate(menuId, menu)
-        super.onCreateOptionsMenu(menu, inflater)
     }
 }
