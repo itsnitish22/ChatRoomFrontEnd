@@ -13,6 +13,7 @@ import android.widget.EditText
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
@@ -34,7 +35,7 @@ class HomeFragment : Fragment() {
     private lateinit var binding: FragmentHomeBinding
     private val homeFragmentArgs: HomeFragmentArgs by navArgs()
     private val firebaseInstance = FirebaseAuth.getInstance()
-    private val homeFragmentVM: HomeFragmentViewModel by viewModels()
+    private val homeFragmentVM: HomeFragmentViewModel by activityViewModels()
     private lateinit var bottomSheetDialog: BottomSheetDialog
     var roomId: String? = null
     var socketIOInstance: Socket? = null
@@ -152,8 +153,9 @@ class HomeFragment : Fragment() {
 
     //logging out
     private fun navigateToOnboardingFragment() {
-        if (drawerLayout.isDrawerOpen(GravityCompat.END))
-            Log.i("HomeFrag", "YESYES")
+        if (drawerLayout.isDrawerOpen(GravityCompat.END)) {
+            drawerLayout.closeDrawer(GravityCompat.END)
+        }
         findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToOnboardingFragment())
     }
 

@@ -18,13 +18,13 @@ class HomeFragmentViewModel : ViewModel() {
     val receivedRoomName: MutableLiveData<String?>
         get() = _receivedRoomName
 
-    private val _successSignOut: MutableLiveData<Boolean> = MutableLiveData()
+    private val _successSignOut: MutableLiveData<Boolean> = MutableLiveData(false)
     val successSignOut: LiveData<Boolean>
         get() = _successSignOut
 
     fun signOutUser() {
         firebaseInstance.signOut()
-        _successSignOut.value = true
+        _successSignOut.postValue(true)
     }
 
 
