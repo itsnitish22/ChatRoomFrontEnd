@@ -34,7 +34,7 @@ class HomeFragmentViewModel : ViewModel() {
         roomName: String
     ): String {
         val roomId = generateUUID()
-        val data = mapToJSON2(roomId, roomName)
+        val data = mapToJSON2(firebaseInstance.currentUser!!.uid, roomId, roomName)
         socketIOInstance?.emit("create-room", data)
         return joinRoom(socketIOInstance, roomId, firebaseInstance)
     }
@@ -59,8 +59,9 @@ class HomeFragmentViewModel : ViewModel() {
         return jsonObject
     }
 
-    private fun mapToJSON2(roomId: String, roomName: String): JSONObject {
+    private fun mapToJSON2(userId: String, roomId: String, roomName: String): JSONObject {
         val jsonObject = JSONObject()
+        jsonObject.put("userId", userId)
         jsonObject.put("roomId", roomId)
         jsonObject.put("roomName", roomName)
 
