@@ -59,11 +59,11 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
             android:fontFamily="@font/sharp_grotesk_medium20"
-            tools:text="Nitish Sharma"
             android:textSize="20sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/profilePic" />
+            app:layout_constraintTop_toBottomOf="@id/profilePic"
+            tools:text="Nitish Sharma" />
 
         <LinearLayout
             android:id="@+id/linearLayout"
@@ -123,14 +123,12 @@
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginStart="15dp"
-            android:layout_marginEnd="15dp"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/activeRooms"
-            tools:listitem="@layout/item_room" />
+            app:layout_constraintTop_toTopOf="@id/con2"
+            tools:listitem="@layout/item_active_rooms" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -174,12 +172,12 @@
         android:layout_height="match_parent"
         android:layout_gravity="end">
 
-        <fragment
-            android:id="@+id/profileMenuFragment"
-            android:name="com.nitishsharma.chatapp.home.HomeFragmentDrawer"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fitsSystemWindows="true" />
+        <!--        <fragment-->
+        <!--            android:id="@+id/profileMenuFragment"-->
+        <!--            android:name="com.nitishsharma.chatapp.home.HomeFragmentDrawer"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="match_parent"-->
+        <!--            android:fitsSystemWindows="true" />-->
 
     </com.google.android.material.navigation.NavigationView>
 
