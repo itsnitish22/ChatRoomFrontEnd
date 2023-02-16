@@ -1,13 +1,11 @@
 package com.nitishsharma.chatapp.home
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import com.google.firebase.auth.FirebaseAuth
 import com.nitishsharma.chatapp.databinding.FragmentHomeDrawerBinding
 

@@ -1,12 +1,18 @@
 package com.nitishsharma.chatapp.home
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.gson.Gson
+import com.nitishsharma.chatapp.api.retrofit.RetrofitInstance
+import com.nitishsharma.chatapp.models.roomsresponse.AllUserActiveRooms
+import com.nitishsharma.chatapp.models.roomsresponse.AllUserActiveRoomsBody
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
+import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.*
@@ -22,9 +28,23 @@ class HomeFragmentViewModel : ViewModel() {
     val successSignOut: LiveData<Boolean>
         get() = _successSignOut
 
+    private val _responseAllUserActiveRooms: MutableLiveData<AllUserActiveRooms> = MutableLiveData()
+    val responseAllUserActiveRooms: LiveData<AllUserActiveRooms>
+        get() = _responseAllUserActiveRooms
+
     fun signOutUser() {
         firebaseInstance.signOut()
         _successSignOut.postValue(true)
+    }
+
+    fun getAllUserActiveRooms(body: AllUserActiveRoomsBody) {
+        viewModelScope.launch {
+            try {
+                _responseAllUserActiveRooms.postValue(RetrofitInstance.api.getAllActiveRooms(body))
+            } catch (e: Exception) {
+                Log.e("HFRES", e.toString())
+            }
+        }
     }
 
 

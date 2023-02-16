@@ -1,4 +1,4 @@
-package com.nitishsharma.chatapp.models
+package com.nitishsharma.chatapp.models.chatresponse
 
 import org.json.JSONObject
 

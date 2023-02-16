@@ -14,7 +14,6 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -27,6 +26,7 @@ import com.nitishsharma.chatapp.MainActivity
 import com.nitishsharma.chatapp.R
 import com.nitishsharma.chatapp.chats.ChatActivity
 import com.nitishsharma.chatapp.databinding.FragmentHomeBinding
+import com.nitishsharma.chatapp.models.roomsresponse.ConvertToBodyForAllUserActiveRooms
 import de.hdodenhof.circleimageview.CircleImageView
 import io.socket.client.Socket
 
@@ -52,6 +52,7 @@ class HomeFragment : Fragment() {
         drawerLayout = binding.drawerLayout
 
         //initializing the views
+        getAllUserActiveRooms(firebaseInstance.currentUser!!.uid)
         initViews()
         initializeSocketListeners()
         initializeObservers()
@@ -71,6 +72,10 @@ class HomeFragment : Fragment() {
         return binding.root
     }
 
+    private fun getAllUserActiveRooms(userId: String) {
+        homeFragmentVM.getAllUserActiveRooms(ConvertToBodyForAllUserActiveRooms.convert(userId))
+    }
+
 
     private fun initializeObservers() {
         homeFragmentVM.receivedRoomName.observe(requireActivity(), Observer { receivedName ->
@@ -85,6 +90,11 @@ class HomeFragment : Fragment() {
                 navigateToOnboardingFragment()
             }
         })
+
+        homeFragmentVM.responseAllUserActiveRooms.observe(
+            requireActivity(),
+            Observer { allUserActiveRooms ->
+            })
     }
 
     private fun initializeSocketListeners() {
