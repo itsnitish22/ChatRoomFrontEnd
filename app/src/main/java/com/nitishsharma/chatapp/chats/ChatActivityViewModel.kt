@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.gson.Gson
-import com.nitishsharma.chatapp.models.parseMessage
+import com.nitishsharma.chatapp.models.chatresponse.parseMessage
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
 import org.json.JSONArray
