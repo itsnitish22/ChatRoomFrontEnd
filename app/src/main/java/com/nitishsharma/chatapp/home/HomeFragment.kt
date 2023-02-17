@@ -173,6 +173,7 @@ class HomeFragment : Fragment() {
     private fun initViews() {
         homeFragmentArgs.firebaseUser?.let {
             loadImageFromUrl(binding.profilePic, it.photoUrl)
+            binding.nameOfUser.text = firebaseInstance.currentUser?.displayName
         }
     }
 
