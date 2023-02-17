@@ -42,7 +42,7 @@ class HomeFragmentViewModel : ViewModel() {
             try {
                 _responseAllUserActiveRooms.postValue(RetrofitInstance.api.getAllActiveRooms(body))
             } catch (e: Exception) {
-                Log.e("HFRES", e.toString())
+                Log.e("Active Rooms Error", e.toString())
             }
         }
     }
