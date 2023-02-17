@@ -17,6 +17,8 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -26,6 +28,7 @@ import com.nitishsharma.chatapp.MainActivity
 import com.nitishsharma.chatapp.R
 import com.nitishsharma.chatapp.chats.ChatActivity
 import com.nitishsharma.chatapp.databinding.FragmentHomeBinding
+import com.nitishsharma.chatapp.models.roomsresponse.ActiveRooms
 import com.nitishsharma.chatapp.models.roomsresponse.ConvertToBodyForAllUserActiveRooms
 import de.hdodenhof.circleimageview.CircleImageView
 import io.socket.client.Socket
@@ -40,6 +43,7 @@ class HomeFragment : Fragment() {
     var roomId: String? = null
     var socketIOInstance: Socket? = null
     lateinit var drawerLayout: DrawerLayout
+    private var adapter: RecyclerView.Adapter<ActiveRoomsAdapter.ViewHolder>? = null //adapter
 
     @SuppressLint("UseRequireInsteadOfGet")
     override fun onCreateView(
@@ -52,30 +56,27 @@ class HomeFragment : Fragment() {
         drawerLayout = binding.drawerLayout
 
         //initializing the views
-        getAllUserActiveRooms(firebaseInstance.currentUser!!.uid)
+        getAllUserActiveRooms()
         initViews()
         initializeSocketListeners()
         initializeObservers()
 
-        binding.createRoomButton.setOnClickListener {
-            showBottomSheet("Create room", "Room's nick name", 1)
+        binding.apply {
+            createRoomButton.setOnClickListener {
+                showBottomSheet("Create room", "Room's nick name", 1)
+            }
+            joinRoomButton.setOnClickListener {
+                showBottomSheet("Join room", "Enter room id", 2)
+            }
+            moreOptions.setOnClickListener {
+                drawerLayout.openDrawer(GravityCompat.END)
+            }
+            swipeRefresh.setOnRefreshListener {
+                getAllUserActiveRooms()
+            }
         }
-
-        binding.joinRoomButton.setOnClickListener {
-            showBottomSheet("Join room", "Enter room id", 2)
-        }
-
-        binding.moreOptions.setOnClickListener {
-            drawerLayout.openDrawer(GravityCompat.END)
-        }
-
         return binding.root
     }
-
-    private fun getAllUserActiveRooms(userId: String) {
-        homeFragmentVM.getAllUserActiveRooms(ConvertToBodyForAllUserActiveRooms.convert(userId))
-    }
-
 
     private fun initializeObservers() {
         homeFragmentVM.receivedRoomName.observe(requireActivity(), Observer { receivedName ->
@@ -94,7 +95,24 @@ class HomeFragment : Fragment() {
         homeFragmentVM.responseAllUserActiveRooms.observe(
             requireActivity(),
             Observer { allUserActiveRooms ->
+                Log.i("HFROOMS", allUserActiveRooms.toString())
+                setDataInActiveRoomsAdapter(allUserActiveRooms.activeRooms)
+                if (binding.swipeRefresh.isRefreshing) {
+                    binding.swipeRefresh.isRefreshing = false
+                }
             })
+    }
+
+    private fun setDataInActiveRoomsAdapter(activeRooms: ArrayList<ActiveRooms>) {
+        adapter = ActiveRoomsAdapter(activeRooms = activeRooms)
+        binding.apply {
+            noActiveRoomsTv.visibility = View.GONE
+            roomIv.visibility = View.GONE
+            noActiveRoomsDescTv.visibility = View.GONE
+            recyclerView.visibility = View.VISIBLE
+            recyclerView.adapter = adapter
+            recyclerView.layoutManager = LinearLayoutManager(activity)
+        }
     }
 
     private fun initializeSocketListeners() {
@@ -183,5 +201,13 @@ class HomeFragment : Fragment() {
             .centerCrop()
 
         Glide.with(this).load(photoUrl).apply(options).into(profilePic)
+    }
+
+    private fun getAllUserActiveRooms() {
+        homeFragmentVM.getAllUserActiveRooms(
+            ConvertToBodyForAllUserActiveRooms.convert(
+                firebaseInstance.currentUser!!.uid
+            )
+        )
     }
 }
