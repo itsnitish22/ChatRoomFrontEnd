@@ -1,6 +1,5 @@
 package com.nitishsharma.chatapp.home
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -15,6 +14,7 @@ import io.socket.client.Socket
 import io.socket.emitter.Emitter
 import kotlinx.coroutines.launch
 import org.json.JSONArray
+import timber.log.Timber
 
 class HomeFragmentViewModel : ViewModel() {
     private val firebaseInstance = FirebaseAuth.getInstance()
@@ -41,7 +41,7 @@ class HomeFragmentViewModel : ViewModel() {
             try {
                 _responseAllUserActiveRooms.postValue(RetrofitInstance.api.getAllActiveRooms(body))
             } catch (e: Exception) {
-                Log.e("Active Rooms Error", e.toString())
+                Timber.tag("Active Rooms Error").e(e.toString())
             }
         }
     }

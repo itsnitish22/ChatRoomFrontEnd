@@ -188,6 +188,34 @@
                 android:textSize="12sp"
                 android:visibility="gone" />
         </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminateTint="#1bb3f5"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!--        <com.airbnb.lottie.LottieAnimationView-->
+        <!--            android:id="@+id/loaderLottie"-->
+        <!--            android:layout_width="40dp"-->
+        <!--            android:layout_height="40dp"-->
+        <!--            android:layout_gravity="center_horizontal"-->
+        <!--            android:scaleType="centerInside"-->
+        <!--            app:layout_constraintTop_toTopOf="parent"-->
+        <!--            app:layout_constraintBottom_toBottomOf="parent"-->
+        <!--            app:layout_constraintEnd_toEndOf="parent"-->
+        <!--            app:layout_constraintStart_toStartOf="parent"-->
+        <!--            app:lottie_autoPlay="true"-->
+        <!--            app:lottie_loop="true"-->
+        <!--            android:visibility="visible"-->
+        <!--            app:lottie_rawRes="@raw/loading_animation" />-->
+
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.google.android.material.navigation.NavigationView
@@ -196,12 +224,12 @@
         android:layout_height="match_parent"
         android:layout_gravity="end">
 
-        <fragment
-            android:id="@+id/profileMenuFragment"
-            android:name="com.nitishsharma.chatapp.home.HomeFragmentDrawer"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fitsSystemWindows="true" />
+        <!--        <fragment-->
+        <!--            android:id="@+id/profileMenuFragment"-->
+        <!--            android:name="com.nitishsharma.chatapp.home.HomeFragmentDrawer"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="match_parent"-->
+        <!--            android:fitsSystemWindows="true" />-->
 
     </com.google.android.material.navigation.NavigationView>
 

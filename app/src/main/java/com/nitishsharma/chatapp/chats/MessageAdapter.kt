@@ -1,7 +1,6 @@
 package com.nitishsharma.chatapp.chats
 
 import android.annotation.SuppressLint
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -72,7 +71,6 @@ class MessageAdapter(private val inflater: LayoutInflater) :
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val message = messages[position]
-        Log.d("MAdapter", message.toString())
         try {
             if (message.getBoolean("isSent")) {
                 if (message.has("message")) {
@@ -98,7 +96,6 @@ class MessageAdapter(private val inflater: LayoutInflater) :
     @SuppressLint("NotifyDataSetChanged")
     fun addItem(jsonObject: JSONObject) {
         messages.add(jsonObject)
-        Log.d("MAdapter", messages.size.toString())
         notifyDataSetChanged()
     }
 
