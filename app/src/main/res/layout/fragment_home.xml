@@ -23,7 +23,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.3" />
+            app:layout_constraintGuide_begin="219dp" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/con3"
@@ -106,15 +106,27 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/con2" />
 
+        <com.facebook.shimmer.ShimmerFrameLayout
+            android:id="@+id/shimmerFrameLayout"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/con2">
+
+            <include layout="@layout/homescreen_shimmer" />
+
+        </com.facebook.shimmer.ShimmerFrameLayout>
+
         <TextView
-            android:id="@+id/activeRooms"
+            android:id="@+id/activeRoomsTv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="15dp"
-            android:layout_marginTop="10dp"
             android:fontFamily="@font/sharp_grotesk_medium20"
             android:text="Active Rooms"
-            android:textSize="20sp"
+            android:textSize="18sp"
             android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/seperatorLine" />
@@ -126,7 +138,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/con2">
+            app:layout_constraintTop_toBottomOf="@id/activeRoomsTv">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerView"
@@ -151,7 +163,8 @@
                 android:id="@+id/roomIv"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:src="@drawable/ic_rooms" />
+                android:src="@drawable/ic_rooms"
+                android:visibility="gone" />
 
             <TextView
                 android:id="@+id/noActiveRoomsTv"
@@ -161,7 +174,8 @@
                 android:fontFamily="@font/sharp_grotesk_light20"
                 android:text="No active rooms"
                 android:textAlignment="center"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:visibility="gone" />
 
             <TextView
                 android:id="@+id/noActiveRoomsDescTv"
@@ -171,7 +185,8 @@
                 android:fontFamily="@font/sharp_grotesk_thin20"
                 android:text="Your rooms will appear here"
                 android:textAlignment="center"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                android:visibility="gone" />
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import com.facebook.shimmer.ShimmerFrameLayout
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.FirebaseAuth
@@ -44,6 +45,7 @@ class HomeFragment : Fragment() {
     var socketIOInstance: Socket? = null
     lateinit var drawerLayout: DrawerLayout
     private var adapter: RecyclerView.Adapter<ActiveRoomsAdapter.ViewHolder>? = null //adapter
+    private lateinit var shimmerFrameLayout: ShimmerFrameLayout
 
     @SuppressLint("UseRequireInsteadOfGet")
     override fun onCreateView(
@@ -54,6 +56,7 @@ class HomeFragment : Fragment() {
         bottomSheetDialog = BottomSheetDialog(requireContext())
         socketIOInstance = (activity as MainActivity).socketIOInstance
         drawerLayout = binding.drawerLayout
+        shimmerFrameLayout = binding.shimmerFrameLayout
 
         //initializing the views
         getAllUserActiveRooms()
@@ -95,23 +98,34 @@ class HomeFragment : Fragment() {
         homeFragmentVM.responseAllUserActiveRooms.observe(
             requireActivity(),
             Observer { allUserActiveRooms ->
-                Log.i("HFROOMS", allUserActiveRooms.toString())
-                setDataInActiveRoomsAdapter(allUserActiveRooms.activeRooms)
                 if (binding.swipeRefresh.isRefreshing) {
                     binding.swipeRefresh.isRefreshing = false
                 }
+                if (allUserActiveRooms.numberOfActiveRooms >= 1)
+                    setDataInRecyclerAdapterAndShowActiveRooms(allUserActiveRooms.activeRooms)
+                else showNoActiveRooms()
             })
     }
 
-    private fun setDataInActiveRoomsAdapter(activeRooms: ArrayList<ActiveRooms>) {
+    private fun setDataInRecyclerAdapterAndShowActiveRooms(activeRooms: ArrayList<ActiveRooms>) {
         adapter = ActiveRoomsAdapter(activeRooms = activeRooms)
+        shimmerFrameLayout.stopShimmer()
+        shimmerFrameLayout.visibility = View.GONE
         binding.apply {
-            noActiveRoomsTv.visibility = View.GONE
-            roomIv.visibility = View.GONE
-            noActiveRoomsDescTv.visibility = View.GONE
             recyclerView.visibility = View.VISIBLE
+            activeRoomsTv.visibility = View.VISIBLE
             recyclerView.adapter = adapter
             recyclerView.layoutManager = LinearLayoutManager(activity)
+        }
+    }
+
+    private fun showNoActiveRooms() {
+        shimmerFrameLayout.stopShimmer()
+        shimmerFrameLayout.visibility = View.GONE
+        binding.apply {
+            noActiveRoomsTv.visibility = View.VISIBLE
+            roomIv.visibility = View.VISIBLE
+            noActiveRoomsDescTv.visibility = View.VISIBLE
         }
     }
 
@@ -204,6 +218,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun getAllUserActiveRooms() {
+        shimmerFrameLayout.startShimmer()
         homeFragmentVM.getAllUserActiveRooms(
             ConvertToBodyForAllUserActiveRooms.convert(
                 firebaseInstance.currentUser!!.uid
