@@ -6,7 +6,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.text.InputType
-import android.util.Log
 import android.view.*
 import android.widget.Button
 import android.widget.EditText
@@ -33,6 +32,7 @@ import com.nitishsharma.chatapp.models.roomsresponse.ActiveRooms
 import com.nitishsharma.chatapp.models.roomsresponse.ConvertToBodyForAllUserActiveRooms
 import de.hdodenhof.circleimageview.CircleImageView
 import io.socket.client.Socket
+import timber.log.Timber
 
 
 class HomeFragment : Fragment() {
@@ -90,7 +90,6 @@ class HomeFragment : Fragment() {
 
     private fun initializeObservers() {
         homeFragmentVM.receivedRoomName.observe(requireActivity(), Observer { receivedName ->
-            Log.i("HomeFrag", receivedName.toString())
             roomId?.let {
                 startChatActivity(it, receivedName.toString())
             }
@@ -194,7 +193,8 @@ class HomeFragment : Fragment() {
         intent.putExtra("userName", firebaseInstance.currentUser?.displayName.toString())
         intent.putExtra("roomID", roomId)
         intent.putExtra("roomName", roomName)
-        Log.i("ChatAct1", "${firebaseInstance.currentUser?.displayName}, $roomId, $roomName")
+        Timber.tag("ChatActivity")
+            .i("UserName: ${firebaseInstance.currentUser?.displayName}\nRoomId: $roomId\nRoomName: $roomName")
         Handler().postDelayed({
             startActivity(intent)
         }, 3000)

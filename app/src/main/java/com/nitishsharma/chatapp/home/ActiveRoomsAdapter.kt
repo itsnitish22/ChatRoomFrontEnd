@@ -1,6 +1,5 @@
 package com.nitishsharma.chatapp.home
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,6 +7,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.nitishsharma.chatapp.R
 import com.nitishsharma.chatapp.models.roomsresponse.ActiveRooms
+import timber.log.Timber
 
 class ActiveRoomsAdapter(private val activeRooms: ArrayList<ActiveRooms>) :
     RecyclerView.Adapter<ActiveRoomsAdapter.ViewHolder>() {
@@ -22,7 +22,7 @@ class ActiveRoomsAdapter(private val activeRooms: ArrayList<ActiveRooms>) :
     }
 
     override fun getItemCount(): Int {
-        Log.i("ARA", "$activeRooms\n ${activeRooms.size}")
+        Timber.i("Active Rooms: $activeRooms")
         return activeRooms.size
     }
 
