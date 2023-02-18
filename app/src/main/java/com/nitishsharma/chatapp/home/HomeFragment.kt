@@ -41,9 +41,9 @@ class HomeFragment : Fragment() {
     private val firebaseInstance = FirebaseAuth.getInstance()
     private val homeFragmentVM: HomeFragmentViewModel by activityViewModels()
     private lateinit var bottomSheetDialog: BottomSheetDialog
-    var roomId: String? = null
-    var socketIOInstance: Socket? = null
-    lateinit var drawerLayout: DrawerLayout
+    private var roomId: String? = null
+    private var socketIOInstance: Socket? = null
+    private lateinit var drawerLayout: DrawerLayout
     private var adapter: RecyclerView.Adapter<ActiveRoomsAdapter.ViewHolder>? = null //adapter
     private lateinit var shimmerFrameLayout: ShimmerFrameLayout
 
@@ -51,15 +51,18 @@ class HomeFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        binding = FragmentHomeBinding.inflate(inflater, container, false)
+    ): View? = FragmentHomeBinding.inflate(inflater, container, false).also {
+        binding = it
+    }.root
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         bottomSheetDialog = BottomSheetDialog(requireContext())
         socketIOInstance = (activity as MainActivity).socketIOInstance
         drawerLayout = binding.drawerLayout
         shimmerFrameLayout = binding.shimmerFrameLayout
 
         //initializing the views
-        getAllUserActiveRooms()
         initViews()
         initializeSocketListeners()
         initializeObservers()
@@ -78,7 +81,11 @@ class HomeFragment : Fragment() {
                 getAllUserActiveRooms()
             }
         }
-        return binding.root
+    }
+
+    override fun onResume() {
+        super.onResume()
+        getAllUserActiveRooms()
     }
 
     private fun initializeObservers() {

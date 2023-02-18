@@ -10,12 +10,11 @@ import com.google.gson.Gson
 import com.nitishsharma.chatapp.api.retrofit.RetrofitInstance
 import com.nitishsharma.chatapp.models.roomsresponse.AllUserActiveRooms
 import com.nitishsharma.chatapp.models.roomsresponse.AllUserActiveRoomsBody
+import com.nitishsharma.chatapp.utils.Utility
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
 import kotlinx.coroutines.launch
 import org.json.JSONArray
-import org.json.JSONObject
-import java.util.*
 
 class HomeFragmentViewModel : ViewModel() {
     private val firebaseInstance = FirebaseAuth.getInstance()
@@ -47,14 +46,14 @@ class HomeFragmentViewModel : ViewModel() {
         }
     }
 
-
     fun createAndJoinRoom(
         socketIOInstance: Socket?,
         firebaseInstance: FirebaseAuth,
         roomName: String
     ): String {
-        val roomId = generateUUID()
-        val data = mapToJSON2(firebaseInstance.currentUser!!.uid, roomId, roomName)
+        val roomId = Utility.generateUUID()
+        val data =
+            Utility.createRoomJSONMapping(firebaseInstance.currentUser!!.uid, roomId, roomName)
         socketIOInstance?.emit("create-room", data)
         return joinRoom(socketIOInstance, roomId, firebaseInstance)
     }
@@ -64,32 +63,10 @@ class HomeFragmentViewModel : ViewModel() {
         roomId: String,
         firebaseInstance: FirebaseAuth
     ): String {
-        val dataToSend = mapToJSON(roomId, firebaseInstance)
+        val dataToSend = Utility.joinRoomJSONMapping(roomId, firebaseInstance)
         socketIOInstance?.emit("join-room", dataToSend)
 
         return roomId
-    }
-
-
-    private fun mapToJSON(roomId: String, firebaseInstance: FirebaseAuth): JSONObject {
-        val jsonObject = JSONObject()
-        jsonObject.put("roomId", roomId)
-        jsonObject.put("userName", firebaseInstance.currentUser?.displayName)
-
-        return jsonObject
-    }
-
-    private fun mapToJSON2(userId: String, roomId: String, roomName: String): JSONObject {
-        val jsonObject = JSONObject()
-        jsonObject.put("userId", userId)
-        jsonObject.put("roomId", roomId)
-        jsonObject.put("roomName", roomName)
-
-        return jsonObject
-    }
-
-    private fun generateUUID(): String {
-        return UUID.randomUUID().toString()
     }
 
     fun initializeSocketListeners(socketIOInstance: Socket?) {
