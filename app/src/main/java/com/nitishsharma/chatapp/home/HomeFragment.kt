@@ -179,10 +179,12 @@ class HomeFragment : Fragment() {
     }
 
     private fun joinChatRoom(roomId: String): String {
+        binding.progressBar.visibility = View.VISIBLE
         return homeFragmentVM.joinRoom(socketIOInstance, roomId, firebaseInstance)
     }
 
     private fun createAndJoinRoom(roomName: String): String {
+        binding.progressBar.visibility = View.VISIBLE
         return homeFragmentVM.createAndJoinRoom(socketIOInstance, firebaseInstance, roomName)
     }
 
@@ -194,8 +196,9 @@ class HomeFragment : Fragment() {
         intent.putExtra("roomID", roomId)
         intent.putExtra("roomName", roomName)
         Timber.tag("ChatActivity")
-            .i("UserName: ${firebaseInstance.currentUser?.displayName}\nRoomId: $roomId\nRoomName: $roomName")
+            .d("UserName: ${firebaseInstance.currentUser?.displayName}\nRoomId: $roomId\nRoomName: $roomName")
         Handler().postDelayed({
+            binding.progressBar.visibility = View.GONE
             startActivity(intent)
         }, 3000)
     }

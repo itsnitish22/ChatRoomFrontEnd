@@ -22,7 +22,7 @@ class ActiveRoomsAdapter(private val activeRooms: ArrayList<ActiveRooms>) :
     }
 
     override fun getItemCount(): Int {
-        Timber.i("Active Rooms: $activeRooms")
+        Timber.tag("ActiveRoomsAdapter").d("Active Rooms: $activeRooms")
         return activeRooms.size
     }
 
