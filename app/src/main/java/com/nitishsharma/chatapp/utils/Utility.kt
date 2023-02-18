@@ -1,6 +1,9 @@
 package com.nitishsharma.chatapp.utils
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.google.firebase.auth.FirebaseAuth
@@ -59,5 +62,31 @@ object Utility {
 
     fun Fragment.toast(msg: String) {
         requireContext().toast(msg)
+    }
+
+    fun Context.copyTextToClipboard(textToCopy: String, label: String) {
+        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = ClipData.newPlainText(label, textToCopy)
+        clipboard.setPrimaryClip(clip)
+    }
+
+    fun Fragment.copyTextToClipboard(textToCopy: String, label: String) {
+        requireContext().copyTextToClipboard(textToCopy, label)
+    }
+
+    fun Context.shareRoom(roomID: String, roomName: String) {
+        val shareIntent = Intent().apply {
+            action = Intent.ACTION_SEND
+            type = "text/html"
+            putExtra(
+                Intent.EXTRA_TEXT,
+                "Join my Room: $roomName\nusing\nRoomID: $roomID"
+            )
+        }
+        startActivity(Intent.createChooser(shareIntent, "Share RoomID using"))
+    }
+
+    fun Fragment.shareRoom(roomId: String, roomName: String) {
+        requireContext().shareRoom(roomId, roomName)
     }
 }

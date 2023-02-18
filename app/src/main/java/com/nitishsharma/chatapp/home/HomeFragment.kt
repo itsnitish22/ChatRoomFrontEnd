@@ -9,6 +9,7 @@ import android.text.InputType
 import android.view.*
 import android.widget.Button
 import android.widget.EditText
+import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
@@ -30,6 +31,9 @@ import com.nitishsharma.chatapp.chats.ChatActivity
 import com.nitishsharma.chatapp.databinding.FragmentHomeBinding
 import com.nitishsharma.chatapp.models.roomsresponse.ActiveRooms
 import com.nitishsharma.chatapp.models.roomsresponse.ConvertToBodyForAllUserActiveRooms
+import com.nitishsharma.chatapp.utils.Utility.copyTextToClipboard
+import com.nitishsharma.chatapp.utils.Utility.shareRoom
+import com.nitishsharma.chatapp.utils.Utility.toast
 import de.hdodenhof.circleimageview.CircleImageView
 import io.socket.client.Socket
 import timber.log.Timber
@@ -69,10 +73,10 @@ class HomeFragment : Fragment() {
 
         binding.apply {
             createRoomButton.setOnClickListener {
-                showBottomSheet("Create room", "Room's nick name", 1)
+                showRoomBottomSheet("Create room", "Room's nick name", 1)
             }
             joinRoomButton.setOnClickListener {
-                showBottomSheet("Join room", "Enter room id", 2)
+                showRoomBottomSheet("Join room", "Enter room id", 2)
             }
             moreOptions.setOnClickListener {
                 drawerLayout.openDrawer(GravityCompat.END)
@@ -114,7 +118,20 @@ class HomeFragment : Fragment() {
     }
 
     private fun setDataInRecyclerAdapterAndShowActiveRooms(activeRooms: ArrayList<ActiveRooms>) {
-        adapter = ActiveRoomsAdapter(activeRooms = activeRooms)
+        adapter = ActiveRoomsAdapter(
+            activeRooms = activeRooms,
+            object : ActiveRoomsAdapter.OptionsItemClickListener {
+                override fun onOptionsItemClick(position: Int, currentRoom: ActiveRooms) {
+                    showRoomOptionsBottomSheet(currentRoom)
+                }
+            },
+            object : ActiveRoomsAdapter.ViewItemClickListener {
+                override fun onViewItemClick(position: Int, currentRoom: ActiveRooms) {
+                    joinChatRoom(currentRoom.roomId)
+                }
+
+            }
+        )
         shimmerFrameLayout.stopShimmer()
         shimmerFrameLayout.visibility = View.GONE
         binding.apply {
@@ -122,6 +139,31 @@ class HomeFragment : Fragment() {
             activeRoomsTv.visibility = View.VISIBLE
             recyclerView.adapter = adapter
             recyclerView.layoutManager = LinearLayoutManager(activity)
+        }
+    }
+
+    private fun showRoomOptionsBottomSheet(currentRoom: ActiveRooms) {
+        val view = layoutInflater.inflate(R.layout.room_options_bottom_sheet, null)
+
+        val roomName = view.findViewById<AppCompatTextView>(R.id.roomNameTv)
+        val inviteSomeone = view.findViewById<AppCompatTextView>(R.id.inviteSomeone)
+        val copyRoomId = view.findViewById<AppCompatTextView>(R.id.copyRoomId)
+
+        roomName.text = currentRoom.roomName
+        copyRoomId.setOnClickListener {
+            copyTextToClipboard(currentRoom.roomId, "Room ID")
+            toast("Copied")
+            bottomSheetDialog.dismiss()
+        }
+        inviteSomeone.setOnClickListener {
+            shareRoom(currentRoom.roomId, currentRoom.roomName)
+            bottomSheetDialog.dismiss()
+        }
+
+        bottomSheetDialog.apply {
+            setCancelable(true)
+            setContentView(view)
+            show()
         }
     }
 
@@ -139,8 +181,8 @@ class HomeFragment : Fragment() {
         homeFragmentVM.initializeSocketListeners(socketIOInstance)
     }
 
-    private fun showBottomSheet(buttonText: String, editTextHint: String, eventType: Int) {
-        val view = layoutInflater.inflate(R.layout.join_room_bottom_sheet, null)
+    private fun showRoomBottomSheet(buttonText: String, editTextHint: String, eventType: Int) {
+        val view = layoutInflater.inflate(R.layout.room_bottom_sheet, null)
         bottomSheetDialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
 
         val button = view.findViewById<Button>(R.id.joinRoomButton)
