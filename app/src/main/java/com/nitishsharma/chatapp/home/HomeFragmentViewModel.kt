@@ -75,6 +75,7 @@ class HomeFragmentViewModel : ViewModel() {
 
     private val onReceivedRoomName =
         Emitter.Listener { args ->
+            Timber.tag("HomeFragVM").i(JSONArray(Gson().toJson(args))[0].toString())
             _receivedRoomName.postValue(JSONArray(Gson().toJson(args))[0].toString())
         }
 }

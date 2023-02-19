@@ -1,6 +1,5 @@
 package com.nitishsharma.chatapp.chats
 
-import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -9,6 +8,7 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.nitishsharma.chatapp.application.FirstChat
 import com.nitishsharma.chatapp.databinding.ActivityChatBinding
+import com.nitishsharma.chatapp.utils.Utility.shareRoom
 import io.socket.client.Socket
 import org.json.JSONObject
 
@@ -53,20 +53,8 @@ class ChatActivity : AppCompatActivity() {
         }
 
         binding.shareRoomId.setOnClickListener {
-            shareRoomId(roomID, roomName)
+            shareRoom(roomID, roomName)
         }
-    }
-
-    private fun shareRoomId(roomID: String, roomName: String) {
-        val shareIntent = Intent().apply {
-            action = Intent.ACTION_SEND
-            type = "text/html"
-            putExtra(
-                Intent.EXTRA_TEXT,
-                "Join my Room: $roomName\nusing\nRoomID: $roomID"
-            )
-        }
-        startActivity(Intent.createChooser(shareIntent, "Share RoomID using"))
     }
 
     private fun initViews() {
