@@ -127,6 +127,7 @@ class HomeFragment : Fragment() {
             },
             object : ActiveRoomsAdapter.ViewItemClickListener {
                 override fun onViewItemClick(position: Int, currentRoom: ActiveRooms) {
+                    roomId = currentRoom.roomId
                     joinChatRoom(currentRoom.roomId)
                 }
 
