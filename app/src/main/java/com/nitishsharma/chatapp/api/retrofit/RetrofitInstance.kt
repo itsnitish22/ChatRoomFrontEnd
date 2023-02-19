@@ -1,11 +1,12 @@
 package com.nitishsharma.chatapp.api.retrofit
 
+import com.nitishsharma.chatapp.BuildConfig
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-private const val BASE_URL = "http://192.168.18.4:3000/"
+private const val BASE_URL = BuildConfig.BASE_URL
 
 object RetrofitInstance {
     //interceptors
