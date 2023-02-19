@@ -21,6 +21,7 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.nitishsharma.chatapp.R
 import com.nitishsharma.chatapp.databinding.FragmentOnboardingBinding
 
+
 class OnboardingFragment : Fragment() {
     private lateinit var auth: FirebaseAuth
     private lateinit var binding: FragmentOnboardingBinding
@@ -38,6 +39,7 @@ class OnboardingFragment : Fragment() {
         binding.signInWithGoogle.setOnClickListener {
             binding.progressBar.visibility = View.VISIBLE
             authenticateWithGoogle()
+//            signIn()
         }
 
         return binding.root

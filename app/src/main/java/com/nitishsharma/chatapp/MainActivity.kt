@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.nitishsharma.chatapp.application.FirstChat
 import io.socket.client.Socket
+import timber.log.Timber
 
 
 class MainActivity : AppCompatActivity() {
@@ -14,6 +15,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         socketIOInstance = (application as FirstChat).socketIO
 
+        Timber.tag("URL").i(BuildConfig.BASE_URL)
         //asking permission for media (not useful currently)
 //        if (ActivityCompat.checkSelfPermission(
 //                this,

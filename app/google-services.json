@@ -14,11 +14,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "467369143362-eiqiduvklv7h1vid9cqdfsmtbogiem46.apps.googleusercontent.com",
+          "client_id": "467369143362-sihq207tpeqdpsckqr7ic52430ebo04t.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.nitishsharma.chatapp",
-            "certificate_hash": "407298f9d1544f448d9184497564725a3e3af956"
+            "certificate_hash": "88cc9821622f57b99ee3171062307adbf896a9d9"
           }
         },
         {
