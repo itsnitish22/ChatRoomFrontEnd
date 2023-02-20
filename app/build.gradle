@@ -6,20 +6,30 @@ plugins {
     id 'androidx.navigation.safeargs.kotlin'
     id 'kotlin-parcelize'
 }
+def debugKeystorePropertiesFile = rootProject.file("env/debug_keystore.properties");
+def debugKeystoreProperties = new Properties()
+debugKeystoreProperties.load(new FileInputStream(debugKeystorePropertiesFile))
+
+def releaseKeystorePropertiesFile = rootProject.file("env/chatroom_release_keystore.properties");
+def releaseKeystoreProperties = new Properties()
+if(releaseKeystorePropertiesFile.exists()) {
+    releaseKeystoreProperties.load(new FileInputStream(releaseKeystorePropertiesFile))
+}
+
 
 android {
     signingConfigs {
         debug {
-            storeFile file('D:\\Own-Work\\Personal Projects\\ChatRoom\\ChatRoomFrontEnd\\keystore_chatroom_release.jks')
-            storePassword 'Chatroom@123'
-            keyAlias 'chatroom_release'
-            keyPassword 'Chatroom@123'
+            storeFile file("$rootDir\\env\\debug_keystore.jks")
+            storePassword debugKeystoreProperties['storePassword']
+            keyAlias debugKeystoreProperties['keyAlias']
+            keyPassword debugKeystoreProperties['keyPassword']
         }
         release {
-            storeFile file('D:\\Own-Work\\Personal Projects\\ChatRoom\\ChatRoomFrontEnd\\keystore_chatroom_release.jks')
-            storePassword 'Chatroom@123'
-            keyAlias 'chatroom_release'
-            keyPassword 'Chatroom@123'
+            storeFile file("$rootDir\\env\\release_keystore.jks")
+            storePassword releaseKeystoreProperties['storePassword']
+            keyAlias releaseKeystoreProperties['keyAlias']
+            keyPassword releaseKeystoreProperties['keyPassword']
         }
     }
     namespace 'com.nitishsharma.chatapp'
