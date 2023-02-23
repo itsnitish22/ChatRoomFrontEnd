@@ -30,21 +30,26 @@ class OnboardingFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        binding = FragmentOnboardingBinding.inflate(inflater, container, false)
+    ): View? = FragmentOnboardingBinding.inflate(inflater, container, false).also {
+        binding = it
+    }.root
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         initializeInstances() //initialize instances
-
+        setupComposeView()
         //on click signInWithGoogle
         binding.signInWithGoogle.setOnClickListener {
             binding.progressBar.visibility = View.VISIBLE
             authenticateWithGoogle()
 //            signIn()
         }
-
-        return binding.root
     }
 
+    private fun setupComposeView() {
+        binding.composeView.setContent {
+        }
+    }
 
     /**
     this is [google] authentication/ sign in
