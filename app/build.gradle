@@ -14,7 +14,7 @@ debugKeystoreProperties.load(new FileInputStream(debugKeystorePropertiesFile))
 
 def releaseKeystorePropertiesFile = rootProject.file("env/chatroom_release_keystore.properties");
 def releaseKeystoreProperties = new Properties()
-if(releaseKeystorePropertiesFile.exists()) {
+if (releaseKeystorePropertiesFile.exists()) {
     releaseKeystoreProperties.load(new FileInputStream(releaseKeystorePropertiesFile))
 }
 

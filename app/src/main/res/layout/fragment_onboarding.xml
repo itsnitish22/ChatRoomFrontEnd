@@ -37,21 +37,23 @@
         android:background="#E9E9E9"
         app:layout_goneMarginTop="17dp" />
 
-    <androidx.compose.ui.platform.ComposeView
-        android:id="@+id/composeView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/seperatorLine" />
+    <!--    <androidx.compose.ui.platform.ComposeView-->
+    <!--        android:id="@+id/composeView"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_marginStart="30dp"-->
+    <!--        android:layout_marginEnd="30dp"-->
+    <!--        android:layout_height="60dp"-->
+    <!--        android:layout_below="@id/seperatorLine" />-->
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/seperatorLine">
 
-        <com.google.android.gms.common.SignInButton
-            android:id="@+id/signInWithGoogle"
+        <androidx.compose.ui.platform.ComposeView
+            android:id="@+id/composeView"
             android:layout_width="match_parent"
-            android:layout_height="70dp"
+            android:layout_height="60dp"
             android:layout_marginStart="30dp"
             android:layout_marginEnd="30dp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -70,7 +72,7 @@
             android:textSize="11sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/signInWithGoogle" />
+            app:layout_constraintTop_toBottomOf="@id/composeView" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
