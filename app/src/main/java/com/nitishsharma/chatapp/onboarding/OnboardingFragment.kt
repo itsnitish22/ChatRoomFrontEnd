@@ -5,21 +5,36 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.SignInButton
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.nitishsharma.chatapp.R
 import com.nitishsharma.chatapp.databinding.FragmentOnboardingBinding
+import com.nitishsharma.chatapp.utils.Utility.toast
 
 
 class OnboardingFragment : Fragment() {
@@ -38,16 +53,60 @@ class OnboardingFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         initializeInstances() //initialize instances
         setupComposeView()
-        //on click signInWithGoogle
-        binding.signInWithGoogle.setOnClickListener {
-            binding.progressBar.visibility = View.VISIBLE
-            authenticateWithGoogle()
-//            signIn()
-        }
     }
 
     private fun setupComposeView() {
         binding.composeView.setContent {
+            GoogleAuthenticationButton()
+        }
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Preview
+    @Composable
+    fun GoogleAuthenticationButton() {
+        var clicked by remember {
+            mutableStateOf(false)
+        }
+
+        Surface(
+            onClick = {
+                clicked = !clicked
+                authenticateWithGoogle()
+            },
+            shape = RoundedCornerShape(4.dp),
+            border = BorderStroke(width = 1.dp, color = Color.LightGray),
+            color = MaterialTheme.colorScheme.surface,
+            modifier = Modifier.animateContentSize(
+                animationSpec = tween(
+                    300,
+                    easing = LinearOutSlowInEasing
+                )
+            )
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.padding(
+                    start = 12.dp,
+                    end = 16.dp,
+                    top = 16.dp,
+                    bottom = 16.dp
+                )
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_google),
+                    contentDescription = "",
+                    tint = Color.Unspecified
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(
+                    text = "Authenticate to continue",
+                    color = Color(0xFF808080),
+                    fontSize = 14.sp,
+                    fontFamily = FontFamily(Font(R.font.inter_bold))
+                )
+            }
         }
     }
 
@@ -60,7 +119,6 @@ class OnboardingFragment : Fragment() {
     private fun initializeInstances() {
         auth = FirebaseAuth.getInstance()
         initializeGoogleAuthentication()
-        setGooglePlusButtonText(binding.signInWithGoogle, "Authenticate to continue")
     }
 
     //initializing google authentication
@@ -75,6 +133,7 @@ class OnboardingFragment : Fragment() {
 
     //authenticating with google
     private fun authenticateWithGoogle() {
+        binding.progressBar.visibility = View.VISIBLE
         launcher.launch(googleSignInClient.signInIntent)
     }
 
@@ -84,6 +143,8 @@ class OnboardingFragment : Fragment() {
             if (result.resultCode == Activity.RESULT_OK) {
                 val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
                 handleResults(task)
+            } else {
+                binding.progressBar.visibility = View.GONE
             }
         }
 
@@ -94,6 +155,9 @@ class OnboardingFragment : Fragment() {
             account?.let {
                 updateUI(it)
             }
+        } else {
+            binding.progressBar.visibility = View.GONE
+            toast("Some error occurred")
         }
     }
 
@@ -109,18 +173,7 @@ class OnboardingFragment : Fragment() {
                     )
                 )
             } else {
-                Toast.makeText(requireContext(), "Some error occurred", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    //setting up text on google authenticate button
-    private fun setGooglePlusButtonText(signInButton: SignInButton, buttonText: String?) {
-        for (i in 0 until signInButton.childCount) {
-            val v = signInButton.getChildAt(i)
-            if (v is TextView) {
-                v.text = buttonText
-                return
+                toast("Some error occurred")
             }
         }
     }
