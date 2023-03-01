@@ -10,7 +10,6 @@ import io.socket.client.Socket
 import timber.log.Timber
 import timber.log.Timber.Forest.plant
 
-
 class FirstChat : Application() {
     var socketIO: Socket? = IO.socket(BuildConfig.BASE_URL)
 
