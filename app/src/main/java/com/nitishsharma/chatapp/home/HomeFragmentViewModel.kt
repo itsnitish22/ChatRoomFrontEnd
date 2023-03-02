@@ -54,7 +54,6 @@ class HomeFragmentViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 RetrofitInstance.api.deleteCurrentRoom(Utility.deleteRoomJSONMapping(roomId))
-                Timber.tag("Delete Room Body").i(Utility.deleteRoomJSONMapping(roomId).toString())
                 _deleteRoomSuccess.postValue(true)
             } catch (e: Exception) {
                 Timber.tag("Delete Room Error").e(e.toString())
