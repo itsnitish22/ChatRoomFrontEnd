@@ -61,6 +61,21 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/inviteSomeone" />
 
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/deleteCurrentRoom"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/room_options_textview_background"
+                android:drawableStart="@drawable/ic_copy"
+                android:drawablePadding="10dp"
+                android:fontFamily="@font/sharp_grotesk_medium20"
+                android:padding="15dp"
+                android:paddingStart="20dp"
+                android:text="Delete this room"
+                android:textSize="14sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/copyRoomId" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

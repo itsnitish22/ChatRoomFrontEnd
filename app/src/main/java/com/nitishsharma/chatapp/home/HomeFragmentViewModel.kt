@@ -27,6 +27,10 @@ class HomeFragmentViewModel : ViewModel() {
     val successSignOut: LiveData<Boolean>
         get() = _successSignOut
 
+    private val _deleteRoomSuccess: MutableLiveData<Boolean> = MutableLiveData(false)
+    val deleteRoomSuccess: LiveData<Boolean>
+        get() = _deleteRoomSuccess
+
     private val _responseAllUserActiveRooms: MutableLiveData<AllUserActiveRooms> = MutableLiveData()
     val responseAllUserActiveRooms: LiveData<AllUserActiveRooms>
         get() = _responseAllUserActiveRooms
@@ -40,8 +44,19 @@ class HomeFragmentViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 _responseAllUserActiveRooms.postValue(RetrofitInstance.api.getAllActiveRooms(body))
+                _deleteRoomSuccess.postValue(true)
             } catch (e: Exception) {
                 Timber.tag("Active Rooms Error").e(e.toString())
+            }
+        }
+    }
+
+    fun deleteCurrentRoom(roomId: String){
+        viewModelScope.launch {
+            try {
+                RetrofitInstance.api.deleteCurrentRoom(roomId = roomId)
+            }catch (e:Exception){
+                Timber.tag("Delete Room Error").e(e.toString())
             }
         }
     }

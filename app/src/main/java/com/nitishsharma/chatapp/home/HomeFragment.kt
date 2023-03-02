@@ -194,6 +194,12 @@ class HomeFragment : Fragment() {
                     loadDataInLazyColum(allUserActiveRooms.activeRooms)
                 } else showNoActiveRooms()
             })
+
+        homeFragmentVM.deleteRoomSuccess.observe(requireActivity(), Observer { deleteRoomSuccess ->
+            if (deleteRoomSuccess) {
+                getAllUserActiveRooms()
+            }
+        })
     }
 
     private fun loadDataInLazyColum(activeRooms: ArrayList<ActiveRooms>) {
@@ -213,6 +219,7 @@ class HomeFragment : Fragment() {
         val roomName = view.findViewById<AppCompatTextView>(R.id.roomNameTv)
         val inviteSomeone = view.findViewById<AppCompatTextView>(R.id.inviteSomeone)
         val copyRoomId = view.findViewById<AppCompatTextView>(R.id.copyRoomId)
+        val deleteCurrentRoom = view.findViewById<AppCompatTextView>(R.id.deleteCurrentRoom)
 
         roomName.text = currentRoom.roomName
         copyRoomId.setOnClickListener {
@@ -222,6 +229,10 @@ class HomeFragment : Fragment() {
         }
         inviteSomeone.setOnClickListener {
             shareRoom(currentRoom.roomId, currentRoom.roomName)
+            bottomSheetDialog.dismiss()
+        }
+        deleteCurrentRoom.setOnClickListener {
+            homeFragmentVM.deleteCurrentRoom(currentRoom.roomId)
             bottomSheetDialog.dismiss()
         }
 
