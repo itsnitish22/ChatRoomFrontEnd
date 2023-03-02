@@ -44,18 +44,19 @@ class HomeFragmentViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 _responseAllUserActiveRooms.postValue(RetrofitInstance.api.getAllActiveRooms(body))
-                _deleteRoomSuccess.postValue(true)
             } catch (e: Exception) {
                 Timber.tag("Active Rooms Error").e(e.toString())
             }
         }
     }
 
-    fun deleteCurrentRoom(roomId: String){
+    fun deleteCurrentRoom(roomId: String) {
         viewModelScope.launch {
             try {
-                RetrofitInstance.api.deleteCurrentRoom(roomId = roomId)
-            }catch (e:Exception){
+                RetrofitInstance.api.deleteCurrentRoom(Utility.deleteRoomJSONMapping(roomId))
+                Timber.tag("Delete Room Body").i(Utility.deleteRoomJSONMapping(roomId).toString())
+                _deleteRoomSuccess.postValue(true)
+            } catch (e: Exception) {
                 Timber.tag("Delete Room Error").e(e.toString())
             }
         }

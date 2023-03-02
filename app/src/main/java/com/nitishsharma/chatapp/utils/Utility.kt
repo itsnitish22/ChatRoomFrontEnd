@@ -49,6 +49,13 @@ object Utility {
         return jsonObject
     }
 
+    fun deleteRoomJSONMapping(roomId: String): JSONObject {
+        val jsonObject = JSONObject()
+        jsonObject.put("roomId", roomId)
+
+        return jsonObject
+    }
+
     fun generateUUID(): String {
         return UUID.randomUUID().toString()
     }
