@@ -12,7 +12,10 @@ import com.nitishsharma.chatapp.BuildConfig
 import com.nitishsharma.chatapp.models.chatresponse.parseMessage
 import org.json.JSONArray
 import org.json.JSONObject
+import java.net.InetAddress
+import java.net.NetworkInterface
 import java.util.*
+
 
 object Utility {
     const val SERVER_PATH = "wss://chatappbackendws.azurewebsites.net/"
@@ -58,6 +61,25 @@ object Utility {
 
     fun generateUUID(): String {
         return UUID.randomUUID().toString()
+    }
+
+    fun getCurrentNetworkIPAddress(): String? {
+        val interfaces = NetworkInterface.getNetworkInterfaces()
+        while (interfaces.hasMoreElements()) {
+            val networkInterface = interfaces.nextElement()
+            val addresses = networkInterface.inetAddresses
+            while (addresses.hasMoreElements()) {
+                val address = addresses.nextElement()
+                if (!address.isLoopbackAddress && address is InetAddress) {
+                    val ipAddr = address.getHostAddress()
+                    val isIPv4 = ipAddr.indexOf(':') < 0
+                    if (isIPv4) {
+                        return ipAddr
+                    }
+                }
+            }
+        }
+        return ""
     }
 
     fun Context.toast(message: String) {
