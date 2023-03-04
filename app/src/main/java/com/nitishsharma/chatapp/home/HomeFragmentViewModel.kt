@@ -1,5 +1,6 @@
 package com.nitishsharma.chatapp.home
 
+import android.os.Bundle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -53,7 +54,12 @@ class HomeFragmentViewModel : ViewModel() {
     fun deleteCurrentRoom(roomId: String) {
         viewModelScope.launch {
             try {
-                RetrofitInstance.api.deleteCurrentRoom(Utility.deleteRoomJSONMapping(roomId))
+                RetrofitInstance.api.deleteCurrentRoom(
+                    Utility.bundleToJSONMapping(null,
+                        Bundle().apply {
+                            putString("roomId", roomId)
+                        })
+                )
                 _deleteRoomSuccess.postValue(true)
             } catch (e: Exception) {
                 Timber.tag("Delete Room Error").e(e.toString())
@@ -67,9 +73,13 @@ class HomeFragmentViewModel : ViewModel() {
         roomName: String
     ): String {
         val roomId = Utility.generateUUID()
-        val data =
-            Utility.createRoomJSONMapping(firebaseInstance.currentUser!!.uid, roomId, roomName)
-        socketIOInstance?.emit("create-room", data)
+        socketIOInstance?.emit("create-room", Utility.bundleToJSONMapping(null,
+            Bundle().apply {
+                putString("userId", firebaseInstance.currentUser?.uid);
+                putString("roomId", roomId);
+                putString("roomName", roomName)
+            }
+        ))
         return joinRoom(socketIOInstance, roomId, firebaseInstance)
     }
 
@@ -78,9 +88,13 @@ class HomeFragmentViewModel : ViewModel() {
         roomId: String,
         firebaseInstance: FirebaseAuth
     ): String {
-        val dataToSend = Utility.joinRoomJSONMapping(roomId, firebaseInstance)
-        socketIOInstance?.emit("join-room", dataToSend)
-
+        socketIOInstance?.emit(
+            "join-room", Utility.bundleToJSONMapping(
+                null, Bundle().apply {
+                    putString("roomId", roomId);
+                    putString("userName", firebaseInstance.currentUser?.displayName)
+                })
+        )
         return roomId
     }
 

@@ -37,9 +37,8 @@ class ChatActivityViewModel : ViewModel() {
 
     private val onNewChatMessageEvent =
         Emitter.Listener { args ->
-            val dataFromUser = Utility.chatMessageResponseMapping(args)
             _receivedData.postValue(null)
-            _receivedData.postValue(dataFromUser)
+            _receivedData.postValue(Utility.bundleToJSONMapping(args, null))
         }
 
     private val onRoomError = Emitter.Listener { args ->
