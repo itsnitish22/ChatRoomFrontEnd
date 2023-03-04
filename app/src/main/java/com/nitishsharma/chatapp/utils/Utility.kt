@@ -4,13 +4,14 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.os.Bundle
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.google.firebase.auth.FirebaseAuth
 import com.google.gson.Gson
-import com.nitishsharma.chatapp.BuildConfig
 import com.nitishsharma.chatapp.models.chatresponse.parseMessage
 import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
 import java.net.InetAddress
 import java.net.NetworkInterface
@@ -18,10 +19,6 @@ import java.util.*
 
 
 object Utility {
-    const val SERVER_PATH = "wss://chatappbackendws.azurewebsites.net/"
-    const val SERVER_PATH_PIESOCKET_TEST =
-        "wss://${BuildConfig.PIESOCKET_CLUSTER_ID}.piesocket.com/v3/${BuildConfig.PIESOCKET_ROOM_ID}?api_key=${BuildConfig.PIESOCKET_API_KEY}&notify_self=1"
-
     fun chatMessageResponseMapping(args: Array<Any>?): JSONObject {
         val receivedMessageFromServer =
             parseMessage(JSONArray(Gson().toJson(args))[0].toString())
@@ -33,6 +30,30 @@ object Utility {
         mappedData.put("isSent", false)
 
         return mappedData
+    }
+
+    fun bundleToJSONMapping(args: Array<Any>? = null, bundle: Bundle? = null): JSONObject {
+        val json = JSONObject()
+        val keys = bundle?.keySet()
+        if (args.isNullOrEmpty()) {
+            keys?.let {
+                for (key in keys) {
+                    try {
+                        json.put(key, bundle.get(key))
+                    } catch (e: JSONException) {
+                    }
+                }
+            }
+        } else {
+            val receivedMessageFromServer =
+                parseMessage(JSONArray(Gson().toJson(args))[0].toString())
+            json.put("userName", receivedMessageFromServer.userName)
+            json.put("message", receivedMessageFromServer.message)
+            json.put("roomId", receivedMessageFromServer.roomId)
+            json.put("isSent", false)
+        }
+
+        return json
     }
 
     fun joinRoomJSONMapping(roomId: String, firebaseInstance: FirebaseAuth): JSONObject {
@@ -71,10 +92,10 @@ object Utility {
             while (addresses.hasMoreElements()) {
                 val address = addresses.nextElement()
                 if (!address.isLoopbackAddress && address is InetAddress) {
-                    val ipAddr = address.getHostAddress()
-                    val isIPv4 = ipAddr.indexOf(':') < 0
+                    val ipv4Address = address.hostAddress
+                    val isIPv4 = ipv4Address.indexOf(':') < 0
                     if (isIPv4) {
-                        return ipAddr
+                        return ipv4Address
                     }
                 }
             }
