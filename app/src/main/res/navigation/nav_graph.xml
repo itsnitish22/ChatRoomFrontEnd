@@ -55,4 +55,9 @@
             app:popUpTo="@+id/homeFragment"
             app:popUpToInclusive="true" />
     </fragment>
+    <activity
+        android:id="@+id/chatActivity"
+        android:name="com.nitishsharma.chatapp.chats.ChatActivity"
+        android:label="activity_chat"
+        tools:layout="@layout/activity_chat" />
 </navigation>

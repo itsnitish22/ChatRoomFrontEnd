@@ -1,7 +1,6 @@
 package com.nitishsharma.chatapp.chats
 
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
@@ -9,6 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.nitishsharma.chatapp.application.FirstChat
 import com.nitishsharma.chatapp.databinding.ActivityChatBinding
 import com.nitishsharma.chatapp.utils.Utility.shareRoom
+import com.nitishsharma.chatapp.utils.Utility.toast
 import io.socket.client.Socket
 import org.json.JSONObject
 
@@ -83,11 +83,15 @@ class ChatActivity : AppCompatActivity() {
         })
 
         chatActivityViewModel.roomEvent.observe(this, Observer { roomEvent ->
-            Toast.makeText(this, roomEvent, Toast.LENGTH_SHORT).show()
+            toast(roomEvent.toString())
         })
 
         chatActivityViewModel.roomError.observe(this, Observer { roomError ->
-            Toast.makeText(this, roomError, Toast.LENGTH_SHORT).show()
+            toast(roomError.toString())
+        })
+
+        chatActivityViewModel.onUserLeftRoomEvent.observe(this, Observer { userDisconnectEvent ->
+            toast(userDisconnectEvent)
         })
     }
 
