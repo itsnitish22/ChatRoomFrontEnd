@@ -79,11 +79,14 @@ class HomeFragment : Fragment() {
         drawerLayout = binding.drawerLayout
         shimmerFrameLayout = binding.shimmerFrameLayout
 
-        //initializing the views
+        //initializations
         initViews()
-        initializeSocketListeners()
-        initializeObservers()
+        initSocketListeners()
+        initObservers()
+        initClickListeners()
+    }
 
+    private fun initClickListeners() {
         binding.apply {
             createRoomButton.setOnClickListener {
                 showRoomBottomSheet("Create room", "Room's nick name", 1)
@@ -174,7 +177,7 @@ class HomeFragment : Fragment() {
         getAllUserActiveRooms()
     }
 
-    private fun initializeObservers() {
+    private fun initObservers() {
         homeFragmentVM.receivedRoomName.observe(requireActivity(), Observer { receivedName ->
             roomId?.let {
                 startChatActivity(it, receivedName.toString())
@@ -268,7 +271,7 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun initializeSocketListeners() {
+    private fun initSocketListeners() {
         homeFragmentVM.initializeSocketListeners(socketIOInstance)
     }
 
