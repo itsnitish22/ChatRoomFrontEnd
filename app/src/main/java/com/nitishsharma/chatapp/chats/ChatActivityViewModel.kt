@@ -23,6 +23,10 @@ class ChatActivityViewModel : ViewModel() {
     val roomEvent: LiveData<String?>
         get() = _roomEvent
 
+    private val _onUserLeftRoomEvent: MutableLiveData<String> = MutableLiveData()
+    val onUserLeftRoomEvent: LiveData<String>
+        get() = _onUserLeftRoomEvent
+
 
     //socket listeners
     /**
@@ -33,22 +37,24 @@ class ChatActivityViewModel : ViewModel() {
         socketIOInstance?.on("chat-message", onNewChatMessageEvent)
         socketIOInstance?.on("room-event", onRoomEvent)
         socketIOInstance?.on("room-error", onRoomError)
+        socketIOInstance?.on("leave-room-event", onUserLeftRoom)
     }
 
     private val onNewChatMessageEvent =
         Emitter.Listener { args ->
-            _receivedData.postValue(null)
             _receivedData.postValue(Utility.bundleToJSONMapping(args, null))
         }
 
     private val onRoomError = Emitter.Listener { args ->
-        _roomError.postValue(null)
         _roomError.postValue(JSONArray(Gson().toJson(args))[0].toString())
     }
 
     private val onRoomEvent = Emitter.Listener { args ->
-        _roomEvent.postValue(null)
         _roomEvent.postValue(JSONArray(Gson().toJson(args))[0].toString())
+    }
+
+    private val onUserLeftRoom = Emitter.Listener { args ->
+        _onUserLeftRoomEvent.postValue(JSONArray(Gson().toJson(args))[0].toString())
     }
 
 

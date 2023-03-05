@@ -11,7 +11,6 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.EditText
-import androidx.appcompat.widget.AppCompatTextView
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -45,6 +44,7 @@ import com.nitishsharma.chatapp.MainActivity
 import com.nitishsharma.chatapp.R
 import com.nitishsharma.chatapp.chats.ChatActivity
 import com.nitishsharma.chatapp.databinding.FragmentHomeBinding
+import com.nitishsharma.chatapp.databinding.RoomOptionsBottomSheetBinding
 import com.nitishsharma.chatapp.models.roomsresponse.ActiveRooms
 import com.nitishsharma.chatapp.models.roomsresponse.ConvertToBodyForAllUserActiveRooms
 import com.nitishsharma.chatapp.utils.Utility.copyTextToClipboard
@@ -191,8 +191,11 @@ class HomeFragment : Fragment() {
             requireActivity(),
             Observer { allUserActiveRooms ->
                 if (allUserActiveRooms.numberOfActiveRooms >= 1) {
+                    setupViewForActiveRooms()
                     loadDataInLazyColum(allUserActiveRooms.activeRooms)
-                } else showNoActiveRooms()
+                } else {
+                    setupViewForNoActiveRooms()
+                }
             })
 
         homeFragmentVM.deleteRoomSuccess.observe(requireActivity(), Observer { deleteRoomSuccess ->
@@ -202,54 +205,66 @@ class HomeFragment : Fragment() {
         })
     }
 
+    private fun setupViewForActiveRooms() {
+        binding.apply {
+            activeRoomsTv.visibility = View.VISIBLE
+            shimmerFrameLayout.stopShimmer()
+            shimmerFrameLayout.visibility = View.GONE
+            composeViewLazyColumn.visibility = View.VISIBLE
+            noActiveRoomsTv.visibility = View.GONE
+            noActiveRoomsDescTv.visibility = View.GONE
+            roomIv.visibility = View.GONE
+        }
+    }
+
+    private fun setupViewForNoActiveRooms() {
+        shimmerFrameLayout.stopShimmer()
+        shimmerFrameLayout.visibility = View.GONE
+        binding.apply {
+            activeRoomsTv.visibility = View.GONE
+            composeViewLazyColumn.visibility = View.GONE
+            noActiveRoomsTv.visibility = View.VISIBLE
+            noActiveRoomsDescTv.visibility = View.VISIBLE
+            roomIv.visibility = View.VISIBLE
+        }
+    }
+
+
     private fun loadDataInLazyColum(activeRooms: ArrayList<ActiveRooms>) {
         binding.apply {
             composeViewLazyColumn.setContent {
-                activeRoomsTv.visibility = View.VISIBLE
-                shimmerFrameLayout.stopShimmer()
-                shimmerFrameLayout.visibility = View.GONE
                 SetupLazyColumn(activeRooms = activeRooms)
             }
         }
     }
 
     private fun showRoomOptionsBottomSheet(currentRoom: ActiveRooms) {
-        val view = layoutInflater.inflate(R.layout.room_options_bottom_sheet, null)
+        val ui: RoomOptionsBottomSheetBinding
+        val view = RoomOptionsBottomSheetBinding.inflate(layoutInflater).also {
+            ui = it
+        }.root
 
-        val roomName = view.findViewById<AppCompatTextView>(R.id.roomNameTv)
-        val inviteSomeone = view.findViewById<AppCompatTextView>(R.id.inviteSomeone)
-        val copyRoomId = view.findViewById<AppCompatTextView>(R.id.copyRoomId)
-        val deleteCurrentRoom = view.findViewById<AppCompatTextView>(R.id.deleteCurrentRoom)
-
-        roomName.text = currentRoom.roomName
-        copyRoomId.setOnClickListener {
-            copyTextToClipboard(currentRoom.roomId, "Room ID")
-            toast("Copied")
-            bottomSheetDialog.dismiss()
-        }
-        inviteSomeone.setOnClickListener {
-            shareRoom(currentRoom.roomId, currentRoom.roomName)
-            bottomSheetDialog.dismiss()
-        }
-        deleteCurrentRoom.setOnClickListener {
-            homeFragmentVM.deleteCurrentRoom(currentRoom.roomId)
-            bottomSheetDialog.dismiss()
+        ui.apply {
+            roomNameTv.text = currentRoom.roomName
+            copyRoomId.setOnClickListener {
+                copyTextToClipboard(currentRoom.roomId, "Room ID")
+                toast("Copied")
+                bottomSheetDialog.dismiss()
+            }
+            inviteSomeone.setOnClickListener {
+                shareRoom(currentRoom.roomId, currentRoom.roomName)
+                bottomSheetDialog.dismiss()
+            }
+            deleteCurrentRoom.setOnClickListener {
+                homeFragmentVM.deleteCurrentRoom(currentRoom.roomId)
+                bottomSheetDialog.dismiss()
+            }
         }
 
         bottomSheetDialog.apply {
             setCancelable(true)
             setContentView(view)
             show()
-        }
-    }
-
-    private fun showNoActiveRooms() {
-        shimmerFrameLayout.stopShimmer()
-        shimmerFrameLayout.visibility = View.GONE
-        binding.apply {
-            noActiveRoomsTv.visibility = View.VISIBLE
-            roomIv.visibility = View.VISIBLE
-            noActiveRoomsDescTv.visibility = View.VISIBLE
         }
     }
 
