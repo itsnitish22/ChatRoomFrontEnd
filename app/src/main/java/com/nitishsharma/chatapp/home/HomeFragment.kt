@@ -1,5 +1,6 @@
 package com.nitishsharma.chatapp.home
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -15,6 +16,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -52,6 +57,7 @@ import com.nitishsharma.chatapp.utils.Utility.shareRoom
 import com.nitishsharma.chatapp.utils.Utility.toast
 import de.hdodenhof.circleimageview.CircleImageView
 import io.socket.client.Socket
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class HomeFragment : Fragment() {
@@ -370,5 +376,72 @@ class HomeFragment : Fragment() {
                 firebaseInstance.currentUser!!.uid
             )
         )
+    }
+
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+    @OptIn(ExperimentalMaterialApi::class)
+    @ExperimentalMaterial3Api
+    @Composable
+    fun BottomSheetLayout() {
+        val coroutineScope = rememberCoroutineScope()
+        val modalSheetState = rememberModalBottomSheetState(
+            initialValue = ModalBottomSheetValue.Hidden,
+            confirmStateChange = { it != ModalBottomSheetValue.HalfExpanded },
+            skipHalfExpanded = true
+        )
+
+        var isSheetFullScreen by remember {
+            mutableStateOf(false)
+        }
+
+        val roundedCornerRadius = if (isSheetFullScreen) 0.dp else 12.dp
+        val modifier = if (isSheetFullScreen) Modifier.fillMaxSize() else Modifier.fillMaxWidth()
+
+        ModalBottomSheetLayout(
+            sheetState = modalSheetState,
+            sheetContent = {
+                Column(
+                    modifier = modifier,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Button(
+                        onClick = {
+                            isSheetFullScreen = !isSheetFullScreen
+                        }
+                    ) {
+                        Text(text = "Toggle Sheet Fullscreen")
+                    }
+                    Button(
+                        onClick = {
+                            coroutineScope.launch { modalSheetState.hide() }
+                        }
+                    ) {
+                        Text(text = "Hide Sheet")
+                    }
+                }
+            }
+        ) {
+            Scaffold {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Button(
+                        onClick = {
+                            coroutineScope.launch {
+                                if (modalSheetState.isVisible)
+                                    modalSheetState.hide()
+                                else
+                                    modalSheetState.animateTo(ModalBottomSheetValue.Expanded)
+                            }
+                        },
+                    ) {
+                        Text(text = "Open Sheet")
+                    }
+                }
+            }
+        }
     }
 }

@@ -11,4 +11,7 @@ interface ChatRoomAPI {
 
     @POST("/db/deleteCurrentRoom")
     suspend fun deleteCurrentRoom(@Body deleteRoomBody: JSONObject): Unit
+
+    @POST("/db/saveUserToDb")
+    suspend fun saveUserToDb(@Body saveUserToDbBody: JSONObject): Unit
 }

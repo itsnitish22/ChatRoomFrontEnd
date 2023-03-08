@@ -24,6 +24,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -35,12 +37,14 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.nitishsharma.chatapp.R
 import com.nitishsharma.chatapp.databinding.FragmentOnboardingBinding
 import com.nitishsharma.chatapp.utils.Utility.toast
+import timber.log.Timber
 
 
 class OnboardingFragment : Fragment() {
     private lateinit var auth: FirebaseAuth
     private lateinit var binding: FragmentOnboardingBinding
     private lateinit var googleSignInClient: GoogleSignInClient
+    private val onboardingVM: OnboardingFragmentViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -52,7 +56,17 @@ class OnboardingFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initializeInstances() //initialize instances
+        initializeObservers()
         setupComposeView()
+    }
+
+    private fun initializeObservers() {
+        onboardingVM.userSavedSuccessfully.observe(requireActivity(), Observer {
+            if (it) {
+                Timber.tag("User Saved Successfully").i("User saved to DB")
+                navigateToHomeFragment()
+            }
+        })
     }
 
     private fun setupComposeView() {
@@ -142,18 +156,30 @@ class OnboardingFragment : Fragment() {
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-                handleResults(task)
+                auth.fetchSignInMethodsForEmail(task.result.email.toString())
+                    .addOnCompleteListener { work ->
+                        if (work.isSuccessful) {
+                            val result = work.result?.signInMethods
+                            if (result.isNullOrEmpty())
+                                handleResults(task, true)
+                            else
+                                handleResults(task, false)
+                        } else {
+                            binding.progressBar.visibility = View.GONE
+                            toast("oops!")
+                        }
+                    }
             } else {
                 binding.progressBar.visibility = View.GONE
             }
         }
 
     //handling google authenticate results
-    private fun handleResults(task: Task<GoogleSignInAccount>) {
+    private fun handleResults(task: Task<GoogleSignInAccount>, saveToDB: Boolean) {
         if (task.isSuccessful) {
             val account: GoogleSignInAccount? = task.result
             account?.let {
-                updateUI(it)
+                updateUI(it, saveToDB)
             }
         } else {
             binding.progressBar.visibility = View.GONE
@@ -162,19 +188,30 @@ class OnboardingFragment : Fragment() {
     }
 
     //updating the ui on successful authentication
-    private fun updateUI(account: GoogleSignInAccount) {
+    private fun updateUI(account: GoogleSignInAccount, saveToDB: Boolean) {
         val credential = GoogleAuthProvider.getCredential(account.idToken, null)
         auth.signInWithCredential(credential).addOnCompleteListener {
             if (it.isSuccessful) {
-                binding.progressBar.visibility = View.GONE
-                findNavController().navigate(
-                    OnboardingFragmentDirections.actionOnboardingFragmentToHomeFragment(
-                        firebaseUser = auth.currentUser
-                    )
-                )
+                if (saveToDB)
+                    saveUserToDb()
+                else
+                    navigateToHomeFragment()
             } else {
                 toast("Some error occurred")
             }
         }
+    }
+
+    private fun saveUserToDb() {
+        onboardingVM.saveUserToDb(auth.currentUser!!)
+    }
+
+    private fun navigateToHomeFragment() {
+        binding.progressBar.visibility = View.GONE
+        findNavController().navigate(
+            OnboardingFragmentDirections.actionOnboardingFragmentToHomeFragment(
+                firebaseUser = auth.currentUser
+            )
+        )
     }
 }
