@@ -1,7 +1,10 @@
 package com.nitishsharma.chatapp
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import com.nitishsharma.chatapp.application.FirstChat
 import io.socket.client.Socket
 import timber.log.Timber
@@ -17,15 +20,15 @@ class MainActivity : AppCompatActivity() {
 
         Timber.tag("URL").i(BuildConfig.BASE_URL)
         //asking permission for media (not useful currently)
-//        if (ActivityCompat.checkSelfPermission(
-//                this,
-//                Manifest.permission.READ_EXTERNAL_STORAGE
-//            ) != PackageManager.PERMISSION_GRANTED
-//        ) ActivityCompat.requestPermissions(
-//            this,
-//            arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-//            10
-//        )
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            ) != PackageManager.PERMISSION_GRANTED
+        ) ActivityCompat.requestPermissions(
+            this,
+            arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+            10
+        )
 
     }
 }
