@@ -39,7 +39,6 @@ import com.nitishsharma.chatapp.databinding.FragmentOnboardingBinding
 import com.nitishsharma.chatapp.utils.Utility.toast
 import timber.log.Timber
 
-
 class OnboardingFragment : Fragment() {
     private lateinit var auth: FirebaseAuth
     private lateinit var binding: FragmentOnboardingBinding
