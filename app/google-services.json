@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "467369143362",
+    "firebase_url": "https://chatroom-b75bb-default-rtdb.asia-southeast1.firebasedatabase.app",
     "project_id": "chatroom-b75bb",
     "storage_bucket": "chatroom-b75bb.appspot.com"
   },
@@ -18,6 +19,43 @@
           "client_type": 1,
           "android_info": {
             "package_name": "com.nitishsharma.chatapp",
+            "certificate_hash": "52b98d59806160b3bf4dd071e817b8dad7d054f9"
+          }
+        },
+        {
+          "client_id": "467369143362-3b46fmfeqc7k347rmvf08406ne5vhng9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyChvXeNJ5Ms-XHYc78JOcVrY5OICiYhER4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "467369143362-3b46fmfeqc7k347rmvf08406ne5vhng9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:467369143362:android:be698b4ac87350454411db",
+        "android_client_info": {
+          "package_name": "com.nitishsharma.chatapp.debug"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "467369143362-hg29r5086rh41v71f5fjssvdlbpk2pm6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.nitishsharma.chatapp.debug",
             "certificate_hash": "52b98d59806160b3bf4dd071e817b8dad7d054f9"
           }
         },

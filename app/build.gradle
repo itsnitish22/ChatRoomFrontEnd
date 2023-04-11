@@ -6,6 +6,7 @@ plugins {
     id 'androidx.navigation.safeargs.kotlin'
     id 'kotlin-parcelize'
     id 'com.google.firebase.crashlytics'
+    id 'com.starter.easylauncher'
 }
 
 def debugKeystorePropertiesFile = rootProject.file("env/debug_keystore.properties");
@@ -43,11 +44,11 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.nitishsharma.chatapp"
+        applicationId appConfig.applicationId
         minSdk 21
         targetSdk 33
-        versionCode 1
-        versionName "1.0"
+        versionCode appConfig.versionCode
+        versionName appConfig.versionName
 
         Properties properties = new Properties()
         properties.load(project.rootProject.file("local.properties").newDataInputStream())
@@ -68,8 +69,10 @@ android {
         }
 
         debug {
-            minifyEnabled false
             debuggable true
+            minifyEnabled false
+            shrinkResources false
+            applicationIdSuffix ".debug"
             buildConfigField "String", "BASE_URL", "\"http://192.168.18.4:3000/\""
         }
     }
@@ -177,4 +180,12 @@ dependencies {
 
     //lottie animation from airbnb
     implementation 'com.airbnb.android:lottie:6.0.0'
+}
+
+easylauncher {
+    buildTypes {
+        debug {
+            filters = [chromeLike(label: "${appConfig.versionName}", textSizeRatio: 0.2)]
+        }
+    }
 }

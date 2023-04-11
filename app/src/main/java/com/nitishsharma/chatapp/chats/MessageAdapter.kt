@@ -10,7 +10,6 @@ import com.nitishsharma.chatapp.R
 import org.json.JSONException
 import org.json.JSONObject
 
-
 class MessageAdapter(private val inflater: LayoutInflater) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val messages: MutableList<JSONObject> = ArrayList()
