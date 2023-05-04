@@ -50,11 +50,11 @@ import com.nitishsharma.chatapp.R
 import com.nitishsharma.chatapp.chats.ChatActivity
 import com.nitishsharma.chatapp.databinding.FragmentHomeBinding
 import com.nitishsharma.chatapp.databinding.RoomOptionsBottomSheetBinding
-import com.nitishsharma.chatapp.models.roomsresponse.ActiveRooms
-import com.nitishsharma.chatapp.models.roomsresponse.ConvertToBodyForAllUserActiveRooms
 import com.nitishsharma.chatapp.utils.Utility.copyTextToClipboard
 import com.nitishsharma.chatapp.utils.Utility.shareRoom
 import com.nitishsharma.chatapp.utils.Utility.toast
+import com.nitishsharma.domain.api.models.roomsresponse.ActiveRooms
+import com.nitishsharma.domain.api.models.roomsresponse.ConvertToBodyForAllUserActiveRooms
 import de.hdodenhof.circleimageview.CircleImageView
 import io.socket.client.Socket
 import kotlinx.coroutines.launch

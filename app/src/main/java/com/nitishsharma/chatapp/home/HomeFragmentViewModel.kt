@@ -7,18 +7,25 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.gson.Gson
-import com.nitishsharma.chatapp.api.retrofit.RetrofitInstance
-import com.nitishsharma.chatapp.models.roomsresponse.AllUserActiveRooms
-import com.nitishsharma.chatapp.models.roomsresponse.AllUserActiveRoomsBody
 import com.nitishsharma.chatapp.utils.Utility
+import com.nitishsharma.domain.api.interactors.DeleteCurrentRoomUseCase
+import com.nitishsharma.domain.api.interactors.GetAllActiveRoomsUseCase
+import com.nitishsharma.domain.api.models.roomsresponse.AllUserActiveRooms
+import com.nitishsharma.domain.api.models.roomsresponse.AllUserActiveRoomsBody
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
 import kotlinx.coroutines.launch
 import org.json.JSONArray
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import timber.log.Timber
 
-class HomeFragmentViewModel : ViewModel() {
-    private val firebaseInstance = FirebaseAuth.getInstance()
+class HomeFragmentViewModel : ViewModel(), KoinComponent {
+    private val getALlUserActiveRoomsUseCase: GetAllActiveRoomsUseCase by inject()
+    private val deleteCurrentRoomUseCase: DeleteCurrentRoomUseCase by inject()
+
+    private
+    val firebaseInstance = FirebaseAuth.getInstance()
 
     private val _receivedRoomName: MutableLiveData<String?> = MutableLiveData()
     val receivedRoomName: MutableLiveData<String?>
@@ -44,7 +51,7 @@ class HomeFragmentViewModel : ViewModel() {
     fun getAllUserActiveRooms(body: AllUserActiveRoomsBody) {
         viewModelScope.launch {
             try {
-                _responseAllUserActiveRooms.postValue(RetrofitInstance.api.getAllActiveRooms(body))
+                _responseAllUserActiveRooms.postValue(getALlUserActiveRoomsUseCase.invoke(body))
             } catch (e: Exception) {
                 Timber.tag("Active Rooms Error").e(e.toString())
             }
@@ -54,7 +61,7 @@ class HomeFragmentViewModel : ViewModel() {
     fun deleteCurrentRoom(roomId: String) {
         viewModelScope.launch {
             try {
-                RetrofitInstance.api.deleteCurrentRoom(
+                deleteCurrentRoomUseCase.invoke(
                     Utility.bundleToJSONMapping(null,
                         Bundle().apply {
                             putString("roomId", roomId)

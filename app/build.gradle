@@ -168,10 +168,6 @@ dependencies {
         exclude group: 'org.json', module: 'json'
     }
 
-    //dagger2
-    implementation "com.google.dagger:dagger:$dagger_version"
-    kapt "com.google.dagger:dagger-compiler:$dagger_version"
-
     //shimmer from fb
     implementation 'com.facebook.shimmer:shimmer:0.5.0'
 
@@ -180,6 +176,15 @@ dependencies {
 
     //lottie animation from airbnb
     implementation 'com.airbnb.android:lottie:6.0.0'
+
+    //koin
+    implementation("io.insert-koin:koin-android:$koin_version")
+
+    //splash screen api
+    implementation("androidx.core:core-splashscreen:$splash_version")
+
+    api project(path: ':domain')
+    api project(path: ':data')
 }
 
 easylauncher {
