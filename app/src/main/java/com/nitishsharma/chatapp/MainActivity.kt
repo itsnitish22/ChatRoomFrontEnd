@@ -9,7 +9,6 @@ import com.nitishsharma.chatapp.application.FirstChat
 import io.socket.client.Socket
 import timber.log.Timber
 
-
 class MainActivity : AppCompatActivity() {
     var socketIOInstance: Socket? = null
 

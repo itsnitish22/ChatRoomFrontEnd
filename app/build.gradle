@@ -185,7 +185,7 @@ dependencies {
 easylauncher {
     buildTypes {
         debug {
-            filters = [chromeLike(label: "${appConfig.versionName}", textSizeRatio: 0.2)]
+            filters = [customRibbon(position: "topLeft", label: "${appConfig.versionName}", textSizeRatio: 0.2)]
         }
     }
 }
