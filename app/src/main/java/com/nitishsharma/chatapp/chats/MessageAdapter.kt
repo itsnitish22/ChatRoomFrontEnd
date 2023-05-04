@@ -59,6 +59,7 @@ class MessageAdapter(private val inflater: LayoutInflater) :
                 view = inflater.inflate(R.layout.item_sent_message, parent, false)
                 return SentMessageHolder(view)
             }
+
             TYPE_MESSAGE_RECEIVED -> {
                 view = inflater.inflate(R.layout.item_received_message, parent, false)
                 return ReceivedMessageHolder(view)

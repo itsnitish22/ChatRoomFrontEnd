@@ -8,13 +8,13 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.google.gson.Gson
-import com.nitishsharma.chatapp.models.chatresponse.parseMessage
+import com.nitishsharma.domain.api.models.chatresponse.parseMessage
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import java.net.InetAddress
 import java.net.NetworkInterface
-import java.util.*
+import java.util.UUID
 
 object Utility {
     fun bundleToJSONMapping(args: Array<Any>? = null, bundle: Bundle? = null): JSONObject {

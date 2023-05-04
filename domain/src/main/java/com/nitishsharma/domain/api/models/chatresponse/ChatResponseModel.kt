@@ -1,6 +1,5 @@
-package com.nitishsharma.chatapp.models.chatresponse
+package com.nitishsharma.domain.api.models.chatresponse
 
-import com.nitishsharma.domain.api.models.chatresponse.Message
 import org.json.JSONObject
 
 data class Message(

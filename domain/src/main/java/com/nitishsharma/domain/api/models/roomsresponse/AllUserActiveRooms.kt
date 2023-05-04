@@ -1,8 +1,6 @@
-package com.nitishsharma.chatapp.models.roomsresponse
+package com.nitishsharma.domain.api.models.roomsresponse
 
 import com.google.gson.annotations.SerializedName
-import com.nitishsharma.domain.api.models.roomsresponse.ActiveRooms
-import com.nitishsharma.domain.api.models.roomsresponse.AllUserActiveRoomsBody
 
 data class AllUserActiveRooms(
     @SerializedName("count")

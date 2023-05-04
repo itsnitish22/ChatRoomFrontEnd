@@ -1,7 +1,6 @@
-package com.nitishsharma.chatapp.models.allfreeusers
+package com.nitishsharma.domain.api.models.allfreeusers
 
 import com.google.gson.annotations.SerializedName
-import com.nitishsharma.domain.api.models.allfreeusers.FreeUsers
 
 data class GetAllFreeUsers(
     @SerializedName("count")
