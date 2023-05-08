@@ -1,4 +1,4 @@
-package com.nitishsharma.chatapp.splashscreen
+package com.nitishsharma.chatapp.main.splashscreen
 
 import android.os.Bundle
 import android.os.Handler

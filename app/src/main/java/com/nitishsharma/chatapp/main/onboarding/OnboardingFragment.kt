@@ -1,4 +1,4 @@
-package com.nitishsharma.chatapp.onboarding
+package com.nitishsharma.chatapp.main.onboarding
 
 import android.app.Activity
 import android.os.Bundle
@@ -202,7 +202,7 @@ class OnboardingFragment : Fragment() {
     }
 
     private fun saveUserToDb() {
-        onboardingVM.saveUserToDb(auth.currentUser!!)
+        onboardingVM.saveUserToDb(auth.currentUser!!, "male")
     }
 
     private fun navigateToHomeFragment() {

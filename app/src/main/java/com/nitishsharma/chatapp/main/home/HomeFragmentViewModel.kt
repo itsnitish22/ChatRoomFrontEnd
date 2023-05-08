@@ -1,4 +1,4 @@
-package com.nitishsharma.chatapp.home
+package com.nitishsharma.chatapp.main.home
 
 import android.os.Bundle
 import androidx.lifecycle.LiveData
@@ -8,8 +8,12 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.gson.Gson
 import com.nitishsharma.chatapp.utils.Utility
+import com.nitishsharma.domain.api.interactors.CanJoinRoomUseCase
 import com.nitishsharma.domain.api.interactors.DeleteCurrentRoomUseCase
 import com.nitishsharma.domain.api.interactors.GetAllActiveRoomsUseCase
+import com.nitishsharma.domain.api.interactors.UpdateRoomAvailableStatusUseCase
+import com.nitishsharma.domain.api.interactors.UpdateRoomJoinerIdUseCase
+import com.nitishsharma.domain.api.models.canjoinroom.CanJoinRoom
 import com.nitishsharma.domain.api.models.roomsresponse.AllUserActiveRooms
 import com.nitishsharma.domain.api.models.roomsresponse.AllUserActiveRoomsBody
 import io.socket.client.Socket
@@ -23,9 +27,11 @@ import timber.log.Timber
 class HomeFragmentViewModel : ViewModel(), KoinComponent {
     private val getALlUserActiveRoomsUseCase: GetAllActiveRoomsUseCase by inject()
     private val deleteCurrentRoomUseCase: DeleteCurrentRoomUseCase by inject()
+    private val checkIfCanJoinRoomUseCase: CanJoinRoomUseCase by inject()
+    private val updateRoomAvailableStatusUseCase: UpdateRoomAvailableStatusUseCase by inject()
+    private val updateRoomJoinerIdUseCase: UpdateRoomJoinerIdUseCase by inject()
 
-    private
-    val firebaseInstance = FirebaseAuth.getInstance()
+    private val firebaseInstance = FirebaseAuth.getInstance()
 
     private val _receivedRoomName: MutableLiveData<String?> = MutableLiveData()
     val receivedRoomName: MutableLiveData<String?>
@@ -42,6 +48,18 @@ class HomeFragmentViewModel : ViewModel(), KoinComponent {
     private val _responseAllUserActiveRooms: MutableLiveData<AllUserActiveRooms> = MutableLiveData()
     val responseAllUserActiveRooms: LiveData<AllUserActiveRooms>
         get() = _responseAllUserActiveRooms
+
+    private val _canJoinRoom: MutableLiveData<CanJoinRoom?> = MutableLiveData(null)
+    val canJoinRoom: LiveData<CanJoinRoom?>
+        get() = _canJoinRoom
+
+    private val _changedRoomAvailableStatus: MutableLiveData<Boolean?> = MutableLiveData(null)
+    val changedRoomAvailableStatus: LiveData<Boolean?>
+        get() = _changedRoomAvailableStatus
+
+    private val _updatedRoomJoinerId: MutableLiveData<Boolean?> = MutableLiveData(null)
+    val updatedRoomJoinerId: LiveData<Boolean?>
+        get() = _updatedRoomJoinerId
 
     fun signOutUser() {
         firebaseInstance.signOut()
@@ -82,8 +100,9 @@ class HomeFragmentViewModel : ViewModel(), KoinComponent {
         val roomId = Utility.generateUUID()
         socketIOInstance?.emit("create-room", Utility.bundleToJSONMapping(null,
             Bundle().apply {
-                putString("userId", firebaseInstance.currentUser?.uid);
                 putString("roomId", roomId);
+                putString("creatorId", firebaseInstance.currentUser?.uid);
+                putString("joinerId", null)
                 putString("roomName", roomName)
             }
         ))
@@ -103,6 +122,46 @@ class HomeFragmentViewModel : ViewModel(), KoinComponent {
                 })
         )
         return roomId
+    }
+
+    fun checkIfCanJoinRoom(firebaseInstance: FirebaseAuth, roomId: String) {
+        viewModelScope.launch {
+            try {
+                _canJoinRoom.postValue(firebaseInstance.currentUser?.let {
+                    checkIfCanJoinRoomUseCase.invoke(
+                        it.uid, roomId
+                    )
+                })
+            } catch (e: java.lang.Exception) {
+                Timber.tag("Check If Can Join Room Error").e(e.toString())
+            }
+        }
+    }
+
+    fun updateRoomIsAvailableStatus(isAvailable: Boolean, roomId: String) {
+        viewModelScope.launch {
+            try {
+                val response = updateRoomAvailableStatusUseCase.invoke(isAvailable, roomId)
+                if (response.isSuccessful)
+                    _changedRoomAvailableStatus.postValue(true)
+                else
+                    _changedRoomAvailableStatus.postValue(false)
+            } catch (e: java.lang.Exception) {
+                Timber.tag("Update Room Is Available Error").e(e.toString())
+            }
+        }
+    }
+
+    fun updateRoomJoinerId(userId: String?, roomId: String) {
+        viewModelScope.launch {
+            try {
+                val response = updateRoomJoinerIdUseCase.invoke(userId, roomId)
+                if (response.isSuccessful)
+                    _updatedRoomJoinerId.postValue(true)
+            } catch (e: Exception) {
+                Timber.tag("Update Room Joiner Error").e(e.toString())
+            }
+        }
     }
 
     fun initializeSocketListeners(socketIOInstance: Socket?) {

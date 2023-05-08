@@ -1,4 +1,4 @@
-package com.nitishsharma.chatapp.home
+package com.nitishsharma.chatapp.main.home
 
 import android.os.Bundle
 import android.view.LayoutInflater

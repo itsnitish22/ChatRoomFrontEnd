@@ -1,6 +1,5 @@
-package com.nitishsharma.chatapp.home
+package com.nitishsharma.chatapp.main.home
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -16,10 +15,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ModalBottomSheetLayout
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -57,7 +52,6 @@ import com.nitishsharma.domain.api.models.roomsresponse.ActiveRooms
 import com.nitishsharma.domain.api.models.roomsresponse.ConvertToBodyForAllUserActiveRooms
 import de.hdodenhof.circleimageview.CircleImageView
 import io.socket.client.Socket
-import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class HomeFragment : Fragment() {
@@ -106,78 +100,6 @@ class HomeFragment : Fragment() {
         }
     }
 
-    @Composable
-    fun SetupLazyColumn(activeRooms: ArrayList<ActiveRooms>) {
-        var refreshing by remember { mutableStateOf(false) }
-        LaunchedEffect(refreshing) {
-            if (refreshing) {
-                getAllUserActiveRooms()
-                refreshing = false
-            }
-        }
-
-        SwipeRefresh(
-            state = rememberSwipeRefreshState(isRefreshing = refreshing),
-            onRefresh = { refreshing = true }
-        ) {
-            LazyColumn(modifier = Modifier.padding(vertical = 4.dp)) {
-                items(items = activeRooms) { currentActiveRoom ->
-                    ActiveRoomsItem(currentActiveRoom = currentActiveRoom)
-                }
-            }
-        }
-    }
-
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Composable
-    fun ActiveRoomsItem(currentActiveRoom: ActiveRooms) {
-        Surface(
-            color = colorResource(R.color.light_blue),
-            modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp),
-            shape = RoundedCornerShape(10.dp),
-            onClick = {
-                roomId = currentActiveRoom.roomId
-                joinChatRoom(currentActiveRoom.roomId)
-            }
-        ) {
-            Column(
-                modifier = Modifier
-                    .padding(20.dp)
-                    .fillMaxWidth()
-            ) {
-                Row {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = currentActiveRoom.roomName,
-                            style = MaterialTheme.typography.headlineSmall.copy(
-                                fontWeight = FontWeight.SemiBold
-                            ),
-                            color = Color.DarkGray
-                        )
-                        Text(
-                            text = currentActiveRoom.roomId,
-                            color = Color.DarkGray,
-                            fontSize = 12.sp
-                        )
-                    }
-                    Box {
-                        IconButton(
-                            onClick = {
-                                showRoomOptionsBottomSheet(currentActiveRoom)
-                            },
-                            modifier = Modifier.align(Alignment.CenterEnd)
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_dots_vertical),
-                                contentDescription = ""
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     override fun onResume() {
         super.onResume()
         getAllUserActiveRooms()
@@ -212,6 +134,53 @@ class HomeFragment : Fragment() {
                 getAllUserActiveRooms()
             }
         })
+
+        homeFragmentVM.canJoinRoom.observe(requireActivity(), Observer { canJoinRoom ->
+            canJoinRoom?.let {
+                if (it.canJoin) {
+                    roomId?.let {
+                        updateRoomIsAvailableStatus(false, it)
+                    }
+                } else {
+                    binding.progressBar.visibility = View.GONE
+                    toast(it.actionForUser)
+                }
+            }
+        })
+
+        homeFragmentVM.changedRoomAvailableStatus.observe(
+            requireActivity(),
+            Observer { changedRoomAvailableStatus ->
+                changedRoomAvailableStatus?.let {
+                    if (it) {
+                        roomId?.let {
+                            updateRoomJoinerId(firebaseInstance.currentUser?.uid, it)
+                        }
+                    } else {
+                        toast("room is not available")
+                    }
+                }
+            })
+
+        homeFragmentVM.updatedRoomJoinerId.observe(
+            requireActivity(),
+            Observer { updatedRoomJoinerId ->
+                updatedRoomJoinerId?.let {
+                    if (it) {
+                        roomId?.let {
+                            joinChatRoom(it)
+                        }
+                    }
+                }
+            })
+    }
+
+    private fun updateRoomJoinerId(uid: String?, roomId: String) {
+        homeFragmentVM.updateRoomJoinerId(uid, roomId)
+    }
+
+    private fun updateRoomIsAvailableStatus(isRoomAvailable: Boolean, roomId: String) {
+        homeFragmentVM.updateRoomIsAvailableStatus(isRoomAvailable, roomId)
     }
 
     private fun setupViewForActiveRooms() {
@@ -308,7 +277,7 @@ class HomeFragment : Fragment() {
                     roomId = enterEditText.text.toString()
                     bottomSheetDialog.dismiss()
                     roomId?.let {
-                        joinChatRoom(it)
+                        checkIfCanJoinRoom(it)
                     }
                 }
             }
@@ -318,6 +287,11 @@ class HomeFragment : Fragment() {
         bottomSheetDialog.setCancelable(true)
         bottomSheetDialog.setContentView(view)
         bottomSheetDialog.show()
+    }
+
+    private fun checkIfCanJoinRoom(roomId: String) {
+        binding.progressBar.visibility = View.VISIBLE
+        homeFragmentVM.checkIfCanJoinRoom(firebaseInstance, roomId)
     }
 
     private fun joinChatRoom(roomId: String): String {
@@ -378,70 +352,80 @@ class HomeFragment : Fragment() {
         )
     }
 
-    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-    @OptIn(ExperimentalMaterialApi::class)
-    @ExperimentalMaterial3Api
     @Composable
-    fun BottomSheetLayout() {
-        val coroutineScope = rememberCoroutineScope()
-        val modalSheetState = rememberModalBottomSheetState(
-            initialValue = ModalBottomSheetValue.Hidden,
-            confirmStateChange = { it != ModalBottomSheetValue.HalfExpanded },
-            skipHalfExpanded = true
-        )
-
-        var isSheetFullScreen by remember {
-            mutableStateOf(false)
+    fun SetupLazyColumn(activeRooms: ArrayList<ActiveRooms>) {
+        var refreshing by remember { mutableStateOf(false) }
+        LaunchedEffect(refreshing) {
+            if (refreshing) {
+                getAllUserActiveRooms()
+                refreshing = false
+            }
         }
 
-        val roundedCornerRadius = if (isSheetFullScreen) 0.dp else 12.dp
-        val modifier = if (isSheetFullScreen) Modifier.fillMaxSize() else Modifier.fillMaxWidth()
-
-        ModalBottomSheetLayout(
-            sheetState = modalSheetState,
-            sheetContent = {
-                Column(
-                    modifier = modifier,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Button(
-                        onClick = {
-                            isSheetFullScreen = !isSheetFullScreen
-                        }
-                    ) {
-                        Text(text = "Toggle Sheet Fullscreen")
-                    }
-                    Button(
-                        onClick = {
-                            coroutineScope.launch { modalSheetState.hide() }
-                        }
-                    ) {
-                        Text(text = "Hide Sheet")
-                    }
+        SwipeRefresh(
+            state = rememberSwipeRefreshState(isRefreshing = refreshing),
+            onRefresh = { refreshing = true }
+        ) {
+            LazyColumn(modifier = Modifier.padding(vertical = 4.dp)) {
+                items(items = activeRooms) { currentActiveRoom ->
+                    ActiveRoomsItem(currentActiveRoom = currentActiveRoom)
                 }
             }
+        }
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    fun ActiveRoomsItem(currentActiveRoom: ActiveRooms) {
+        Surface(
+            color = colorResource(R.color.light_blue),
+            modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp),
+            shape = RoundedCornerShape(10.dp),
+            onClick = {
+                roomId = currentActiveRoom.roomId
+                joinChatRoom(currentActiveRoom.roomId)
+            }
         ) {
-            Scaffold {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Button(
-                        onClick = {
-                            coroutineScope.launch {
-                                if (modalSheetState.isVisible)
-                                    modalSheetState.hide()
-                                else
-                                    modalSheetState.animateTo(ModalBottomSheetValue.Expanded)
-                            }
-                        },
-                    ) {
-                        Text(text = "Open Sheet")
+            Column(
+                modifier = Modifier
+                    .padding(20.dp)
+                    .fillMaxWidth()
+            ) {
+                Row {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = currentActiveRoom.roomName,
+                            style = MaterialTheme.typography.headlineSmall.copy(
+                                fontWeight = FontWeight.SemiBold
+                            ),
+                            color = Color.DarkGray
+                        )
+                        Text(
+                            text = currentActiveRoom.roomId,
+                            color = Color.DarkGray,
+                            fontSize = 12.sp
+                        )
+                    }
+                    Box {
+                        IconButton(
+                            onClick = {
+                                showRoomOptionsBottomSheet(currentActiveRoom)
+                            },
+                            modifier = Modifier.align(Alignment.CenterEnd)
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_dots_vertical),
+                                contentDescription = ""
+                            )
+                        }
                     }
                 }
             }
         }
     }
 }
+
+//join chat room
+//first check if joiner_id in chatting_rooms where id = current_room_id is null
+//if null, join room
+//else toast, room is full
