@@ -1,8 +1,10 @@
 package com.nitishsharma.chatapp.chats
 
+import android.os.Bundle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.firebase.auth.FirebaseAuth
 import com.google.gson.Gson
 import com.nitishsharma.chatapp.utils.Utility
 import io.socket.client.Socket
@@ -67,7 +69,15 @@ class ChatActivityViewModel : ViewModel() {
         socketIOInstance?.emit("chat-message", dataToSend)
     }
 
-    fun sendUserLeaveRoomEvent(socketIOInstance: Socket?, dataToSend: JSONObject) {
-        socketIOInstance?.emit("leave-room", dataToSend)
+    fun sendUserLeaveRoomEvent(
+        socketIOInstance: Socket?,
+        firebaseAuth: FirebaseAuth,
+        roomId: String
+    ) {
+        socketIOInstance?.emit("leave-room", Utility.bundleToJSONMapping(null, Bundle().apply {
+            putString("roomId", roomId)
+            putString("userId", firebaseAuth.currentUser?.uid)
+            putString("userName", firebaseAuth.currentUser?.displayName)
+        }))
     }
 }

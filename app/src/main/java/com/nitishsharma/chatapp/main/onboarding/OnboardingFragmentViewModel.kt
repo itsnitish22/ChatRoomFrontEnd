@@ -1,12 +1,10 @@
-package com.nitishsharma.chatapp.onboarding
+package com.nitishsharma.chatapp.main.onboarding
 
-import android.os.Bundle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseUser
-import com.nitishsharma.chatapp.utils.Utility
 import com.nitishsharma.domain.api.interactors.SaveUserToDbUseCase
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
@@ -21,17 +19,15 @@ class OnboardingFragmentViewModel : ViewModel(), KoinComponent {
         get() = _userSavedSuccessfully
 
     fun saveUserToDb(
-        currentUser: FirebaseUser
+        currentUser: FirebaseUser,
+        gender: String
     ) {
         try {
             viewModelScope.launch {
-                saveUserToDbUseCase.invoke(Utility.bundleToJSONMapping(null, Bundle().apply {
-                    putString("userId", currentUser.uid);
-                    putString("userName", currentUser.displayName)
-                    putString("userAvatar", currentUser.photoUrl.toString())
-                }))
+                val response = saveUserToDbUseCase.invoke(currentUser, gender)
+                if (response.isSuccessful)
+                    _userSavedSuccessfully.postValue(true)
             }
-            _userSavedSuccessfully.postValue(true)
         } catch (e: Exception) {
             Timber.tag("Save User Failed").e(e.toString())
         }

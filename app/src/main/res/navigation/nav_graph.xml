@@ -6,7 +6,7 @@
     app:startDestination="@id/splashFragment">
     <fragment
         android:id="@+id/splashFragment"
-        android:name="com.nitishsharma.chatapp.splashscreen.SplashFragment"
+        android:name="com.nitishsharma.chatapp.main.splashscreen.SplashFragment"
         android:label="fragment_splash"
         tools:layout="@layout/fragment_splash">
         <action
@@ -26,7 +26,7 @@
     </fragment>
     <fragment
         android:id="@+id/onboardingFragment"
-        android:name="com.nitishsharma.chatapp.onboarding.OnboardingFragment"
+        android:name="com.nitishsharma.chatapp.main.onboarding.OnboardingFragment"
         android:label="fragment_onboarding"
         tools:layout="@layout/fragment_onboarding">
         <action
@@ -39,7 +39,7 @@
     </fragment>
     <fragment
         android:id="@+id/homeFragment"
-        android:name="com.nitishsharma.chatapp.home.HomeFragment"
+        android:name="com.nitishsharma.chatapp.main.home.HomeFragment"
         android:label="fragment_home"
         tools:layout="@layout/fragment_home">
         <argument
