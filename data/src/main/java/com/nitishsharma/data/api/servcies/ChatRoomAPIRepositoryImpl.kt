@@ -32,7 +32,7 @@ class ChatRoomAPIRepositoryImpl : ChatRoomAPIRepository, KoinComponent {
         return chatRoomAPIService.getAllActiveRooms(allUserActiveRoomsBody)
     }
 
-    override suspend fun deleteCurrentRoom(deleteRoomBody: JSONObject) {
-        chatRoomAPIService.deleteCurrentRoom(deleteRoomBody)
+    override suspend fun deleteCurrentRoom(deleteRoomBody: JSONObject): Response<Unit> {
+        return chatRoomAPIService.deleteCurrentRoom(deleteRoomBody)
     }
 }
