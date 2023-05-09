@@ -79,13 +79,14 @@ class HomeFragmentViewModel : ViewModel(), KoinComponent {
     fun deleteCurrentRoom(roomId: String) {
         viewModelScope.launch {
             try {
-                deleteCurrentRoomUseCase.invoke(
+                val response = deleteCurrentRoomUseCase.invoke(
                     Utility.bundleToJSONMapping(null,
                         Bundle().apply {
                             putString("roomId", roomId)
                         })
                 )
-                _deleteRoomSuccess.postValue(true)
+                if (response.isSuccessful)
+                    _deleteRoomSuccess.postValue(true)
             } catch (e: Exception) {
                 Timber.tag("Delete Room Error").e(e.toString())
             }

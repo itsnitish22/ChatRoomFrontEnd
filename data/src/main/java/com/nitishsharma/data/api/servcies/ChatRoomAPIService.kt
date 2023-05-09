@@ -12,7 +12,7 @@ interface ChatRoomAPIService {
     suspend fun getAllActiveRooms(@Body allUserActiveRoomsBody: AllUserActiveRoomsBody): AllUserActiveRooms
 
     @POST("/db/deleteCurrentRoom")
-    suspend fun deleteCurrentRoom(@Body deleteRoomBody: JSONObject): Unit
+    suspend fun deleteCurrentRoom(@Body deleteRoomBody: JSONObject): Response<Unit>
 
     @POST("/db/saveUserToDb")
     suspend fun saveUserToDb(@Body saveUserToDbBody: JSONObject): Response<Unit>
