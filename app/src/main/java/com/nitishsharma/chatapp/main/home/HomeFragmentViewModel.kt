@@ -49,8 +49,8 @@ class HomeFragmentViewModel : ViewModel(), KoinComponent {
     val responseAllUserActiveRooms: LiveData<AllUserActiveRooms>
         get() = _responseAllUserActiveRooms
 
-    private val _canJoinRoom: MutableLiveData<CanJoinRoom?> = MutableLiveData(null)
-    val canJoinRoom: LiveData<CanJoinRoom?>
+    private val _canJoinRoom: MutableLiveData<CanJoinRoom> = MutableLiveData()
+    val canJoinRoom: LiveData<CanJoinRoom>
         get() = _canJoinRoom
 
     private val _changedRoomAvailableStatus: MutableLiveData<Boolean?> = MutableLiveData(null)
@@ -83,6 +83,8 @@ class HomeFragmentViewModel : ViewModel(), KoinComponent {
                     Utility.bundleToJSONMapping(null,
                         Bundle().apply {
                             putString("roomId", roomId)
+                            putString("userId", firebaseInstance.currentUser?.uid)
+                            putBoolean("increaseRoomCount", false)
                         })
                 )
                 if (response.isSuccessful)
@@ -102,9 +104,10 @@ class HomeFragmentViewModel : ViewModel(), KoinComponent {
         socketIOInstance?.emit("create-room", Utility.bundleToJSONMapping(null,
             Bundle().apply {
                 putString("roomId", roomId);
-                putString("creatorId", firebaseInstance.currentUser?.uid);
+                putString("userId", firebaseInstance.currentUser?.uid); //in db it is creator_id
                 putString("joinerId", null)
                 putString("roomName", roomName)
+                putBoolean("increaseRoomCount", true)
             }
         ))
         return joinRoom(socketIOInstance, roomId, firebaseInstance)
@@ -120,6 +123,8 @@ class HomeFragmentViewModel : ViewModel(), KoinComponent {
                 null, Bundle().apply {
                     putString("roomId", roomId);
                     putString("userName", firebaseInstance.currentUser?.displayName)
+                    putString("userId", firebaseInstance.currentUser?.uid)
+                    putBoolean("isFree", false)
                 })
         )
         return roomId
