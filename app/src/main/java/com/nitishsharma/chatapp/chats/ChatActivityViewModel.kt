@@ -78,6 +78,7 @@ class ChatActivityViewModel : ViewModel() {
             putString("roomId", roomId)
             putString("userId", firebaseAuth.currentUser?.uid)
             putString("userName", firebaseAuth.currentUser?.displayName)
+            putBoolean("isFree", true)
         }))
     }
 }

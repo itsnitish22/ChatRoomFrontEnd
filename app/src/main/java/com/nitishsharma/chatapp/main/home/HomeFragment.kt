@@ -136,15 +136,13 @@ class HomeFragment : Fragment() {
         })
 
         homeFragmentVM.canJoinRoom.observe(requireActivity(), Observer { canJoinRoom ->
-            canJoinRoom?.let {
-                if (it.canJoin) {
-                    roomId?.let {
-                        updateRoomIsAvailableStatus(false, it)
-                    }
-                } else {
-                    binding.progressBar.visibility = View.GONE
-                    toast(it.actionForUser)
+            if (canJoinRoom.canJoin) {
+                roomId?.let {
+                    updateRoomIsAvailableStatus(false, it)
                 }
+            } else {
+                binding.progressBar.visibility = View.GONE
+                toast(canJoinRoom.actionForUser)
             }
         })
 
