@@ -69,7 +69,9 @@ class HomeFragmentViewModel : ViewModel(), KoinComponent {
     fun getAllUserActiveRooms(body: AllUserActiveRoomsBody) {
         viewModelScope.launch {
             try {
-                _responseAllUserActiveRooms.postValue(getALlUserActiveRoomsUseCase.invoke(body))
+                val response = getALlUserActiveRoomsUseCase.invoke(body)
+                if (response.isSuccessful)
+                    _responseAllUserActiveRooms.postValue(response.body())
             } catch (e: Exception) {
                 Timber.tag("Active Rooms Error").e(e.toString())
             }

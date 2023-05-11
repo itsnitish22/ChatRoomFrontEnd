@@ -28,7 +28,7 @@ class ChatRoomAPIRepositoryImpl : ChatRoomAPIRepository, KoinComponent {
         return chatRoomAPIService.updateRoomJoinerIdUseCase(roomJoinerIdBody)
     }
 
-    override suspend fun getAllActiveRooms(allUserActiveRoomsBody: AllUserActiveRoomsBody): AllUserActiveRooms {
+    override suspend fun getAllActiveRooms(allUserActiveRoomsBody: AllUserActiveRoomsBody): Response<AllUserActiveRooms> {
         return chatRoomAPIService.getAllActiveRooms(allUserActiveRoomsBody)
     }
 
