@@ -3,16 +3,16 @@ package com.nitishsharma.chatapp.chats
 import android.os.Bundle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.gson.Gson
+import com.nitishsharma.chatapp.base.BaseViewModel
 import com.nitishsharma.chatapp.utils.Utility
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
 import org.json.JSONArray
 import org.json.JSONObject
 
-class ChatActivityViewModel : ViewModel() {
+class ChatActivityViewModel : BaseViewModel() {
     private val _receivedData: MutableLiveData<JSONObject?> = MutableLiveData()
     val receivedData: LiveData<JSONObject?>
         get() = _receivedData

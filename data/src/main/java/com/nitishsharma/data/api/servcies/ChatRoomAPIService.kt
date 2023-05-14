@@ -9,7 +9,7 @@ import retrofit2.http.*
 
 interface ChatRoomAPIService {
     @POST("/db/getAllUserActiveRooms")
-    suspend fun getAllActiveRooms(@Body allUserActiveRoomsBody: AllUserActiveRoomsBody): AllUserActiveRooms
+    suspend fun getAllActiveRooms(@Body allUserActiveRoomsBody: AllUserActiveRoomsBody): Response<AllUserActiveRooms>
 
     @POST("/db/deleteCurrentRoom")
     suspend fun deleteCurrentRoom(@Body deleteRoomBody: JSONObject): Response<Unit>

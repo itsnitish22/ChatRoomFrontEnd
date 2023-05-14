@@ -1,38 +1,26 @@
 package com.nitishsharma.chatapp.chats
 
 import android.os.Bundle
-import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.firebase.auth.FirebaseAuth
-import com.nitishsharma.chatapp.application.FirstChat
+import com.nitishsharma.chatapp.base.BaseActivity
 import com.nitishsharma.chatapp.databinding.ActivityChatBinding
 import com.nitishsharma.chatapp.utils.Utility.shareRoom
 import com.nitishsharma.chatapp.utils.Utility.toast
-import io.socket.client.Socket
 import org.json.JSONObject
+import org.koin.android.ext.android.inject
 
 
-class ChatActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityChatBinding
+class ChatActivity : BaseActivity<ActivityChatBinding>() {
+    override fun getViewBinding(): ActivityChatBinding = ActivityChatBinding.inflate(layoutInflater)
     private lateinit var userName: String
     private lateinit var roomID: String
     private lateinit var roomName: String
     private lateinit var messageAdapter: MessageAdapter
-    private val chatActivityViewModel: ChatActivityViewModel by viewModels()
-    private lateinit var firebaseAuth: FirebaseAuth
-    var socketIOInstance: Socket? = null
+    private val chatActivityViewModel: ChatActivityViewModel by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityChatBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        firebaseAuth = FirebaseAuth.getInstance()
-
-        //initializing global variables
-        socketIOInstance = (application as FirstChat).socketIO
         userName = intent.getStringExtra("userName").toString()
         roomID = intent.getStringExtra("roomID").toString()
         roomName = intent.getStringExtra("roomName").toString()
@@ -40,10 +28,10 @@ class ChatActivity : AppCompatActivity() {
         //initializing stuff
         initViews()
         initializeRecyclerAdapter()
-        initializeSocketListeners()
-        initializeObservers()
+    }
 
-        //click on send button
+    override fun initClickListeners() {
+        super.initClickListeners()
         binding.sendBtn.setOnClickListener {
             if (socketIOInstance?.connected() == true && binding.messageEdit.text.toString()
                     .isNotEmpty()
@@ -51,11 +39,9 @@ class ChatActivity : AppCompatActivity() {
                 sendTextMessageEvent()
             }
         }
-
         binding.backIv.setOnClickListener {
             finish()
         }
-
         binding.shareRoomId.setOnClickListener {
             shareRoom(roomID, roomName)
         }
@@ -74,11 +60,12 @@ class ChatActivity : AppCompatActivity() {
 
     //leave room event function
     private fun sendUserLeaveRoomEvent() {
-        chatActivityViewModel.sendUserLeaveRoomEvent(socketIOInstance, firebaseAuth, roomID)
+        chatActivityViewModel.sendUserLeaveRoomEvent(socketIOInstance, firebaseAuth!!, roomID)
     }
 
     //initializing observers
-    private fun initializeObservers() {
+    override fun initObservers() {
+        super.initObservers()
         chatActivityViewModel.receivedData.observe(this, Observer { receivedData ->
             receivedData?.let {
                 sendDataToAdapter(receivedData)
@@ -99,7 +86,8 @@ class ChatActivity : AppCompatActivity() {
     }
 
     //initializing socket listeners
-    private fun initializeSocketListeners() {
+    override fun initSocketListeners() {
+        super.initSocketListeners()
         chatActivityViewModel.initializeSocketListeners(socketIOInstance)
     }
 

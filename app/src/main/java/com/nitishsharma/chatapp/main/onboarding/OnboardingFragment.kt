@@ -2,9 +2,7 @@ package com.nitishsharma.chatapp.main.onboarding
 
 import android.app.Activity
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearOutSlowInEasing
@@ -23,7 +21,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
@@ -32,34 +29,25 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.tasks.Task
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.nitishsharma.chatapp.R
+import com.nitishsharma.chatapp.base.BaseFragment
 import com.nitishsharma.chatapp.databinding.FragmentOnboardingBinding
 import com.nitishsharma.chatapp.utils.Utility.toast
 import timber.log.Timber
 
-class OnboardingFragment : Fragment() {
-    private lateinit var auth: FirebaseAuth
-    private lateinit var binding: FragmentOnboardingBinding
+class OnboardingFragment : BaseFragment<FragmentOnboardingBinding>() {
+    override fun getViewBinding() = FragmentOnboardingBinding.inflate(layoutInflater)
     private lateinit var googleSignInClient: GoogleSignInClient
     private val onboardingVM: OnboardingFragmentViewModel by viewModels()
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? = FragmentOnboardingBinding.inflate(inflater, container, false).also {
-        binding = it
-    }.root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initializeInstances() //initialize instances
-        initializeObservers()
         setupComposeView()
     }
 
-    private fun initializeObservers() {
+    override fun initObservers() {
         onboardingVM.userSavedSuccessfully.observe(requireActivity(), Observer {
             if (it) {
                 Timber.tag("User Saved Successfully").i("User saved to DB")
@@ -130,7 +118,6 @@ class OnboardingFragment : Fragment() {
 
     //initializing instances
     private fun initializeInstances() {
-        auth = FirebaseAuth.getInstance()
         initializeGoogleAuthentication()
     }
 
@@ -155,7 +142,7 @@ class OnboardingFragment : Fragment() {
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-                auth.fetchSignInMethodsForEmail(task.result.email.toString())
+                firebaseInstance.fetchSignInMethodsForEmail(task.result.email.toString())
                     .addOnCompleteListener { work ->
                         if (work.isSuccessful) {
                             val result = work.result?.signInMethods
@@ -189,7 +176,7 @@ class OnboardingFragment : Fragment() {
     //updating the ui on successful authentication
     private fun updateUI(account: GoogleSignInAccount, saveToDB: Boolean) {
         val credential = GoogleAuthProvider.getCredential(account.idToken, null)
-        auth.signInWithCredential(credential).addOnCompleteListener {
+        firebaseInstance.signInWithCredential(credential).addOnCompleteListener {
             if (it.isSuccessful) {
                 if (saveToDB)
                     saveUserToDb()
@@ -202,14 +189,14 @@ class OnboardingFragment : Fragment() {
     }
 
     private fun saveUserToDb() {
-        onboardingVM.saveUserToDb(auth.currentUser!!, "male")
+        onboardingVM.saveUserToDb(firebaseInstance.currentUser!!, "male")
     }
 
     private fun navigateToHomeFragment() {
         binding.progressBar.visibility = View.GONE
         findNavController().navigate(
             OnboardingFragmentDirections.actionOnboardingFragmentToHomeFragment(
-                firebaseUser = auth.currentUser
+                firebaseUser = firebaseInstance.currentUser
             )
         )
     }

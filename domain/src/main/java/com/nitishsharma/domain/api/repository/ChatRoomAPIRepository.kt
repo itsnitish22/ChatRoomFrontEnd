@@ -7,7 +7,7 @@ import org.json.JSONObject
 import retrofit2.Response
 
 interface ChatRoomAPIRepository {
-    suspend fun getAllActiveRooms(allUserActiveRoomsBody: AllUserActiveRoomsBody): AllUserActiveRooms
+    suspend fun getAllActiveRooms(allUserActiveRoomsBody: AllUserActiveRoomsBody): Response<AllUserActiveRooms>
     suspend fun deleteCurrentRoom(deleteRoomBody: JSONObject): Response<Unit>
     suspend fun saveUserToDb(saveUserToDbBody: JSONObject): Response<Unit>
     suspend fun canJoinRoom(canJoinRoomBody: JSONObject): Response<CanJoinRoom>

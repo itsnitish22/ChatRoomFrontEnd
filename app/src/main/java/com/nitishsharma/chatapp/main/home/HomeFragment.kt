@@ -5,9 +5,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.text.InputType
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.EditText
@@ -27,7 +25,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
@@ -39,9 +36,8 @@ import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.textfield.TextInputLayout
-import com.google.firebase.auth.FirebaseAuth
-import com.nitishsharma.chatapp.MainActivity
 import com.nitishsharma.chatapp.R
+import com.nitishsharma.chatapp.base.BaseFragment
 import com.nitishsharma.chatapp.chats.ChatActivity
 import com.nitishsharma.chatapp.databinding.FragmentHomeBinding
 import com.nitishsharma.chatapp.databinding.RoomOptionsBottomSheetBinding
@@ -51,42 +47,27 @@ import com.nitishsharma.chatapp.utils.Utility.toast
 import com.nitishsharma.domain.api.models.roomsresponse.ActiveRooms
 import com.nitishsharma.domain.api.models.roomsresponse.ConvertToBodyForAllUserActiveRooms
 import de.hdodenhof.circleimageview.CircleImageView
-import io.socket.client.Socket
 import timber.log.Timber
 
-class HomeFragment : Fragment() {
-    private lateinit var binding: FragmentHomeBinding
+class HomeFragment : BaseFragment<FragmentHomeBinding>() {
+    override fun getViewBinding() = FragmentHomeBinding.inflate(layoutInflater)
     private val homeFragmentArgs: HomeFragmentArgs by navArgs()
-    private val firebaseInstance = FirebaseAuth.getInstance()
     private val homeFragmentVM: HomeFragmentViewModel by activityViewModels()
     private lateinit var bottomSheetDialog: BottomSheetDialog
-    private var roomId: String? = null
-    private var socketIOInstance: Socket? = null
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var shimmerFrameLayout: ShimmerFrameLayout
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? = FragmentHomeBinding.inflate(inflater, container, false).also {
-        binding = it
-    }.root
+    private var roomId: String? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         bottomSheetDialog = BottomSheetDialog(requireContext())
-        socketIOInstance = (activity as MainActivity).socketIOInstance
         drawerLayout = binding.drawerLayout
         shimmerFrameLayout = binding.shimmerFrameLayout
 
-        //initializations
         initViews()
-        initSocketListeners()
-        initObservers()
-        initClickListeners()
     }
 
-    private fun initClickListeners() {
+    override fun initClickListeners() {
         binding.apply {
             createRoomButton.setOnClickListener {
                 showRoomBottomSheet("Create room", "Room's nick name", 1)
@@ -105,7 +86,7 @@ class HomeFragment : Fragment() {
         getAllUserActiveRooms()
     }
 
-    private fun initObservers() {
+    override fun initObservers() {
         homeFragmentVM.receivedRoomName.observe(requireActivity(), Observer { receivedName ->
             roomId?.let {
                 startChatActivity(it, receivedName.toString())
@@ -244,7 +225,7 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun initSocketListeners() {
+    override fun initSocketListeners() {
         homeFragmentVM.initializeSocketListeners(socketIOInstance)
     }
 
@@ -422,8 +403,3 @@ class HomeFragment : Fragment() {
         }
     }
 }
-
-//join chat room
-//first check if joiner_id in chatting_rooms where id = current_room_id is null
-//if null, join room
-//else toast, room is full
