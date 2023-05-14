@@ -3,10 +3,10 @@ package com.nitishsharma.chatapp.main.home
 import android.os.Bundle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.gson.Gson
+import com.nitishsharma.chatapp.base.BaseViewModel
 import com.nitishsharma.chatapp.utils.Utility
 import com.nitishsharma.domain.api.interactors.CanJoinRoomUseCase
 import com.nitishsharma.domain.api.interactors.DeleteCurrentRoomUseCase
@@ -20,18 +20,15 @@ import io.socket.client.Socket
 import io.socket.emitter.Emitter
 import kotlinx.coroutines.launch
 import org.json.JSONArray
-import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import timber.log.Timber
 
-class HomeFragmentViewModel : ViewModel(), KoinComponent {
+class HomeFragmentViewModel : BaseViewModel() {
     private val getALlUserActiveRoomsUseCase: GetAllActiveRoomsUseCase by inject()
     private val deleteCurrentRoomUseCase: DeleteCurrentRoomUseCase by inject()
     private val checkIfCanJoinRoomUseCase: CanJoinRoomUseCase by inject()
     private val updateRoomAvailableStatusUseCase: UpdateRoomAvailableStatusUseCase by inject()
     private val updateRoomJoinerIdUseCase: UpdateRoomJoinerIdUseCase by inject()
-
-    private val firebaseInstance = FirebaseAuth.getInstance()
 
     private val _receivedRoomName: MutableLiveData<String?> = MutableLiveData()
     val receivedRoomName: MutableLiveData<String?>

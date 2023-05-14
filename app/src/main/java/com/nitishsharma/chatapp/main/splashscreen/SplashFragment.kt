@@ -2,33 +2,24 @@ package com.nitishsharma.chatapp.main.splashscreen
 
 import android.os.Bundle
 import android.os.Handler
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.nitishsharma.chatapp.R
+import com.nitishsharma.chatapp.base.BaseFragment
 import com.nitishsharma.chatapp.databinding.FragmentSplashBinding
 
-class SplashFragment : Fragment(R.layout.fragment_splash) {
-    private lateinit var binding: FragmentSplashBinding
+class SplashFragment : BaseFragment<FragmentSplashBinding>() {
+    override fun getViewBinding(): FragmentSplashBinding =
+        FragmentSplashBinding.inflate(layoutInflater)
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        binding = FragmentSplashBinding.inflate(inflater, container, false)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         val userInfo = checkLoggedInStatus()
         if (userInfo != null)
             navigateToHomeScreen(userInfo)
         else
             navigateToOnboardingScreen()
-
-        return binding.root
-
     }
 
     private fun navigateToOnboardingScreen() {
@@ -52,7 +43,7 @@ class SplashFragment : Fragment(R.layout.fragment_splash) {
     }
 
     private fun checkLoggedInStatus(): FirebaseUser? {
-        FirebaseAuth.getInstance().currentUser?.let {
+        firebaseInstance.currentUser?.let {
             return it
         }
         return null

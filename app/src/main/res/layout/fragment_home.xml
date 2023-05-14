@@ -215,12 +215,12 @@
         android:layout_height="match_parent"
         android:layout_gravity="end">
 
-        <!--        <fragment-->
-        <!--            android:id="@+id/profileMenuFragment"-->
-        <!--            android:name="com.nitishsharma.chatapp.home.HomeFragmentDrawer"-->
-        <!--            android:layout_width="match_parent"-->
-        <!--            android:layout_height="match_parent"-->
-        <!--            android:fitsSystemWindows="true" />-->
+        <fragment
+            android:id="@+id/profileMenuFragment"
+            android:name="com.nitishsharma.chatapp.main.home.HomeFragmentDrawer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fitsSystemWindows="true" />
 
     </com.google.android.material.navigation.NavigationView>
 </androidx.drawerlayout.widget.DrawerLayout>

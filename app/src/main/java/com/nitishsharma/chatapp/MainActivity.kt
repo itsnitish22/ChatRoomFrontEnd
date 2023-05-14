@@ -3,21 +3,23 @@ package com.nitishsharma.chatapp
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import com.nitishsharma.chatapp.application.FirstChat
-import io.socket.client.Socket
+import com.nitishsharma.chatapp.base.BaseActivity
+import com.nitishsharma.chatapp.databinding.ActivityMainBinding
 import timber.log.Timber
 
-class MainActivity : AppCompatActivity() {
-    var socketIOInstance: Socket? = null
+class MainActivity : BaseActivity<ActivityMainBinding>() {
+    override fun getViewBinding(): ActivityMainBinding {
+        return ActivityMainBinding.inflate(layoutInflater)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        socketIOInstance = (application as FirstChat).socketIO
-
         Timber.tag("URL").i(BuildConfig.BASE_URL)
+        askReadWritePermission()
+    }
+
+    private fun askReadWritePermission() {
         //asking permission for media (not useful currently)
         if (ActivityCompat.checkSelfPermission(
                 this,
@@ -28,6 +30,5 @@ class MainActivity : AppCompatActivity() {
             arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
             10
         )
-
     }
 }
