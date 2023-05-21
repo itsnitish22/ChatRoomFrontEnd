@@ -4,58 +4,42 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/dark_gray"
     tools:context=".main.splashscreen.SplashFragment">
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/designCon1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.30" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/designCon2n"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.50" />
-
     <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="15dp"
+        android:id="@+id/crIv"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginBottom="20dp"
         android:src="@drawable/chatroom_icon"
-        app:layout_constraintBottom_toBottomOf="@id/designCon2n"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/designCon1" />
-
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/sharp_grotesk_medium20"
-        android:text="Chat Room"
-        android:textSize="35sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView"
-        app:layout_constraintVertical_bias="0.025" />
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/textView3"
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/chatTv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/sharp_grotesk_light20"
-        android:text="You Said Chats, We Heard Privacy"
-        android:textSize="15sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView2"
-        app:layout_constraintVertical_bias="0.0" />
+        android:fontFamily="@font/sans_bold"
+        android:text="Chat"
+        android:textColor="@color/chatroom_light_blue"
+        android:textSize="30sp"
+        app:layout_constraintEnd_toStartOf="@id/RoomTv"
+        app:layout_constraintStart_toStartOf="@id/crIv"
+        app:layout_constraintTop_toBottomOf="@id/crIv" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/RoomTv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/sans_bold"
+        android:text="Room"
+        android:textColor="@color/chatroom_light_green"
+        android:textSize="30sp"
+        app:layout_constraintEnd_toEndOf="@id/crIv"
+        app:layout_constraintStart_toEndOf="@id/chatTv"
+        app:layout_constraintTop_toBottomOf="@id/crIv" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
