@@ -1,11 +1,14 @@
 package com.nitishsharma.chatapp.utils
 
+import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.WindowManager
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.google.gson.Gson
 import com.nitishsharma.domain.api.models.chatresponse.parseMessage
@@ -99,5 +102,16 @@ object Utility {
 
     fun Fragment.shareRoom(roomId: String, roomName: String) {
         requireContext().shareRoom(roomId, roomName)
+    }
+
+    fun Context.setStatusBarColor(activity: Activity, colorResId: Int) {
+        val window = activity.window
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+        window.statusBarColor = ContextCompat.getColor(this, colorResId)
+    }
+
+    fun Fragment.setStatusBarColor(activity: Activity, colorResId: Int) {
+        requireContext().setStatusBarColor(activity, colorResId)
     }
 }

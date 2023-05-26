@@ -1,78 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/app_bg"
     tools:context=".main.onboarding.OnboardingFragment">
-
-    <ImageView
-        android:id="@+id/chatRoomIcon"
-        android:layout_width="match_parent"
-        android:layout_height="120dp"
-        android:layout_marginStart="80dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="80dp"
-        android:src="@drawable/chatroom_icon" />
-
-    <TextView
-        android:id="@+id/appName"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/chatRoomIcon"
-        android:layout_marginTop="2dp"
-        android:fontFamily="@font/sharp_grotesk_medium20"
-        android:gravity="center"
-        android:text="Chat Room "
-        android:textSize="25sp" />
-
-    <View
-        android:id="@+id/seperatorLine"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_below="@id/appName"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="2dp"
-        android:layout_marginEnd="20dp"
-        android:background="#E9E9E9"
-        app:layout_goneMarginTop="17dp" />
-
-    <!--    <androidx.compose.ui.platform.ComposeView-->
-    <!--        android:id="@+id/composeView"-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_marginStart="30dp"-->
-    <!--        android:layout_marginEnd="30dp"-->
-    <!--        android:layout_height="60dp"-->
-    <!--        android:layout_below="@id/seperatorLine" />-->
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/seperatorLine">
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <androidx.compose.ui.platform.ComposeView
-            android:id="@+id/composeView"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:layout_marginStart="30dp"
-            android:layout_marginEnd="30dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/chatTv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/sans_bold"
+            android:paddingStart="20dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:text="Chat"
+            android:textColor="@color/chatroom_light_blue"
+            android:textSize="30sp"
+            app:layout_constraintEnd_toStartOf="@id/RoomTv"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@+id/authenticateTeller"
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/RoomTv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/sans_bold"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:text="Room"
+            android:textColor="@color/white"
+            android:textSize="30sp"
+            app:layout_constraintStart_toEndOf="@id/chatTv"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <include
+            android:id="@+id/joinChatRoomLayout"
+            layout="@layout/layout_join_chatroom"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="5dp"
-            android:gravity="center"
-            android:text="@string/terms_and_conditions"
-            android:textSize="11sp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/composeView" />
+            app:layout_constraintStart_toStartOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -83,5 +67,10 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:indeterminateTint="#1bb3f5"
-        android:visibility="gone" />
-</RelativeLayout>
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

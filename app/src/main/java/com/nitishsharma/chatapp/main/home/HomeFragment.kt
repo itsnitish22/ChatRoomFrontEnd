@@ -87,20 +87,23 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
     }
 
     override fun initObservers() {
-        homeFragmentVM.receivedRoomName.observe(requireActivity(), Observer { receivedName ->
+        homeFragmentVM.receivedRoomName.observe(viewLifecycleOwner, Observer { receivedName ->
             roomId?.let {
                 startChatActivity(it, receivedName.toString())
             }
         })
 
-        homeFragmentVM.successSignOut.observe(requireActivity(), Observer { signOut ->
-            if (signOut) {
-                navigateToOnboardingFragment()
+        homeFragmentVM.successSignOut.observe(viewLifecycleOwner, Observer { signOut ->
+            signOut?.let { eventSignOut ->
+                eventSignOut.getContentIfNotHandled()?.let { beginSignOut ->
+                    if (beginSignOut)
+                        navigateToOnboardingFragment()
+                }
             }
         })
 
         homeFragmentVM.responseAllUserActiveRooms.observe(
-            requireActivity(),
+            viewLifecycleOwner,
             Observer { allUserActiveRooms ->
                 if (allUserActiveRooms.numberOfActiveRooms >= 1) {
                     setupViewForActiveRooms()
@@ -110,13 +113,13 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
                 }
             })
 
-        homeFragmentVM.deleteRoomSuccess.observe(requireActivity(), Observer { deleteRoomSuccess ->
+        homeFragmentVM.deleteRoomSuccess.observe(viewLifecycleOwner, Observer { deleteRoomSuccess ->
             if (deleteRoomSuccess) {
                 getAllUserActiveRooms()
             }
         })
 
-        homeFragmentVM.canJoinRoom.observe(requireActivity(), Observer { canJoinRoom ->
+        homeFragmentVM.canJoinRoom.observe(viewLifecycleOwner, Observer { canJoinRoom ->
             if (canJoinRoom.canJoin) {
                 roomId?.let {
                     updateRoomIsAvailableStatus(false, it)
@@ -128,7 +131,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
         })
 
         homeFragmentVM.changedRoomAvailableStatus.observe(
-            requireActivity(),
+            viewLifecycleOwner,
             Observer { changedRoomAvailableStatus ->
                 changedRoomAvailableStatus?.let {
                     if (it) {
@@ -142,7 +145,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
             })
 
         homeFragmentVM.updatedRoomJoinerId.observe(
-            requireActivity(),
+            viewLifecycleOwner,
             Observer { updatedRoomJoinerId ->
                 updatedRoomJoinerId?.let {
                     if (it) {

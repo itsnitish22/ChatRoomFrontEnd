@@ -108,6 +108,7 @@ dependencies {
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
     implementation 'com.google.accompanist:accompanist-swiperefresh:0.24.13-rc'
+    implementation "androidx.constraintlayout:constraintlayout-compose:1.0.1"
 
 
     //socketio

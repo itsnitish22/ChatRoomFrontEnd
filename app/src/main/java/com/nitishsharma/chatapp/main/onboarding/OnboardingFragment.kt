@@ -33,13 +33,20 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.nitishsharma.chatapp.R
 import com.nitishsharma.chatapp.base.BaseFragment
 import com.nitishsharma.chatapp.databinding.FragmentOnboardingBinding
+import com.nitishsharma.chatapp.utils.Utility.setStatusBarColor
 import com.nitishsharma.chatapp.utils.Utility.toast
 import timber.log.Timber
+
 
 class OnboardingFragment : BaseFragment<FragmentOnboardingBinding>() {
     override fun getViewBinding() = FragmentOnboardingBinding.inflate(layoutInflater)
     private lateinit var googleSignInClient: GoogleSignInClient
     private val onboardingVM: OnboardingFragmentViewModel by viewModels()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setStatusBarColor(requireActivity(), R.color.app_bg)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -57,7 +64,7 @@ class OnboardingFragment : BaseFragment<FragmentOnboardingBinding>() {
     }
 
     private fun setupComposeView() {
-        binding.composeView.setContent {
+        binding.joinChatRoomLayout.composeView.setContent {
             GoogleAuthenticationButton()
         }
     }
@@ -75,9 +82,9 @@ class OnboardingFragment : BaseFragment<FragmentOnboardingBinding>() {
                 clicked = !clicked
                 authenticateWithGoogle()
             },
-            shape = RoundedCornerShape(4.dp),
+            shape = RoundedCornerShape(5.dp),
             border = BorderStroke(width = 1.dp, color = Color.LightGray),
-            color = MaterialTheme.colorScheme.surface,
+            color = Color.White,
             modifier = Modifier.animateContentSize(
                 animationSpec = tween(
                     300,
@@ -102,10 +109,10 @@ class OnboardingFragment : BaseFragment<FragmentOnboardingBinding>() {
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
-                    text = "Authenticate to continue",
-                    color = Color(0xFF808080),
+                    text = "Authenticate With Google",
+                    color = Color(0xFF000000),
                     fontSize = 14.sp,
-                    fontFamily = FontFamily(Font(R.font.inter_bold))
+                    fontFamily = FontFamily(Font(R.font.sans_med))
                 )
             }
         }
