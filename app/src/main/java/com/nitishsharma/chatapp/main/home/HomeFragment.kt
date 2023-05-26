@@ -289,10 +289,11 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
 
     //starting chat activity
     private fun startChatActivity(roomId: String, roomName: String) {
-        val intent = Intent(activity, ChatActivity::class.java)
-        intent.putExtra("userName", firebaseInstance.currentUser?.displayName.toString())
-        intent.putExtra("roomID", roomId)
-        intent.putExtra("roomName", roomName)
+        val intent = Intent(activity, ChatActivity::class.java).apply {
+            putExtra("userName", firebaseInstance.currentUser?.displayName.toString())
+            putExtra("roomID", roomId)
+            putExtra("roomName", roomName)
+        }
         Timber.tag("ChatActivity")
             .d("UserName: ${firebaseInstance.currentUser?.displayName}\nRoomId: $roomId\nRoomName: $roomName")
         Handler().postDelayed({

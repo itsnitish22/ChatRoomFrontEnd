@@ -22,6 +22,7 @@
             android:name=".chats.ChatActivity"
             android:exported="false"
             android:screenOrientation="portrait"
+            android:launchMode="singleTask"
             android:windowSoftInputMode="adjustResize"
             tools:ignore="LockedOrientationActivity">
             <meta-data
