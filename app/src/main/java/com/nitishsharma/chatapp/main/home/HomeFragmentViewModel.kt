@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.gson.Gson
 import com.nitishsharma.chatapp.base.BaseViewModel
+import com.nitishsharma.chatapp.utils.Event
 import com.nitishsharma.chatapp.utils.Utility
 import com.nitishsharma.domain.api.interactors.CanJoinRoomUseCase
 import com.nitishsharma.domain.api.interactors.DeleteCurrentRoomUseCase
@@ -34,8 +35,8 @@ class HomeFragmentViewModel : BaseViewModel() {
     val receivedRoomName: MutableLiveData<String?>
         get() = _receivedRoomName
 
-    private val _successSignOut: MutableLiveData<Boolean> = MutableLiveData(false)
-    val successSignOut: LiveData<Boolean>
+    private val _successSignOut: MutableLiveData<Event<Boolean?>> = MutableLiveData(null)
+    val successSignOut: LiveData<Event<Boolean?>>
         get() = _successSignOut
 
     private val _deleteRoomSuccess: MutableLiveData<Boolean> = MutableLiveData(false)
@@ -60,7 +61,7 @@ class HomeFragmentViewModel : BaseViewModel() {
 
     fun signOutUser() {
         firebaseInstance.signOut()
-        _successSignOut.postValue(true)
+        _successSignOut.postValue(Event(true))
     }
 
     fun getAllUserActiveRooms(body: AllUserActiveRoomsBody) {
