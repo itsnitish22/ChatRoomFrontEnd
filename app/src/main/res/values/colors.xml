@@ -15,4 +15,5 @@
     <color name="chatroom_light_blue">#16AFE4</color>
     <color name="chatroom_light_green">#8DE9BB</color>
     <color name="dark_gray">#191D24</color>
+    <color name="whitish">#D9D9D9</color>
 </resources>

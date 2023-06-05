@@ -109,6 +109,8 @@ dependencies {
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
     implementation 'com.google.accompanist:accompanist-swiperefresh:0.24.13-rc'
     implementation "androidx.constraintlayout:constraintlayout-compose:1.0.1"
+    implementation "io.coil-kt:coil-compose:2.1.0"
+    implementation("io.coil-kt:coil:0.9.2")
 
 
     //socketio
@@ -183,6 +185,9 @@ dependencies {
 
     //splash screen api
     implementation("androidx.core:core-splashscreen:$splash_version")
+
+    //floating action button
+    implementation 'com.github.clans:fab:1.6.4'
 
     api project(path: ':domain')
     api project(path: ':data')
