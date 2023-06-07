@@ -16,7 +16,8 @@ class AppColors(
     neutral3: Color,
     neutral4: Color,
     neutral5: Color,
-    whitishWhite: Color
+    whitishWhite: Color,
+    appBackgroundDarkGrayLight: Color
 ) {
     var appBackgroundLightGray by mutableStateOf(appBackgroundLightGray)
         private set
@@ -36,7 +37,9 @@ class AppColors(
         private set
     var neutral5 by mutableStateOf(neutral5)
         private set
-    var whitishWhite by mutableStateOf(neutral5)
+    var whitishWhite by mutableStateOf(whitishWhite)
+        private set
+    var appBackgroundDarkGrayLight by mutableStateOf(appBackgroundDarkGrayLight)
         private set
 
     fun copy(): AppColors = AppColors(
@@ -49,7 +52,8 @@ class AppColors(
         neutral3,
         neutral4,
         neutral5,
-        whitishWhite
+        whitishWhite,
+        appBackgroundDarkGrayLight
     )
 
     fun updateColorsFrom(other: AppColors) {
@@ -63,6 +67,7 @@ class AppColors(
         neutral4 = other.neutral4
         neutral5 = other.neutral5
         whitishWhite = other.whitishWhite
+        appBackgroundDarkGrayLight = other.appBackgroundDarkGrayLight
     }
 }
 
@@ -76,7 +81,8 @@ fun lightColors(): AppColors = AppColors(
     neutral3 = Neutral3,
     neutral4 = Neutral4,
     neutral5 = Neutral5,
-    whitishWhite = WhitishWhite
+    whitishWhite = WhitishWhite,
+    appBackgroundDarkGrayLight = AppBackgroundDarkGrayLight
 )
 
 internal val LocalColors = staticCompositionLocalOf { lightColors() }

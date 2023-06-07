@@ -30,6 +30,8 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.net.InetAddress
 import java.net.NetworkInterface
+import java.text.SimpleDateFormat
+import java.util.Locale
 import java.util.UUID
 
 object Utility {
@@ -111,6 +113,13 @@ object Utility {
             )
         }
         startActivity(Intent.createChooser(shareIntent, "Share RoomID using"))
+    }
+
+    fun formatDateTime(dateTime: String): String? {
+        val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+        val outputFormat = SimpleDateFormat("dd MMMM, yyyy hh:mm a", Locale.getDefault())
+        val date = inputFormat.parse(dateTime)
+        return date?.let { outputFormat.format(it) }
     }
 
     fun Fragment.shareRoom(roomId: String, roomName: String) {

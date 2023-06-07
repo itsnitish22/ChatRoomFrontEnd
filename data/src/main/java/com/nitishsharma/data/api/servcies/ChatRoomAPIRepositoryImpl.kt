@@ -3,6 +3,7 @@ package com.nitishsharma.data.api.servcies
 import com.nitishsharma.domain.api.models.canjoinroom.CanJoinRoom
 import com.nitishsharma.domain.api.models.roomsresponse.AllUserActiveRooms
 import com.nitishsharma.domain.api.models.roomsresponse.AllUserActiveRoomsBody
+import com.nitishsharma.domain.api.models.useravatar.GetUserAvatar
 import com.nitishsharma.domain.api.repository.ChatRoomAPIRepository
 import org.json.JSONObject
 import org.koin.core.component.KoinComponent
@@ -26,6 +27,10 @@ class ChatRoomAPIRepositoryImpl : ChatRoomAPIRepository, KoinComponent {
 
     override suspend fun updateRoomJoinerId(roomJoinerIdBody: JSONObject): Response<Unit> {
         return chatRoomAPIService.updateRoomJoinerIdUseCase(roomJoinerIdBody)
+    }
+
+    override suspend fun getUserAvatar(userAvatarBody: JSONObject): Response<GetUserAvatar> {
+        return chatRoomAPIService.getUserAvatar(userAvatarBody)
     }
 
     override suspend fun getAllActiveRooms(allUserActiveRoomsBody: AllUserActiveRoomsBody): Response<AllUserActiveRooms> {

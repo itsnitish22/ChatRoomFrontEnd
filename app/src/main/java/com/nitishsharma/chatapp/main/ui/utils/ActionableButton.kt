@@ -41,7 +41,7 @@ fun ActionableButton(
             .background(backgroundColor)
             .height(35.dp)
             .width(108.dp)
-            .clickable(enabled = true, onClick = { onClick }),
+            .clickable(enabled = true, onClick = { onClick.invoke() }),
         contentAlignment = Alignment.Center
     ) {
         Row(
