@@ -4,11 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
-import android.text.InputType
 import android.view.View
-import android.view.WindowManager
-import android.widget.Button
-import android.widget.EditText
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -36,13 +32,11 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.FirebaseAuth
 import com.nitishsharma.chatapp.R
 import com.nitishsharma.chatapp.base.BaseFragment
 import com.nitishsharma.chatapp.chats.ChatActivity
 import com.nitishsharma.chatapp.databinding.FragmentHomeBinding
-import com.nitishsharma.chatapp.databinding.RoomOptionsBottomSheetBinding
 import com.nitishsharma.chatapp.main.home.ui.components.AppName
 import com.nitishsharma.chatapp.main.home.ui.components.FloatingActionMenu
 import com.nitishsharma.chatapp.main.home.ui.components.HomeScreenRoomItem
@@ -51,15 +45,14 @@ import com.nitishsharma.chatapp.main.home.ui.components.RandomButton
 import com.nitishsharma.chatapp.main.home.ui.components.ShimmerItem
 import com.nitishsharma.chatapp.main.ui.theme.AppTheme
 import com.nitishsharma.chatapp.main.ui.utils.Avatar
-import com.nitishsharma.chatapp.utils.Utility.copyTextToClipboard
 import com.nitishsharma.chatapp.utils.Utility.setStatusBarColor
-import com.nitishsharma.chatapp.utils.Utility.shareRoom
 import com.nitishsharma.chatapp.utils.Utility.toast
 import com.nitishsharma.domain.api.models.roomsresponse.ActiveRooms
 import com.nitishsharma.domain.api.models.roomsresponse.ConvertToBodyForAllUserActiveRooms
 import timber.log.Timber
 
-class HomeFragment : BaseFragment<FragmentHomeBinding>() {
+class HomeFragment : BaseFragment<FragmentHomeBinding>(),
+    RoomUtilityBottomSheet.RoomUtilityCallback {
     override fun getViewBinding() = FragmentHomeBinding.inflate(layoutInflater)
     private val homeFragmentArgs: HomeFragmentArgs by navArgs()
     private val homeFragmentVM: HomeFragmentViewModel by activityViewModels()
@@ -194,33 +187,8 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
     }
 
     private fun showRoomOptionsBottomSheet(currentRoom: ActiveRooms) {
-        val ui: RoomOptionsBottomSheetBinding
-        val view = RoomOptionsBottomSheetBinding.inflate(layoutInflater).also {
-            ui = it
-        }.root
-
-        ui.apply {
-            roomNameTv.text = currentRoom.roomName
-            copyRoomId.setOnClickListener {
-                copyTextToClipboard(currentRoom.roomId, "Room ID")
-                toast("Copied")
-                bottomSheetDialog.dismiss()
-            }
-            inviteSomeone.setOnClickListener {
-                shareRoom(currentRoom.roomId, currentRoom.roomName)
-                bottomSheetDialog.dismiss()
-            }
-            deleteCurrentRoom.setOnClickListener {
-                homeFragmentVM.deleteCurrentRoom(currentRoom.roomId)
-                bottomSheetDialog.dismiss()
-            }
-        }
-
-        bottomSheetDialog.apply {
-            setCancelable(true)
-            setContentView(view)
-            show()
-        }
+        RoomOptionsBottomSheet.newInstance(currentRoom.roomId, currentRoom.roomName)
+            .show(childFragmentManager, "ROOM_OPTIONS_BOTTOM_SHEET")
     }
 
     override fun initSocketListeners() {
@@ -228,42 +196,9 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
     }
 
     private fun showRoomBottomSheet(buttonText: String, editTextHint: String, eventType: Int) {
-        val view = layoutInflater.inflate(R.layout.room_bottom_sheet, null)
-        bottomSheetDialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
-
-        val button = view.findViewById<Button>(R.id.joinRoomButton)
-        val enterEditText = view.findViewById<EditText>(R.id.enterRoomEditText)
-        val editText = view.findViewById<TextInputLayout>(R.id.enterRoom)
-
-        button.text = buttonText
-        editText.hint = editTextHint
-
-
-        if (eventType == 1) {
-            enterEditText.inputType =
-                InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_WORDS
-            button.setOnClickListener {
-                if (enterEditText.text.toString().isNotEmpty()) {
-                    bottomSheetDialog.dismiss()
-                    roomId = createAndJoinRoom(enterEditText.text.toString())
-                }
-            }
-        } else {
-            button.setOnClickListener {
-                if (enterEditText.text.toString().isNotEmpty()) {
-                    roomId = enterEditText.text.toString()
-                    bottomSheetDialog.dismiss()
-                    roomId?.let {
-                        checkIfCanJoinRoom(it)
-                    }
-                }
-            }
-
-        }
-
-        bottomSheetDialog.setCancelable(true)
-        bottomSheetDialog.setContentView(view)
-        bottomSheetDialog.show()
+        val bottomSheet = RoomUtilityBottomSheet.newInstance(buttonText, editTextHint, eventType)
+        bottomSheet.setRoomOptionsCallback(this)
+        bottomSheet.show(childFragmentManager, "ROOM_OPTIONS_BOTTOM_SHEET")
     }
 
     private fun checkIfCanJoinRoom(roomId: String) {
@@ -442,6 +377,17 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
                     }
                 )
             }
+        }
+    }
+
+    override fun onRoomCreateAndJoinCallback(roomName: String) {
+        roomId = createAndJoinRoom(roomName)
+    }
+
+    override fun onRoomJoinCallback(roomIdSent: String) {
+        roomId = roomIdSent
+        roomId?.let {
+            checkIfCanJoinRoom(it)
         }
     }
 }

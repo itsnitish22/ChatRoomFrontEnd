@@ -1,83 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_margin="10dp"
-    android:backgroundTint="#FFFFFF">
+    android:layout_height="wrap_content">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/roomNameTv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:fontFamily="@font/sans_bold"
+            android:padding="10dp"
+            android:paddingStart="20dp"
+            android:textColor="@color/whitish"
+            android:textSize="18sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Room Name" />
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/roomNameTv"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/sharp_grotesk_medium20"
-                android:padding="10dp"
-                android:paddingStart="20dp"
-                android:textSize="20sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="Room Name" />
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/inviteSomeone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:drawableStart="@drawable/ic_invite"
+            android:drawablePadding="10dp"
+            android:fontFamily="@font/sans_med"
+            android:padding="15dp"
+            android:paddingStart="20dp"
+            android:text="Invite Someone"
+            android:textColor="@color/whitish"
+            android:textSize="13sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/roomNameTv" />
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/inviteSomeone"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/room_options_textview_background"
-                android:drawableStart="@drawable/ic_invite"
-                android:drawablePadding="10dp"
-                android:fontFamily="@font/sharp_grotesk_medium20"
-                android:padding="15dp"
-                android:paddingStart="20dp"
-                android:text="Invite Someone"
-                android:textSize="14sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/roomNameTv" />
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/copyRoomId"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_copy"
+            android:drawablePadding="10dp"
+            android:fontFamily="@font/sans_med"
+            android:padding="15dp"
+            android:paddingStart="20dp"
+            android:text="Copy Room ID"
+            android:textColor="@color/whitish"
+            android:textSize="13sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/inviteSomeone" />
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/copyRoomId"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/room_options_textview_background"
-                android:drawableStart="@drawable/ic_copy"
-                android:drawablePadding="10dp"
-                android:fontFamily="@font/sharp_grotesk_medium20"
-                android:padding="15dp"
-                android:paddingStart="20dp"
-                android:text="Copy Room ID"
-                android:textSize="14sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/inviteSomeone" />
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/deleteCurrentRoom"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/room_options_textview_background"
-                android:drawableStart="@drawable/ic_delete"
-                android:drawablePadding="10dp"
-                android:fontFamily="@font/sharp_grotesk_medium20"
-                android:padding="15dp"
-                android:paddingStart="20dp"
-                android:text="Delete this room"
-                android:textSize="14sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/copyRoomId" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/deleteCurrentRoom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_delete"
+            android:drawablePadding="10dp"
+            android:fontFamily="@font/sans_med"
+            android:padding="15dp"
+            android:paddingStart="20dp"
+            android:text="Delete this room"
+            android:textColor="@color/whitish"
+            android:textSize="13sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/copyRoomId" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-</androidx.cardview.widget.CardView>
+</androidx.constraintlayout.widget.ConstraintLayout>
