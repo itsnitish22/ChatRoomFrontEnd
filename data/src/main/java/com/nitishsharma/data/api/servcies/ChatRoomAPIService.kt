@@ -3,6 +3,7 @@ package com.nitishsharma.data.api.servcies
 import com.nitishsharma.domain.api.models.canjoinroom.CanJoinRoom
 import com.nitishsharma.domain.api.models.roomsresponse.AllUserActiveRooms
 import com.nitishsharma.domain.api.models.roomsresponse.AllUserActiveRoomsBody
+import com.nitishsharma.domain.api.models.useravatar.GetUserAvatar
 import org.json.JSONObject
 import retrofit2.Response
 import retrofit2.http.*
@@ -25,4 +26,7 @@ interface ChatRoomAPIService {
 
     @POST("db/updateJoinerInChatRoom")
     suspend fun updateRoomJoinerIdUseCase(@Body roomJoinerIdBody: JSONObject): Response<Unit>
+
+    @POST("db/getUserAvatar")
+    suspend fun getUserAvatar(@Body userAvatarBody: JSONObject): Response<GetUserAvatar>
 }

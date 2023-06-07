@@ -3,6 +3,7 @@ package com.nitishsharma.chatapp.di
 import com.nitishsharma.domain.api.interactors.CanJoinRoomUseCase
 import com.nitishsharma.domain.api.interactors.DeleteCurrentRoomUseCase
 import com.nitishsharma.domain.api.interactors.GetAllActiveRoomsUseCase
+import com.nitishsharma.domain.api.interactors.GetUserAvatarUseCase
 import com.nitishsharma.domain.api.interactors.SaveUserToDbUseCase
 import com.nitishsharma.domain.api.interactors.UpdateRoomAvailableStatusUseCase
 import com.nitishsharma.domain.api.interactors.UpdateRoomJoinerIdUseCase
@@ -15,4 +16,5 @@ val useCaseModules = module {
     factory { CanJoinRoomUseCase(get()) }
     factory { UpdateRoomAvailableStatusUseCase(get()) }
     factory { UpdateRoomJoinerIdUseCase(get()) }
+    factory { GetUserAvatarUseCase(get()) }
 }

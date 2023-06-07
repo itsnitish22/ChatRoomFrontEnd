@@ -8,6 +8,19 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.WindowManager
 import android.widget.Toast
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.google.gson.Gson
@@ -17,6 +30,8 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.net.InetAddress
 import java.net.NetworkInterface
+import java.text.SimpleDateFormat
+import java.util.Locale
 import java.util.UUID
 
 object Utility {
@@ -100,6 +115,13 @@ object Utility {
         startActivity(Intent.createChooser(shareIntent, "Share RoomID using"))
     }
 
+    fun formatDateTime(dateTime: String): String? {
+        val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+        val outputFormat = SimpleDateFormat("dd MMMM, yyyy hh:mm a", Locale.getDefault())
+        val date = inputFormat.parse(dateTime)
+        return date?.let { outputFormat.format(it) }
+    }
+
     fun Fragment.shareRoom(roomId: String, roomName: String) {
         requireContext().shareRoom(roomId, roomName)
     }
@@ -114,4 +136,34 @@ object Utility {
     fun Fragment.setStatusBarColor(activity: Activity, colorResId: Int) {
         requireContext().setStatusBarColor(activity, colorResId)
     }
+
+    enum class ButtonState { Pressed, Idle }
+
+    fun Modifier.bounceClick() = composed {
+        var buttonState by remember { mutableStateOf(ButtonState.Idle) }
+        val scale by animateFloatAsState(if (buttonState == ButtonState.Pressed) 0.90f else 1f)
+
+        this
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = { }
+            )
+            .pointerInput(buttonState) {
+                awaitPointerEventScope {
+                    buttonState = if (buttonState == ButtonState.Pressed) {
+                        waitForUpOrCancellation()
+                        ButtonState.Idle
+                    } else {
+                        awaitFirstDown(false)
+                        ButtonState.Pressed
+                    }
+                }
+            }
+    }
+
 }

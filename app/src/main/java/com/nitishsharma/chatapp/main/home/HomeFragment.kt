@@ -9,44 +9,53 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.EditText
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
-import com.facebook.shimmer.ShimmerFrameLayout
-import com.google.accompanist.swiperefresh.SwipeRefresh
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.textfield.TextInputLayout
+import com.google.firebase.auth.FirebaseAuth
 import com.nitishsharma.chatapp.R
 import com.nitishsharma.chatapp.base.BaseFragment
 import com.nitishsharma.chatapp.chats.ChatActivity
 import com.nitishsharma.chatapp.databinding.FragmentHomeBinding
 import com.nitishsharma.chatapp.databinding.RoomOptionsBottomSheetBinding
+import com.nitishsharma.chatapp.main.home.ui.components.AppName
+import com.nitishsharma.chatapp.main.home.ui.components.FloatingActionMenu
+import com.nitishsharma.chatapp.main.home.ui.components.HomeScreenRoomItem
+import com.nitishsharma.chatapp.main.home.ui.components.MiddleNoActiveRooms
+import com.nitishsharma.chatapp.main.home.ui.components.RandomButton
+import com.nitishsharma.chatapp.main.ui.theme.AppTheme
+import com.nitishsharma.chatapp.main.ui.utils.Avatar
 import com.nitishsharma.chatapp.utils.Utility.copyTextToClipboard
+import com.nitishsharma.chatapp.utils.Utility.setStatusBarColor
 import com.nitishsharma.chatapp.utils.Utility.shareRoom
 import com.nitishsharma.chatapp.utils.Utility.toast
 import com.nitishsharma.domain.api.models.roomsresponse.ActiveRooms
 import com.nitishsharma.domain.api.models.roomsresponse.ConvertToBodyForAllUserActiveRooms
-import de.hdodenhof.circleimageview.CircleImageView
 import timber.log.Timber
 
 class HomeFragment : BaseFragment<FragmentHomeBinding>() {
@@ -55,28 +64,42 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
     private val homeFragmentVM: HomeFragmentViewModel by activityViewModels()
     private lateinit var bottomSheetDialog: BottomSheetDialog
     private lateinit var drawerLayout: DrawerLayout
-    private lateinit var shimmerFrameLayout: ShimmerFrameLayout
     private var roomId: String? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setStatusBarColor(requireActivity(), R.color.app_bg)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         bottomSheetDialog = BottomSheetDialog(requireContext())
+        getAllUserActiveRooms()
         drawerLayout = binding.drawerLayout
-        shimmerFrameLayout = binding.shimmerFrameLayout
+    }
 
-        initViews()
+    private fun getAllUserActiveRooms() {
+        homeFragmentVM.getAllUserActiveRooms(
+            ConvertToBodyForAllUserActiveRooms.convert(
+                firebaseInstance.currentUser!!.uid
+            )
+        )
+    }
+
+    override fun initComposeView() {
+        super.initComposeView()
+        binding.composeView.setContent {
+            HomeScreenUI(
+                firebaseInstance.currentUser?.photoUrl,
+                onClickAvatar = {},
+            )
+        }
     }
 
     override fun initClickListeners() {
         binding.apply {
-            createRoomButton.setOnClickListener {
-                showRoomBottomSheet("Create room", "Room's nick name", 1)
-            }
-            joinRoomButton.setOnClickListener {
-                showRoomBottomSheet("Join room", "Enter room id", 2)
-            }
-            moreOptions.setOnClickListener {
-                drawerLayout.openDrawer(GravityCompat.END)
+            binding.swipeRefresh.setOnRefreshListener {
+                getAllUserActiveRooms()
             }
         }
     }
@@ -102,15 +125,11 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
             }
         })
 
-        homeFragmentVM.responseAllUserActiveRooms.observe(
+        homeFragmentVM.responseAllUserActiveRoomsWithJoinerAvatar.observe(
             viewLifecycleOwner,
-            Observer { allUserActiveRooms ->
-                if (allUserActiveRooms.numberOfActiveRooms >= 1) {
-                    setupViewForActiveRooms()
-                    loadDataInLazyColum(allUserActiveRooms.activeRooms)
-                } else {
-                    setupViewForNoActiveRooms()
-                }
+            Observer { mappedRomsWithJoinerAvatar ->
+                if (binding.swipeRefresh.isRefreshing)
+                    binding.swipeRefresh.isRefreshing = false
             })
 
         homeFragmentVM.deleteRoomSuccess.observe(viewLifecycleOwner, Observer { deleteRoomSuccess ->
@@ -155,6 +174,14 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
                     }
                 }
             })
+
+        homeFragmentVM.serverError.observe(viewLifecycleOwner, Observer { error ->
+            if (error) {
+                toast("Internal Server Error")
+                if (binding.swipeRefresh.isRefreshing)
+                    binding.swipeRefresh.isRefreshing = false
+            }
+        })
     }
 
     private fun updateRoomJoinerId(uid: String?, roomId: String) {
@@ -163,39 +190,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
 
     private fun updateRoomIsAvailableStatus(isRoomAvailable: Boolean, roomId: String) {
         homeFragmentVM.updateRoomIsAvailableStatus(isRoomAvailable, roomId)
-    }
-
-    private fun setupViewForActiveRooms() {
-        binding.apply {
-            activeRoomsTv.visibility = View.VISIBLE
-            shimmerFrameLayout.stopShimmer()
-            shimmerFrameLayout.visibility = View.GONE
-            composeViewLazyColumn.visibility = View.VISIBLE
-            noActiveRoomsTv.visibility = View.GONE
-            noActiveRoomsDescTv.visibility = View.GONE
-            roomIv.visibility = View.GONE
-        }
-    }
-
-    private fun setupViewForNoActiveRooms() {
-        shimmerFrameLayout.stopShimmer()
-        shimmerFrameLayout.visibility = View.GONE
-        binding.apply {
-            activeRoomsTv.visibility = View.GONE
-            composeViewLazyColumn.visibility = View.GONE
-            noActiveRoomsTv.visibility = View.VISIBLE
-            noActiveRoomsDescTv.visibility = View.VISIBLE
-            roomIv.visibility = View.VISIBLE
-        }
-    }
-
-
-    private fun loadDataInLazyColum(activeRooms: ArrayList<ActiveRooms>) {
-        binding.apply {
-            composeViewLazyColumn.setContent {
-                SetupLazyColumn(activeRooms = activeRooms)
-            }
-        }
     }
 
     private fun showRoomOptionsBottomSheet(currentRoom: ActiveRooms) {
@@ -310,99 +304,116 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
         findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToOnboardingFragment())
     }
 
-    //initializing the views
-    private fun initViews() {
-        homeFragmentArgs.firebaseUser?.let {
-            loadImageFromUrl(binding.profilePic, it.photoUrl)
-            binding.nameOfUser.text = firebaseInstance.currentUser?.displayName
-        }
-    }
-
-    //loading image from url
-    private fun loadImageFromUrl(profilePic: CircleImageView, photoUrl: Uri?) {
-        val options: RequestOptions = RequestOptions()
-            .centerCrop()
-
-        Glide.with(this).load(photoUrl).apply(options).into(profilePic)
-    }
-
-    private fun getAllUserActiveRooms() {
-        shimmerFrameLayout.startShimmer()
-        homeFragmentVM.getAllUserActiveRooms(
-            ConvertToBodyForAllUserActiveRooms.convert(
-                firebaseInstance.currentUser!!.uid
-            )
-        )
-    }
-
     @Composable
-    fun SetupLazyColumn(activeRooms: ArrayList<ActiveRooms>) {
-        var refreshing by remember { mutableStateOf(false) }
-        LaunchedEffect(refreshing) {
-            if (refreshing) {
-                getAllUserActiveRooms()
-                refreshing = false
-            }
-        }
+    fun HomeScreenUI(
+        avatarUrl: Uri?,
+        onClickAvatar: (() -> Unit?)?,
+    ) {
+        val showRooms = remember { mutableStateOf(false) }
+        showRooms.value =
+            !homeFragmentVM.responseAllUserActiveRoomsWithJoinerAvatar.observeAsState().value.isNullOrEmpty()
 
-        SwipeRefresh(
-            state = rememberSwipeRefreshState(isRefreshing = refreshing),
-            onRefresh = { refreshing = true }
-        ) {
-            LazyColumn(modifier = Modifier.padding(vertical = 4.dp)) {
-                items(items = activeRooms) { currentActiveRoom ->
-                    ActiveRoomsItem(currentActiveRoom = currentActiveRoom)
-                }
-            }
-        }
-    }
-
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Composable
-    fun ActiveRoomsItem(currentActiveRoom: ActiveRooms) {
-        Surface(
-            color = colorResource(R.color.light_blue),
-            modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp),
-            shape = RoundedCornerShape(10.dp),
-            onClick = {
-                roomId = currentActiveRoom.roomId
-                joinChatRoom(currentActiveRoom.roomId)
-            }
-        ) {
-            Column(
-                modifier = Modifier
-                    .padding(20.dp)
-                    .fillMaxWidth()
-            ) {
-                Row {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = currentActiveRoom.roomName,
-                            style = MaterialTheme.typography.headlineSmall.copy(
-                                fontWeight = FontWeight.SemiBold
-                            ),
-                            color = Color.DarkGray
-                        )
-                        Text(
-                            text = currentActiveRoom.roomId,
-                            color = Color.DarkGray,
-                            fontSize = 12.sp
-                        )
+        Surface(color = AppTheme.colors.appBackgroundLightGray) {
+            ConstraintLayout(modifier = Modifier.fillMaxSize()) {
+                val (appName, avatar, darkSurface, randomButton, centerNoRoomsDisplay, floatingActionButton, activeRoomsTv, lazyColumn, progressIndicator) = createRefs()
+                AppName(modifier = Modifier.constrainAs(appName) {
+                    start.linkTo(parent.start)
+                    top.linkTo(parent.top)
+                })
+                Avatar(
+                    modifier = Modifier
+                        .size(45.dp)
+                        .padding(end = 10.dp, top = 10.dp)
+                        .constrainAs(avatar) {
+                            end.linkTo(parent.end)
+                            top.linkTo(parent.top)
+                        }, avatarUrl = avatarUrl.toString(),
+                    onClick = {
+                        onClickAvatar?.invoke()
                     }
-                    Box {
-                        IconButton(
-                            onClick = {
-                                showRoomOptionsBottomSheet(currentActiveRoom)
+                )
+                Surface(modifier = Modifier
+                    .constrainAs(darkSurface) {
+                        top.linkTo(appName.bottom)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    }
+                    .padding(top = 5.dp)
+                    .fillMaxSize(),
+                    color = AppTheme.colors.appBackgroundDarkGray,
+                    shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp)
+                ) {
+                    FloatingActionMenu(
+                        modifier = Modifier
+                            .constrainAs(floatingActionButton) {
+                                end.linkTo(darkSurface.end, margin = 16.dp)
+                                bottom.linkTo(darkSurface.bottom, margin = 16.dp)
                             },
-                            modifier = Modifier.align(Alignment.CenterEnd)
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_dots_vertical),
-                                contentDescription = ""
-                            )
+                        onCreateRoom = {
+                            showRoomBottomSheet("Create room", "Room's nick name", 1)
+                        },
+                        onJoinRoom = {
+                            showRoomBottomSheet("Join room", "Enter room id", 2)
                         }
-                    }
+                    )
                 }
+                RandomButton(modifier = Modifier
+                    .constrainAs(randomButton) {
+                        end.linkTo(darkSurface.end)
+                        top.linkTo(darkSurface.top)
+                    }
+                    .padding(top = 15.dp, end = 15.dp), onClick = { toast("Coming soon") })
+                if (!showRooms.value)
+                    MiddleNoActiveRooms(modifier = Modifier.constrainAs(centerNoRoomsDisplay) {
+                        centerTo(darkSurface)
+                    })
+                else {
+                    Text(
+                        modifier = Modifier.constrainAs(activeRoomsTv) {
+                            top.linkTo(randomButton.bottom, 5.dp)
+                            start.linkTo(darkSurface.start, margin = 20.dp)
+                        },
+                        text = "Active Rooms",
+                        color = Color.White,
+                        style = TextStyle(
+                            fontFamily = FontFamily(Font(R.font.sans_med)),
+                            fontSize = 20.sp
+                        )
+                    )
+                    SetupLazyColumn(
+                        homeFragmentVM.responseAllUserActiveRoomsWithJoinerAvatar.observeAsState().value!!,
+                        Modifier.constrainAs(lazyColumn) {
+                            top.linkTo(activeRoomsTv.bottom, 5.dp)
+                            start.linkTo(parent.start, 25.dp)
+                            end.linkTo(parent.end, 25.dp)
+                        },
+                        firebaseInstance
+                    )
+                }
+            }
+        }
+    }
+
+    @Composable
+    fun SetupLazyColumn(
+        mapOfActiveRoomsWithJoinerId: MutableMap<ActiveRooms, String?>,
+        modifier: Modifier,
+        firebaseInstance: FirebaseAuth?,
+    ) {
+        LazyColumn(modifier = modifier) {
+            itemsIndexed(mapOfActiveRoomsWithJoinerId.toList()) { index, (activeRooms, joinerId) ->
+                HomeScreenRoomItem(
+                    currentActiveRoom = activeRooms,
+                    firebaseAuth = firebaseInstance!!,
+                    roomJoinerAvatarUrl = joinerId,
+                    onClickListener = { clickedRoomId ->
+                        roomId = clickedRoomId
+                        joinChatRoom(clickedRoomId)
+                    },
+                    onLongPressListener = { clickedActiveRoom ->
+                        showRoomOptionsBottomSheet(clickedActiveRoom)
+                    }
+                )
             }
         }
     }

@@ -42,6 +42,7 @@ abstract class BaseFragment<VB : ViewBinding> : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        initComposeView()
         initClickListeners()
         initObservers()
         initSocketListeners()
@@ -52,4 +53,6 @@ abstract class BaseFragment<VB : ViewBinding> : Fragment() {
     open fun initObservers() {}
 
     open fun initClickListeners() {}
+
+    open fun initComposeView() {}
 }

@@ -12,9 +12,11 @@ import com.nitishsharma.chatapp.utils.Utility
 import com.nitishsharma.domain.api.interactors.CanJoinRoomUseCase
 import com.nitishsharma.domain.api.interactors.DeleteCurrentRoomUseCase
 import com.nitishsharma.domain.api.interactors.GetAllActiveRoomsUseCase
+import com.nitishsharma.domain.api.interactors.GetUserAvatarUseCase
 import com.nitishsharma.domain.api.interactors.UpdateRoomAvailableStatusUseCase
 import com.nitishsharma.domain.api.interactors.UpdateRoomJoinerIdUseCase
 import com.nitishsharma.domain.api.models.canjoinroom.CanJoinRoom
+import com.nitishsharma.domain.api.models.roomsresponse.ActiveRooms
 import com.nitishsharma.domain.api.models.roomsresponse.AllUserActiveRooms
 import com.nitishsharma.domain.api.models.roomsresponse.AllUserActiveRoomsBody
 import io.socket.client.Socket
@@ -30,6 +32,7 @@ class HomeFragmentViewModel : BaseViewModel() {
     private val checkIfCanJoinRoomUseCase: CanJoinRoomUseCase by inject()
     private val updateRoomAvailableStatusUseCase: UpdateRoomAvailableStatusUseCase by inject()
     private val updateRoomJoinerIdUseCase: UpdateRoomJoinerIdUseCase by inject()
+    private val getUserAvatarUseCase: GetUserAvatarUseCase by inject()
 
     private val _receivedRoomName: MutableLiveData<String?> = MutableLiveData()
     val receivedRoomName: MutableLiveData<String?>
@@ -43,9 +46,18 @@ class HomeFragmentViewModel : BaseViewModel() {
     val deleteRoomSuccess: LiveData<Boolean>
         get() = _deleteRoomSuccess
 
+    private val _serverError: MutableLiveData<Boolean> = MutableLiveData(false)
+    val serverError: LiveData<Boolean>
+        get() = _serverError
+
     private val _responseAllUserActiveRooms: MutableLiveData<AllUserActiveRooms> = MutableLiveData()
     val responseAllUserActiveRooms: LiveData<AllUserActiveRooms>
         get() = _responseAllUserActiveRooms
+
+    private val _responseAllUserActiveRoomsWithJoinerAvatar: MutableLiveData<MutableMap<ActiveRooms, String?>> =
+        MutableLiveData()
+    val responseAllUserActiveRoomsWithJoinerAvatar: LiveData<MutableMap<ActiveRooms, String?>>
+        get() = _responseAllUserActiveRoomsWithJoinerAvatar
 
     private val _canJoinRoom: MutableLiveData<CanJoinRoom> = MutableLiveData()
     val canJoinRoom: LiveData<CanJoinRoom>
@@ -67,10 +79,26 @@ class HomeFragmentViewModel : BaseViewModel() {
     fun getAllUserActiveRooms(body: AllUserActiveRoomsBody) {
         viewModelScope.launch {
             try {
+                val mapOfActiveRoomsWithJoiners: MutableMap<ActiveRooms, String?> = mutableMapOf()
                 val response = getALlUserActiveRoomsUseCase.invoke(body)
-                if (response.isSuccessful)
-                    _responseAllUserActiveRooms.postValue(response.body())
+                Timber.tag("Active Rooms With JoinerAvatar")
+                    .i(response.body().toString())
+                if (response.isSuccessful) {
+                    for (activeRooms in response.body()?.activeRooms!!) {
+                        val avatarUrl =
+                            if (activeRooms.joinerId != null) getUserAvatarUseCase.invoke(
+                                activeRooms.joinerId!!
+                            ).body()?.userAvatar else null
+                        mapOfActiveRoomsWithJoiners[activeRooms] = avatarUrl
+                    }
+                    _responseAllUserActiveRoomsWithJoinerAvatar.postValue(
+                        mapOfActiveRoomsWithJoiners
+                    )
+                    Timber.tag("Active Rooms With JoinerAvatar")
+                        .i(mapOfActiveRoomsWithJoiners.toString())
+                }
             } catch (e: Exception) {
+                _serverError.postValue(true)
                 Timber.tag("Active Rooms Error").e(e.toString())
             }
         }
