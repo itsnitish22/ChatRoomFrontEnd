@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName
 data class AllUserActiveRooms(
     @SerializedName("count")
     val numberOfActiveRooms: Int,
-    @SerializedName("activeRooms")
+    @SerializedName("active_rooms")
     val activeRooms: ArrayList<ActiveRooms>
 )
 

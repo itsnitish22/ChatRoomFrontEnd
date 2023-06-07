@@ -13,7 +13,6 @@ class HomeFragmentDrawer : BaseFragment<FragmentHomeDrawerBinding>() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        toast("Hello")
         binding.apply {
             signOut.setOnClickListener {
                 signOutUser()

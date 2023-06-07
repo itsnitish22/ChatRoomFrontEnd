@@ -81,6 +81,8 @@ class HomeFragmentViewModel : BaseViewModel() {
             try {
                 val mapOfActiveRoomsWithJoiners: MutableMap<ActiveRooms, String?> = mutableMapOf()
                 val response = getALlUserActiveRoomsUseCase.invoke(body)
+                Timber.tag("Active Rooms With JoinerAvatar")
+                    .i(response.body().toString())
                 if (response.isSuccessful) {
                     for (activeRooms in response.body()?.activeRooms!!) {
                         val avatarUrl =
