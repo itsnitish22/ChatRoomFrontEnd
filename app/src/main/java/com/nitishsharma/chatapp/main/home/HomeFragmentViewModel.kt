@@ -63,6 +63,10 @@ class HomeFragmentViewModel : BaseViewModel() {
     val canJoinRoom: LiveData<CanJoinRoom>
         get() = _canJoinRoom
 
+    private val _isLoadingRooms: MutableLiveData<Boolean> = MutableLiveData()
+    val isLoadingRooms: LiveData<Boolean>
+        get() = _isLoadingRooms
+
     private val _changedRoomAvailableStatus: MutableLiveData<Boolean?> = MutableLiveData(null)
     val changedRoomAvailableStatus: LiveData<Boolean?>
         get() = _changedRoomAvailableStatus
@@ -79,6 +83,7 @@ class HomeFragmentViewModel : BaseViewModel() {
     fun getAllUserActiveRooms(body: AllUserActiveRoomsBody) {
         viewModelScope.launch {
             try {
+                _isLoadingRooms.postValue(true)
                 val mapOfActiveRoomsWithJoiners: MutableMap<ActiveRooms, String?> = mutableMapOf()
                 val response = getALlUserActiveRoomsUseCase.invoke(body)
                 Timber.tag("Active Rooms With JoinerAvatar")
@@ -97,7 +102,9 @@ class HomeFragmentViewModel : BaseViewModel() {
                     Timber.tag("Active Rooms With JoinerAvatar")
                         .i(mapOfActiveRoomsWithJoiners.toString())
                 }
+                _isLoadingRooms.postValue(false)
             } catch (e: Exception) {
+                _isLoadingRooms.postValue(false)
                 _serverError.postValue(true)
                 Timber.tag("Active Rooms Error").e(e.toString())
             }

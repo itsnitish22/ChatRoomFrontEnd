@@ -29,6 +29,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.pointer.pointerInput
@@ -301,5 +303,48 @@ fun FloatingActionMenu(
                 backgroundColor = AppTheme.colors.chatRoomLightBlue
             )
         }
+    }
+}
+
+@Composable
+fun ShimmerItem() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 10.dp, end = 10.dp, bottom = 10.dp)
+            .height(75.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .background(Color(0xff384a6b))
+    ) {
+        ShimmerAnimation(modifier = Modifier.fillMaxSize())
+    }
+}
+
+@Composable
+fun ShimmerAnimation(modifier: Modifier) {
+    val colors = listOf(
+        Color.LightGray.copy(alpha = 0.8f),
+        Color.LightGray.copy(alpha = 0.5f),
+        Color.LightGray.copy(alpha = 0.3f),
+        Color.LightGray.copy(alpha = 0.5f),
+        Color.LightGray.copy(alpha = 0.8f),
+    )
+    val gradientWidth = 100f
+
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    brush = Brush.linearGradient(
+                        colors = colors,
+                        start = Offset.Zero,
+                        end = Offset(gradientWidth, 0f),
+                    )
+                )
+        )
     }
 }

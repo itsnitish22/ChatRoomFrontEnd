@@ -48,6 +48,7 @@ import com.nitishsharma.chatapp.main.home.ui.components.FloatingActionMenu
 import com.nitishsharma.chatapp.main.home.ui.components.HomeScreenRoomItem
 import com.nitishsharma.chatapp.main.home.ui.components.MiddleNoActiveRooms
 import com.nitishsharma.chatapp.main.home.ui.components.RandomButton
+import com.nitishsharma.chatapp.main.home.ui.components.ShimmerItem
 import com.nitishsharma.chatapp.main.ui.theme.AppTheme
 import com.nitishsharma.chatapp.main.ui.utils.Avatar
 import com.nitishsharma.chatapp.utils.Utility.copyTextToClipboard
@@ -72,9 +73,9 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        getAllUserActiveRooms()
         super.onViewCreated(view, savedInstanceState)
         bottomSheetDialog = BottomSheetDialog(requireContext())
-        getAllUserActiveRooms()
         drawerLayout = binding.drawerLayout
     }
 
@@ -312,6 +313,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
         val showRooms = remember { mutableStateOf(false) }
         showRooms.value =
             !homeFragmentVM.responseAllUserActiveRoomsWithJoinerAvatar.observeAsState().value.isNullOrEmpty()
+        val isLoading = homeFragmentVM.isLoadingRooms.observeAsState().value
 
         Surface(color = AppTheme.colors.appBackgroundLightGray) {
             ConstraintLayout(modifier = Modifier.fillMaxSize()) {
@@ -363,11 +365,8 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
                         top.linkTo(darkSurface.top)
                     }
                     .padding(top = 15.dp, end = 15.dp), onClick = { toast("Coming soon") })
-                if (!showRooms.value)
-                    MiddleNoActiveRooms(modifier = Modifier.constrainAs(centerNoRoomsDisplay) {
-                        centerTo(darkSurface)
-                    })
-                else {
+
+                if (isLoading == true) {
                     Text(
                         modifier = Modifier.constrainAs(activeRoomsTv) {
                             top.linkTo(randomButton.bottom, 5.dp)
@@ -380,15 +379,43 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
                             fontSize = 20.sp
                         )
                     )
-                    SetupLazyColumn(
-                        homeFragmentVM.responseAllUserActiveRoomsWithJoinerAvatar.observeAsState().value!!,
-                        Modifier.constrainAs(lazyColumn) {
-                            top.linkTo(activeRoomsTv.bottom, 5.dp)
-                            start.linkTo(parent.start, 25.dp)
-                            end.linkTo(parent.end, 25.dp)
-                        },
-                        firebaseInstance
-                    )
+                    LazyColumn(modifier = Modifier.constrainAs(lazyColumn) {
+                        top.linkTo(activeRoomsTv.bottom, 5.dp)
+                        start.linkTo(parent.start, 25.dp)
+                        end.linkTo(parent.end, 25.dp)
+                    }) {
+                        items(count = 3) { index ->
+                            ShimmerItem()
+                        }
+                    }
+                } else {
+                    if (!showRooms.value) {
+                        MiddleNoActiveRooms(modifier = Modifier.constrainAs(centerNoRoomsDisplay) {
+                            centerTo(darkSurface)
+                        })
+                    } else {
+                        Text(
+                            modifier = Modifier.constrainAs(activeRoomsTv) {
+                                top.linkTo(randomButton.bottom, 5.dp)
+                                start.linkTo(darkSurface.start, margin = 20.dp)
+                            },
+                            text = "Active Rooms",
+                            color = Color.White,
+                            style = TextStyle(
+                                fontFamily = FontFamily(Font(R.font.sans_med)),
+                                fontSize = 20.sp
+                            )
+                        )
+                        SetupLazyColumn(
+                            homeFragmentVM.responseAllUserActiveRoomsWithJoinerAvatar.observeAsState().value!!,
+                            Modifier.constrainAs(lazyColumn) {
+                                top.linkTo(activeRoomsTv.bottom, 5.dp)
+                                start.linkTo(parent.start, 25.dp)
+                                end.linkTo(parent.end, 25.dp)
+                            },
+                            firebaseInstance
+                        )
+                    }
                 }
             }
         }
