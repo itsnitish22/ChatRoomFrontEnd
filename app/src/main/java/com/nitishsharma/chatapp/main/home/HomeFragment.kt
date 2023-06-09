@@ -4,11 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
-import android.text.InputType
 import android.view.View
-import android.view.WindowManager
-import android.widget.Button
-import android.widget.EditText
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -36,29 +32,27 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.FirebaseAuth
 import com.nitishsharma.chatapp.R
 import com.nitishsharma.chatapp.base.BaseFragment
-import com.nitishsharma.chatapp.chats.ChatActivity
 import com.nitishsharma.chatapp.databinding.FragmentHomeBinding
-import com.nitishsharma.chatapp.databinding.RoomOptionsBottomSheetBinding
+import com.nitishsharma.chatapp.main.chats.ChatActivity
 import com.nitishsharma.chatapp.main.home.ui.components.AppName
 import com.nitishsharma.chatapp.main.home.ui.components.FloatingActionMenu
 import com.nitishsharma.chatapp.main.home.ui.components.HomeScreenRoomItem
 import com.nitishsharma.chatapp.main.home.ui.components.MiddleNoActiveRooms
 import com.nitishsharma.chatapp.main.home.ui.components.RandomButton
+import com.nitishsharma.chatapp.main.home.ui.components.ShimmerItem
 import com.nitishsharma.chatapp.main.ui.theme.AppTheme
 import com.nitishsharma.chatapp.main.ui.utils.Avatar
-import com.nitishsharma.chatapp.utils.Utility.copyTextToClipboard
 import com.nitishsharma.chatapp.utils.Utility.setStatusBarColor
-import com.nitishsharma.chatapp.utils.Utility.shareRoom
 import com.nitishsharma.chatapp.utils.Utility.toast
 import com.nitishsharma.domain.api.models.roomsresponse.ActiveRooms
 import com.nitishsharma.domain.api.models.roomsresponse.ConvertToBodyForAllUserActiveRooms
 import timber.log.Timber
 
-class HomeFragment : BaseFragment<FragmentHomeBinding>() {
+class HomeFragment : BaseFragment<FragmentHomeBinding>(),
+    RoomUtilityBottomSheet.RoomUtilityCallback {
     override fun getViewBinding() = FragmentHomeBinding.inflate(layoutInflater)
     private val homeFragmentArgs: HomeFragmentArgs by navArgs()
     private val homeFragmentVM: HomeFragmentViewModel by activityViewModels()
@@ -72,9 +66,9 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        getAllUserActiveRooms()
         super.onViewCreated(view, savedInstanceState)
         bottomSheetDialog = BottomSheetDialog(requireContext())
-        getAllUserActiveRooms()
         drawerLayout = binding.drawerLayout
     }
 
@@ -132,20 +126,30 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
                     binding.swipeRefresh.isRefreshing = false
             })
 
-        homeFragmentVM.deleteRoomSuccess.observe(viewLifecycleOwner, Observer { deleteRoomSuccess ->
-            if (deleteRoomSuccess) {
-                getAllUserActiveRooms()
-            }
-        })
+        homeFragmentVM.deleteRoomResponse.observe(
+            viewLifecycleOwner,
+            Observer { deleteRoomResponse ->
+                if (deleteRoomResponse.deletedRoom) {
+                    getAllUserActiveRooms()
+                } else {
+                    toast(deleteRoomResponse.message)
+                }
+            })
 
         homeFragmentVM.canJoinRoom.observe(viewLifecycleOwner, Observer { canJoinRoom ->
-            if (canJoinRoom.canJoin) {
+            if (canJoinRoom.ownRoom) {
                 roomId?.let {
-                    updateRoomIsAvailableStatus(false, it)
+                    joinChatRoom(it)
                 }
             } else {
-                binding.progressBar.visibility = View.GONE
-                toast(canJoinRoom.actionForUser)
+                if (canJoinRoom.canJoin) {
+                    roomId?.let {
+                        updateRoomIsAvailableStatus(false, it)
+                    }
+                } else {
+                    binding.progressBar.visibility = View.GONE
+                    toast(canJoinRoom.actionForUser)
+                }
             }
         })
 
@@ -167,10 +171,21 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
             viewLifecycleOwner,
             Observer { updatedRoomJoinerId ->
                 updatedRoomJoinerId?.let {
-                    if (it) {
-                        roomId?.let {
-                            joinChatRoom(it)
-                        }
+                    roomId?.let {
+                        homeFragmentVM.addRoomToOtherRoomsArray(
+                            firebaseInstance.currentUser?.uid,
+                            it
+                        )
+                    }
+                }
+            })
+
+        homeFragmentVM.addRoomToOtherRoomsArraySuccess.observe(
+            viewLifecycleOwner,
+            Observer { addRoomToArraySuccess ->
+                if (addRoomToArraySuccess) {
+                    roomId?.let {
+                        joinChatRoom(it)
                     }
                 }
             })
@@ -185,7 +200,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
     }
 
     private fun updateRoomJoinerId(uid: String?, roomId: String) {
-        homeFragmentVM.updateRoomJoinerId(uid, roomId)
+        homeFragmentVM.updateRoomJoinerId(uid, roomId, firebaseInstance.currentUser?.displayName)
     }
 
     private fun updateRoomIsAvailableStatus(isRoomAvailable: Boolean, roomId: String) {
@@ -193,33 +208,8 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
     }
 
     private fun showRoomOptionsBottomSheet(currentRoom: ActiveRooms) {
-        val ui: RoomOptionsBottomSheetBinding
-        val view = RoomOptionsBottomSheetBinding.inflate(layoutInflater).also {
-            ui = it
-        }.root
-
-        ui.apply {
-            roomNameTv.text = currentRoom.roomName
-            copyRoomId.setOnClickListener {
-                copyTextToClipboard(currentRoom.roomId, "Room ID")
-                toast("Copied")
-                bottomSheetDialog.dismiss()
-            }
-            inviteSomeone.setOnClickListener {
-                shareRoom(currentRoom.roomId, currentRoom.roomName)
-                bottomSheetDialog.dismiss()
-            }
-            deleteCurrentRoom.setOnClickListener {
-                homeFragmentVM.deleteCurrentRoom(currentRoom.roomId)
-                bottomSheetDialog.dismiss()
-            }
-        }
-
-        bottomSheetDialog.apply {
-            setCancelable(true)
-            setContentView(view)
-            show()
-        }
+        RoomOptionsBottomSheet.newInstance(currentRoom.roomId, currentRoom.roomName)
+            .show(childFragmentManager, "ROOM_OPTIONS_BOTTOM_SHEET")
     }
 
     override fun initSocketListeners() {
@@ -227,42 +217,9 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
     }
 
     private fun showRoomBottomSheet(buttonText: String, editTextHint: String, eventType: Int) {
-        val view = layoutInflater.inflate(R.layout.room_bottom_sheet, null)
-        bottomSheetDialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
-
-        val button = view.findViewById<Button>(R.id.joinRoomButton)
-        val enterEditText = view.findViewById<EditText>(R.id.enterRoomEditText)
-        val editText = view.findViewById<TextInputLayout>(R.id.enterRoom)
-
-        button.text = buttonText
-        editText.hint = editTextHint
-
-
-        if (eventType == 1) {
-            enterEditText.inputType =
-                InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_WORDS
-            button.setOnClickListener {
-                if (enterEditText.text.toString().isNotEmpty()) {
-                    bottomSheetDialog.dismiss()
-                    roomId = createAndJoinRoom(enterEditText.text.toString())
-                }
-            }
-        } else {
-            button.setOnClickListener {
-                if (enterEditText.text.toString().isNotEmpty()) {
-                    roomId = enterEditText.text.toString()
-                    bottomSheetDialog.dismiss()
-                    roomId?.let {
-                        checkIfCanJoinRoom(it)
-                    }
-                }
-            }
-
-        }
-
-        bottomSheetDialog.setCancelable(true)
-        bottomSheetDialog.setContentView(view)
-        bottomSheetDialog.show()
+        val bottomSheet = RoomUtilityBottomSheet.newInstance(buttonText, editTextHint, eventType)
+        bottomSheet.setRoomOptionsCallback(this)
+        bottomSheet.show(childFragmentManager, "ROOM_OPTIONS_BOTTOM_SHEET")
     }
 
     private fun checkIfCanJoinRoom(roomId: String) {
@@ -312,6 +269,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
         val showRooms = remember { mutableStateOf(false) }
         showRooms.value =
             !homeFragmentVM.responseAllUserActiveRoomsWithJoinerAvatar.observeAsState().value.isNullOrEmpty()
+        val isLoading = homeFragmentVM.isLoadingRooms.observeAsState().value
 
         Surface(color = AppTheme.colors.appBackgroundLightGray) {
             ConstraintLayout(modifier = Modifier.fillMaxSize()) {
@@ -363,11 +321,8 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
                         top.linkTo(darkSurface.top)
                     }
                     .padding(top = 15.dp, end = 15.dp), onClick = { toast("Coming soon") })
-                if (!showRooms.value)
-                    MiddleNoActiveRooms(modifier = Modifier.constrainAs(centerNoRoomsDisplay) {
-                        centerTo(darkSurface)
-                    })
-                else {
+
+                if (isLoading == true) {
                     Text(
                         modifier = Modifier.constrainAs(activeRoomsTv) {
                             top.linkTo(randomButton.bottom, 5.dp)
@@ -380,15 +335,43 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
                             fontSize = 20.sp
                         )
                     )
-                    SetupLazyColumn(
-                        homeFragmentVM.responseAllUserActiveRoomsWithJoinerAvatar.observeAsState().value!!,
-                        Modifier.constrainAs(lazyColumn) {
-                            top.linkTo(activeRoomsTv.bottom, 5.dp)
-                            start.linkTo(parent.start, 25.dp)
-                            end.linkTo(parent.end, 25.dp)
-                        },
-                        firebaseInstance
-                    )
+                    LazyColumn(modifier = Modifier.constrainAs(lazyColumn) {
+                        top.linkTo(activeRoomsTv.bottom, 5.dp)
+                        start.linkTo(parent.start, 25.dp)
+                        end.linkTo(parent.end, 25.dp)
+                    }) {
+                        items(count = 3) { index ->
+                            ShimmerItem()
+                        }
+                    }
+                } else {
+                    if (!showRooms.value) {
+                        MiddleNoActiveRooms(modifier = Modifier.constrainAs(centerNoRoomsDisplay) {
+                            centerTo(darkSurface)
+                        })
+                    } else {
+                        Text(
+                            modifier = Modifier.constrainAs(activeRoomsTv) {
+                                top.linkTo(randomButton.bottom, 5.dp)
+                                start.linkTo(darkSurface.start, margin = 20.dp)
+                            },
+                            text = "Active Rooms",
+                            color = Color.White,
+                            style = TextStyle(
+                                fontFamily = FontFamily(Font(R.font.sans_med)),
+                                fontSize = 20.sp
+                            )
+                        )
+                        SetupLazyColumn(
+                            homeFragmentVM.responseAllUserActiveRoomsWithJoinerAvatar.observeAsState().value!!,
+                            Modifier.constrainAs(lazyColumn) {
+                                top.linkTo(activeRoomsTv.bottom, 5.dp)
+                                start.linkTo(parent.start, 25.dp)
+                                end.linkTo(parent.end, 25.dp)
+                            },
+                            firebaseInstance
+                        )
+                    }
                 }
             }
         }
@@ -396,25 +379,38 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
 
     @Composable
     fun SetupLazyColumn(
-        mapOfActiveRoomsWithJoinerId: MutableMap<ActiveRooms, String?>,
+        mapOfActiveRoomsWithCreatorAndJoinerId:
+        MutableMap<ActiveRooms, Pair<String?, String?>?>,
         modifier: Modifier,
         firebaseInstance: FirebaseAuth?,
     ) {
         LazyColumn(modifier = modifier) {
-            itemsIndexed(mapOfActiveRoomsWithJoinerId.toList()) { index, (activeRooms, joinerId) ->
+            itemsIndexed(mapOfActiveRoomsWithCreatorAndJoinerId.toList()) { index, (activeRooms, pairOfCreatorAndJoiner) ->
                 HomeScreenRoomItem(
                     currentActiveRoom = activeRooms,
                     firebaseAuth = firebaseInstance!!,
-                    roomJoinerAvatarUrl = joinerId,
+                    creatorAvatarUrl = pairOfCreatorAndJoiner?.first,
+                    roomJoinerAvatarUrl = pairOfCreatorAndJoiner?.second,
                     onClickListener = { clickedRoomId ->
                         roomId = clickedRoomId
-                        joinChatRoom(clickedRoomId)
+                        checkIfCanJoinRoom(clickedRoomId)
                     },
                     onLongPressListener = { clickedActiveRoom ->
                         showRoomOptionsBottomSheet(clickedActiveRoom)
                     }
                 )
             }
+        }
+    }
+
+    override fun onRoomCreateAndJoinCallback(roomName: String) {
+        roomId = createAndJoinRoom(roomName)
+    }
+
+    override fun onRoomJoinCallback(roomIdSent: String) {
+        roomId = roomIdSent
+        roomId?.let {
+            checkIfCanJoinRoom(it)
         }
     }
 }

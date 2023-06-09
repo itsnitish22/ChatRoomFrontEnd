@@ -5,7 +5,6 @@ import android.view.View
 import androidx.fragment.app.activityViewModels
 import com.nitishsharma.chatapp.base.BaseFragment
 import com.nitishsharma.chatapp.databinding.FragmentHomeDrawerBinding
-import com.nitishsharma.chatapp.utils.Utility.toast
 
 class HomeFragmentDrawer : BaseFragment<FragmentHomeDrawerBinding>() {
     override fun getViewBinding() = FragmentHomeDrawerBinding.inflate(layoutInflater)

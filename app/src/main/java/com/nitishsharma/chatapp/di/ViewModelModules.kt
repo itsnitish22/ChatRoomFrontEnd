@@ -1,7 +1,7 @@
 package com.nitishsharma.chatapp.di
 
 import com.nitishsharma.chatapp.base.BaseViewModel
-import com.nitishsharma.chatapp.chats.ChatActivityViewModel
+import com.nitishsharma.chatapp.main.chats.ChatActivityViewModel
 import com.nitishsharma.chatapp.main.home.HomeFragmentViewModel
 import com.nitishsharma.chatapp.main.onboarding.OnboardingFragmentViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel

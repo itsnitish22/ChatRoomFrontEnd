@@ -1,8 +1,10 @@
 package com.nitishsharma.chatapp.di
 
+import com.nitishsharma.domain.api.interactors.AddRoomToOtherRoomsArrayUseCase
 import com.nitishsharma.domain.api.interactors.CanJoinRoomUseCase
 import com.nitishsharma.domain.api.interactors.DeleteCurrentRoomUseCase
 import com.nitishsharma.domain.api.interactors.GetAllActiveRoomsUseCase
+import com.nitishsharma.domain.api.interactors.GetRoomDetailsUseCase
 import com.nitishsharma.domain.api.interactors.GetUserAvatarUseCase
 import com.nitishsharma.domain.api.interactors.SaveUserToDbUseCase
 import com.nitishsharma.domain.api.interactors.UpdateRoomAvailableStatusUseCase
@@ -17,4 +19,6 @@ val useCaseModules = module {
     factory { UpdateRoomAvailableStatusUseCase(get()) }
     factory { UpdateRoomJoinerIdUseCase(get()) }
     factory { GetUserAvatarUseCase(get()) }
+    factory { AddRoomToOtherRoomsArrayUseCase(get()) }
+    factory { GetRoomDetailsUseCase(get()) }
 }

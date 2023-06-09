@@ -1,6 +1,8 @@
 package com.nitishsharma.data.api.servcies
 
 import com.nitishsharma.domain.api.models.canjoinroom.CanJoinRoom
+import com.nitishsharma.domain.api.models.deleteroom.DeleteRoom
+import com.nitishsharma.domain.api.models.otheroomsarray.GetDistinctRoomIdsFromArray
 import com.nitishsharma.domain.api.models.roomsresponse.AllUserActiveRooms
 import com.nitishsharma.domain.api.models.roomsresponse.AllUserActiveRoomsBody
 import com.nitishsharma.domain.api.models.useravatar.GetUserAvatar
@@ -13,7 +15,7 @@ interface ChatRoomAPIService {
     suspend fun getAllActiveRooms(@Body allUserActiveRoomsBody: AllUserActiveRoomsBody): Response<AllUserActiveRooms>
 
     @POST("/db/deleteCurrentRoom")
-    suspend fun deleteCurrentRoom(@Body deleteRoomBody: JSONObject): Response<Unit>
+    suspend fun deleteCurrentRoom(@Body deleteRoomBody: JSONObject): Response<DeleteRoom>
 
     @POST("/db/saveUserToDb")
     suspend fun saveUserToDb(@Body saveUserToDbBody: JSONObject): Response<Unit>
@@ -29,4 +31,10 @@ interface ChatRoomAPIService {
 
     @POST("db/getUserAvatar")
     suspend fun getUserAvatar(@Body userAvatarBody: JSONObject): Response<GetUserAvatar>
+    @POST("db/addRoomToOtherRoomsArray")
+    suspend fun addRoomToOtherRoomsArray(@Body roomToOtherRoomsBody: JSONObject): Response<Unit>
+    @POST("db/getAllDistinctRoomsFromArrayOfOtherRooms")
+    suspend fun getAllDistinctRoomsFromArrayOfOtherRooms(@Body gettingDistinctRoomsBody: JSONObject): Response<GetDistinctRoomIdsFromArray>
+    @POST("db/getRoomDetailsFromRoomId")
+    suspend fun getRoomDetailsFromRoomId(@Body roomDetailsFromRoomId: JSONObject): Response<AllUserActiveRooms>
 }

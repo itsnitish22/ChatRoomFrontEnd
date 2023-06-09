@@ -4,13 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".chats.ChatActivity">
+    android:background="@color/dark_gray"
+    tools:context=".main.chats.ChatActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/chatTopCl"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
         android:paddingTop="7.5dp"
         android:paddingBottom="7.5dp"
         app:layout_constraintTop_toTopOf="parent">
@@ -30,43 +30,57 @@
             app:srcCompat="@drawable/ic_back" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             android:layout_marginStart="6dp"
+            android:layout_marginEnd="6dp"
             app:layout_constraintBottom_toBottomOf="@id/backIv"
-            app:layout_constraintLeft_toRightOf="@id/backIv"
+            app:layout_constraintEnd_toStartOf="@id/shareRoomId"
+            app:layout_constraintStart_toEndOf="@id/backIv"
             app:layout_constraintTop_toTopOf="@id/backIv">
 
-            <TextView
-                android:id="@+id/roomNameTv"
+            <androidx.compose.ui.platform.ComposeView
+                android:id="@+id/composeView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/sharp_grotesk_medium20"
-                android:textColor="#2A2617"
-                android:textSize="19sp"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="Just for fun room" />
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintLeft_toLeftOf="@id/roomNameTv"
-                app:layout_constraintTop_toBottomOf="@id/roomNameTv">
 
-                <TextView
-                    android:id="@+id/roomIdTv"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="-2dp"
-                    android:includeFontPadding="false"
-                    android:textSize="12sp"
-                    android:visibility="visible"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:text="925a93e6-e42e-44b6-83ae-a4eff28200f3" />
+            <!--            <TextView-->
+            <!--                android:id="@+id/roomNameTv"-->
+            <!--                android:layout_width="162dp"-->
+            <!--                android:layout_height="28dp"-->
+            <!--                android:fontFamily="@font/sans_bold"-->
+            <!--                android:textColor="@color/whitish"-->
+            <!--                android:textSize="19sp"-->
+            <!--                app:layout_constraintLeft_toLeftOf="parent"-->
+            <!--                app:layout_constraintTop_toTopOf="parent"-->
+            <!--                tools:text="Just for fun room" />-->
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
+            <!--            <androidx.constraintlayout.widget.ConstraintLayout-->
+            <!--                android:layout_width="wrap_content"-->
+            <!--                android:layout_height="wrap_content"-->
+            <!--                app:layout_constraintLeft_toLeftOf="@id/roomNameTv"-->
+            <!--                app:layout_constraintTop_toBottomOf="@id/roomNameTv">-->
+
+            <!--                <TextView-->
+            <!--                    android:id="@+id/roomIdTv"-->
+            <!--                    android:layout_width="wrap_content"-->
+            <!--                    android:layout_height="wrap_content"-->
+            <!--                    android:layout_marginTop="-2dp"-->
+            <!--                    android:fontFamily="@font/sans_med"-->
+            <!--                    android:includeFontPadding="false"-->
+            <!--                    android:textColor="@color/whitish"-->
+            <!--                    android:textSize="12sp"-->
+            <!--                    android:visibility="visible"-->
+            <!--                    app:layout_constraintLeft_toLeftOf="parent"-->
+            <!--                    app:layout_constraintTop_toTopOf="parent"-->
+            <!--                    tools:text="925a93e6-e42e-44b6-83ae-a4eff28200f3" />-->
+
+            <!--            </androidx.constraintlayout.widget.ConstraintLayout>-->
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -92,6 +106,7 @@
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginBottom="5dp"
         android:orientation="vertical"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toTopOf="@+id/messageBoxCl"
@@ -130,14 +145,15 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_marginStart="15dp"
-            android:background="@color/transparent"
-            android:fontFamily="@font/sharp_grotesk_light20"
+            android:background="@null"
+            android:fontFamily="@font/sans_med"
             android:gravity="center_vertical"
             android:hint="Type your message here"
             android:maxLines="4"
             android:padding="5dp"
             android:scrollbars="vertical"
-            android:textColor="#000000"
+            android:textColor="@color/white"
+            android:textColorHint="@color/whitish"
             android:textSize="14sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintHorizontal_bias="0.0"

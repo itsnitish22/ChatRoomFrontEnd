@@ -25,7 +25,11 @@ data class ActiveRooms(
     @SerializedName("created_at")
     val createdAt: String,
     @SerializedName("last_activity")
-    val lastActivity: String
+    val lastActivity: String,
+    @SerializedName("creator_name")
+    val creatorName: String?,
+    @SerializedName("joiner_name")
+    val joinerName: String?
 )
 
 data class AllUserActiveRoomsBody(

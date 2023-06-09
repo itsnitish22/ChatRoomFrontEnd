@@ -6,14 +6,27 @@
         <item name="colorPrimaryVariant">#000000</item>
         <item name="colorOnPrimary">@color/black</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/teal_200</item>
-        <item name="colorSecondaryVariant">@color/teal_200</item>
+        <item name="colorSecondary">@color/dark_gray</item>
+        <item name="colorSecondaryVariant">@color/dark_gray</item>
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor">@color/app_bg</item>
         <!-- Customize your theme here. -->
         <item name="textInputStyle">@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox
         </item>
+        <item name="bottomSheetDialogTheme">@style/AppBottomSheetDialogTheme</item>
+    </style>
 
+    <style name="AppBottomSheetDialogTheme" parent="Theme.Design.BottomSheetDialog">
+        <item name="android:windowSoftInputMode">adjustResize</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="bottomSheetStyle">@style/AppModelStyleBottom</item>
+    </style>
+
+    <style name="AppModelStyleBottom" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:windowSoftInputMode">adjustResize</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="bottomSheetStyle">@style/AppModelStyleBottom</item>
+        <item name="android:background">@drawable/bg_bottomsheet_round</item>
     </style>
 </resources>
