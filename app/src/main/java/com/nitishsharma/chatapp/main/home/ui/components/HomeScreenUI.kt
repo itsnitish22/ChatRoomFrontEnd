@@ -57,6 +57,7 @@ import com.nitishsharma.domain.api.models.roomsresponse.ActiveRooms
 fun HomeScreenRoomItem(
     currentActiveRoom: ActiveRooms,
     firebaseAuth: FirebaseAuth,
+    creatorAvatarUrl: String?,
     roomJoinerAvatarUrl: String?,
     onClickListener: (String) -> Unit,
     onLongPressListener: (ActiveRooms) -> Unit
@@ -88,10 +89,10 @@ fun HomeScreenRoomItem(
                         top.linkTo(parent.top, margin = 10.dp)
                         start.linkTo(parent.start, margin = 25.dp)
                     },
-                avatarUrl = firebaseAuth.currentUser?.photoUrl.toString()
+                avatarUrl = creatorAvatarUrl!!
             )
             Text(
-                text = firebaseAuth.currentUser?.displayName.toString(),
+                text = currentActiveRoom.creatorName ?: "Null",
                 color = Color.White,
                 style = TextStyle(
                     fontFamily = FontFamily(Font(R.font.sans_regular)),
@@ -145,7 +146,7 @@ fun HomeScreenRoomItem(
                     }
                     .padding(end = 15.dp),
                 avatarSize = 28.dp,
-                creatorAvatarUrl = firebaseAuth.currentUser?.photoUrl.toString(),
+                creatorAvatarUrl = creatorAvatarUrl,
                 joinerAvatarUrl = roomJoinerAvatarUrl
             )
         }

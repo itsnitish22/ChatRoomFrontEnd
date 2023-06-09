@@ -26,6 +26,7 @@
                 android:id="@+id/enterRoomEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:fontFamily="@font/sans_med"
                 android:inputType="text" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -40,7 +41,7 @@
             android:layout_marginTop="10dp"
             android:layout_marginEnd="10dp"
             android:backgroundTint="#1bb3f5"
-            android:fontFamily="@font/sharp_grotesk_medium20"
+            android:fontFamily="@font/sans_bold"
             android:textAllCaps="false"
             app:cornerRadius="10dp"
             tools:text="Join room" />

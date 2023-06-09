@@ -7,9 +7,10 @@ import org.koin.core.component.KoinComponent
 
 class UpdateRoomJoinerIdUseCase constructor(private val chatRoomAPIRepository: ChatRoomAPIRepository) :
     KoinComponent {
-    suspend operator fun invoke(userId: String?, roomId: String) =
+    suspend operator fun invoke(userId: String?, roomId: String, userName: String?) =
         chatRoomAPIRepository.updateRoomJoinerId(Utils.bundleToJSONMapping(null, Bundle().apply {
             putString("userId", userId)
             putString("roomId", roomId)
+            putString("userName", userName)
         }))
 }

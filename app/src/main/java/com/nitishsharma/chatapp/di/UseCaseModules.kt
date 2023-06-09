@@ -1,5 +1,6 @@
 package com.nitishsharma.chatapp.di
 
+import com.nitishsharma.domain.api.interactors.AddRoomToOtherRoomsArrayUseCase
 import com.nitishsharma.domain.api.interactors.CanJoinRoomUseCase
 import com.nitishsharma.domain.api.interactors.DeleteCurrentRoomUseCase
 import com.nitishsharma.domain.api.interactors.GetAllActiveRoomsUseCase
@@ -17,4 +18,5 @@ val useCaseModules = module {
     factory { UpdateRoomAvailableStatusUseCase(get()) }
     factory { UpdateRoomJoinerIdUseCase(get()) }
     factory { GetUserAvatarUseCase(get()) }
+    factory { AddRoomToOtherRoomsArrayUseCase(get()) }
 }

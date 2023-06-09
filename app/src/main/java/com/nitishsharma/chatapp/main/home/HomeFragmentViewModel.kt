@@ -9,15 +9,15 @@ import com.google.gson.Gson
 import com.nitishsharma.chatapp.base.BaseViewModel
 import com.nitishsharma.chatapp.utils.Event
 import com.nitishsharma.chatapp.utils.Utility
+import com.nitishsharma.domain.api.interactors.AddRoomToOtherRoomsArrayUseCase
 import com.nitishsharma.domain.api.interactors.CanJoinRoomUseCase
 import com.nitishsharma.domain.api.interactors.DeleteCurrentRoomUseCase
 import com.nitishsharma.domain.api.interactors.GetAllActiveRoomsUseCase
-import com.nitishsharma.domain.api.interactors.GetUserAvatarUseCase
 import com.nitishsharma.domain.api.interactors.UpdateRoomAvailableStatusUseCase
 import com.nitishsharma.domain.api.interactors.UpdateRoomJoinerIdUseCase
 import com.nitishsharma.domain.api.models.canjoinroom.CanJoinRoom
+import com.nitishsharma.domain.api.models.deleteroom.DeleteRoom
 import com.nitishsharma.domain.api.models.roomsresponse.ActiveRooms
-import com.nitishsharma.domain.api.models.roomsresponse.AllUserActiveRooms
 import com.nitishsharma.domain.api.models.roomsresponse.AllUserActiveRoomsBody
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
@@ -32,7 +32,7 @@ class HomeFragmentViewModel : BaseViewModel() {
     private val checkIfCanJoinRoomUseCase: CanJoinRoomUseCase by inject()
     private val updateRoomAvailableStatusUseCase: UpdateRoomAvailableStatusUseCase by inject()
     private val updateRoomJoinerIdUseCase: UpdateRoomJoinerIdUseCase by inject()
-    private val getUserAvatarUseCase: GetUserAvatarUseCase by inject()
+    private val addRoomToOtherRoomsArrayUseCase: AddRoomToOtherRoomsArrayUseCase by inject()
 
     private val _receivedRoomName: MutableLiveData<String?> = MutableLiveData()
     val receivedRoomName: MutableLiveData<String?>
@@ -50,18 +50,22 @@ class HomeFragmentViewModel : BaseViewModel() {
     val serverError: LiveData<Boolean>
         get() = _serverError
 
-    private val _responseAllUserActiveRooms: MutableLiveData<AllUserActiveRooms> = MutableLiveData()
-    val responseAllUserActiveRooms: LiveData<AllUserActiveRooms>
-        get() = _responseAllUserActiveRooms
+    private val _addRoomToOtherRoomsArraySuccess: MutableLiveData<Boolean> = MutableLiveData(false)
+    val addRoomToOtherRoomsArraySuccess: LiveData<Boolean>
+        get() = _addRoomToOtherRoomsArraySuccess
 
-    private val _responseAllUserActiveRoomsWithJoinerAvatar: MutableLiveData<MutableMap<ActiveRooms, String?>> =
+    private val _responseAllUserActiveRoomsWithJoinerAvatar: MutableLiveData<MutableMap<ActiveRooms, Pair<String?, String?>?>> =
         MutableLiveData()
-    val responseAllUserActiveRoomsWithJoinerAvatar: LiveData<MutableMap<ActiveRooms, String?>>
+    val responseAllUserActiveRoomsWithJoinerAvatar: LiveData<MutableMap<ActiveRooms, Pair<String?, String?>?>>
         get() = _responseAllUserActiveRoomsWithJoinerAvatar
 
     private val _canJoinRoom: MutableLiveData<CanJoinRoom> = MutableLiveData()
     val canJoinRoom: LiveData<CanJoinRoom>
         get() = _canJoinRoom
+
+    private val _deleteRoomResponse: MutableLiveData<DeleteRoom> = MutableLiveData()
+    val deleteRoomResponse: LiveData<DeleteRoom>
+        get() = _deleteRoomResponse
 
     private val _isLoadingRooms: MutableLiveData<Boolean> = MutableLiveData()
     val isLoadingRooms: LiveData<Boolean>
@@ -84,24 +88,11 @@ class HomeFragmentViewModel : BaseViewModel() {
         viewModelScope.launch {
             try {
                 _isLoadingRooms.postValue(true)
-                val mapOfActiveRoomsWithJoiners: MutableMap<ActiveRooms, String?> = mutableMapOf()
-                val response = getALlUserActiveRoomsUseCase.invoke(body)
-                Timber.tag("Active Rooms With JoinerAvatar")
-                    .i(response.body().toString())
-                if (response.isSuccessful) {
-                    for (activeRooms in response.body()?.activeRooms!!) {
-                        val avatarUrl =
-                            if (activeRooms.joinerId != null) getUserAvatarUseCase.invoke(
-                                activeRooms.joinerId!!
-                            ).body()?.userAvatar else null
-                        mapOfActiveRoomsWithJoiners[activeRooms] = avatarUrl
-                    }
-                    _responseAllUserActiveRoomsWithJoinerAvatar.postValue(
-                        mapOfActiveRoomsWithJoiners
+                _responseAllUserActiveRoomsWithJoinerAvatar.postValue(
+                    getALlUserActiveRoomsUseCase.invoke(
+                        body
                     )
-                    Timber.tag("Active Rooms With JoinerAvatar")
-                        .i(mapOfActiveRoomsWithJoiners.toString())
-                }
+                )
                 _isLoadingRooms.postValue(false)
             } catch (e: Exception) {
                 _isLoadingRooms.postValue(false)
@@ -122,8 +113,10 @@ class HomeFragmentViewModel : BaseViewModel() {
                             putBoolean("increaseRoomCount", false)
                         })
                 )
-                if (response.isSuccessful)
-                    _deleteRoomSuccess.postValue(true)
+                if (response.isSuccessful) {
+                    _deleteRoomResponse.postValue(response.body())
+//                    _deleteRoomSuccess.postValue(true)
+                }
             } catch (e: Exception) {
                 Timber.tag("Delete Room Error").e(e.toString())
             }
@@ -143,6 +136,7 @@ class HomeFragmentViewModel : BaseViewModel() {
                 putString("joinerId", null)
                 putString("roomName", roomName)
                 putBoolean("increaseRoomCount", true)
+                putString("creatorName", firebaseInstance.currentUser?.displayName)
             }
         ))
         return joinRoom(socketIOInstance, roomId, firebaseInstance)
@@ -193,14 +187,26 @@ class HomeFragmentViewModel : BaseViewModel() {
         }
     }
 
-    fun updateRoomJoinerId(userId: String?, roomId: String) {
+    fun updateRoomJoinerId(userId: String?, roomId: String, userName: String?) {
         viewModelScope.launch {
             try {
-                val response = updateRoomJoinerIdUseCase.invoke(userId, roomId)
+                val response = updateRoomJoinerIdUseCase.invoke(userId, roomId, userName)
                 if (response.isSuccessful)
                     _updatedRoomJoinerId.postValue(true)
             } catch (e: Exception) {
                 Timber.tag("Update Room Joiner Error").e(e.toString())
+            }
+        }
+    }
+
+    fun addRoomToOtherRoomsArray(userId: String?, roomId: String) {
+        viewModelScope.launch {
+            try {
+                val response = addRoomToOtherRoomsArrayUseCase.invoke(roomId, userId)
+                if (response.isSuccessful)
+                    _addRoomToOtherRoomsArraySuccess.postValue(true)
+            } catch (e: java.lang.Exception) {
+                Timber.tag("Add Room Id To Array Error").e(e.toString())
             }
         }
     }

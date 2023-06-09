@@ -126,20 +126,30 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(),
                     binding.swipeRefresh.isRefreshing = false
             })
 
-        homeFragmentVM.deleteRoomSuccess.observe(viewLifecycleOwner, Observer { deleteRoomSuccess ->
-            if (deleteRoomSuccess) {
-                getAllUserActiveRooms()
-            }
-        })
+        homeFragmentVM.deleteRoomResponse.observe(
+            viewLifecycleOwner,
+            Observer { deleteRoomResponse ->
+                if (deleteRoomResponse.deletedRoom) {
+                    getAllUserActiveRooms()
+                } else {
+                    toast(deleteRoomResponse.message)
+                }
+            })
 
         homeFragmentVM.canJoinRoom.observe(viewLifecycleOwner, Observer { canJoinRoom ->
-            if (canJoinRoom.canJoin) {
+            if (canJoinRoom.ownRoom) {
                 roomId?.let {
-                    updateRoomIsAvailableStatus(false, it)
+                    joinChatRoom(it)
                 }
             } else {
-                binding.progressBar.visibility = View.GONE
-                toast(canJoinRoom.actionForUser)
+                if (canJoinRoom.canJoin) {
+                    roomId?.let {
+                        updateRoomIsAvailableStatus(false, it)
+                    }
+                } else {
+                    binding.progressBar.visibility = View.GONE
+                    toast(canJoinRoom.actionForUser)
+                }
             }
         })
 
@@ -161,10 +171,21 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(),
             viewLifecycleOwner,
             Observer { updatedRoomJoinerId ->
                 updatedRoomJoinerId?.let {
-                    if (it) {
-                        roomId?.let {
-                            joinChatRoom(it)
-                        }
+                    roomId?.let {
+                        homeFragmentVM.addRoomToOtherRoomsArray(
+                            firebaseInstance.currentUser?.uid,
+                            it
+                        )
+                    }
+                }
+            })
+
+        homeFragmentVM.addRoomToOtherRoomsArraySuccess.observe(
+            viewLifecycleOwner,
+            Observer { addRoomToArraySuccess ->
+                if (addRoomToArraySuccess) {
+                    roomId?.let {
+                        joinChatRoom(it)
                     }
                 }
             })
@@ -179,7 +200,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(),
     }
 
     private fun updateRoomJoinerId(uid: String?, roomId: String) {
-        homeFragmentVM.updateRoomJoinerId(uid, roomId)
+        homeFragmentVM.updateRoomJoinerId(uid, roomId, firebaseInstance.currentUser?.displayName)
     }
 
     private fun updateRoomIsAvailableStatus(isRoomAvailable: Boolean, roomId: String) {
@@ -358,19 +379,21 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(),
 
     @Composable
     fun SetupLazyColumn(
-        mapOfActiveRoomsWithJoinerId: MutableMap<ActiveRooms, String?>,
+        mapOfActiveRoomsWithCreatorAndJoinerId:
+        MutableMap<ActiveRooms, Pair<String?, String?>?>,
         modifier: Modifier,
         firebaseInstance: FirebaseAuth?,
     ) {
         LazyColumn(modifier = modifier) {
-            itemsIndexed(mapOfActiveRoomsWithJoinerId.toList()) { index, (activeRooms, joinerId) ->
+            itemsIndexed(mapOfActiveRoomsWithCreatorAndJoinerId.toList()) { index, (activeRooms, pairOfCreatorAndJoiner) ->
                 HomeScreenRoomItem(
                     currentActiveRoom = activeRooms,
                     firebaseAuth = firebaseInstance!!,
-                    roomJoinerAvatarUrl = joinerId,
+                    creatorAvatarUrl = pairOfCreatorAndJoiner?.first,
+                    roomJoinerAvatarUrl = pairOfCreatorAndJoiner?.second,
                     onClickListener = { clickedRoomId ->
                         roomId = clickedRoomId
-                        joinChatRoom(clickedRoomId)
+                        checkIfCanJoinRoom(clickedRoomId)
                     },
                     onLongPressListener = { clickedActiveRoom ->
                         showRoomOptionsBottomSheet(clickedActiveRoom)
