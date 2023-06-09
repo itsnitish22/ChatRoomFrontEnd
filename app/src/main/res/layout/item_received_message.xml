@@ -9,7 +9,12 @@
         android:id="@+id/nameTxt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="4dp"
+        android:layout_marginStart="4dp"
+        android:fontFamily="@font/sans_med"
+        android:textColor="@color/whitish"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="4dp"
         android:text="Name"
         android:textStyle="bold" />
 
@@ -19,6 +24,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/nameTxt"
         android:layout_marginEnd="64dp"
+        android:fontFamily="@font/sans_med"
         android:layout_marginBottom="4dp"
         android:background="@drawable/receive_message_box"
         android:padding="8dp"

@@ -35,8 +35,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.auth.FirebaseAuth
 import com.nitishsharma.chatapp.R
 import com.nitishsharma.chatapp.base.BaseFragment
-import com.nitishsharma.chatapp.chats.ChatActivity
 import com.nitishsharma.chatapp.databinding.FragmentHomeBinding
+import com.nitishsharma.chatapp.main.chats.ChatActivity
 import com.nitishsharma.chatapp.main.home.ui.components.AppName
 import com.nitishsharma.chatapp.main.home.ui.components.FloatingActionMenu
 import com.nitishsharma.chatapp.main.home.ui.components.HomeScreenRoomItem
