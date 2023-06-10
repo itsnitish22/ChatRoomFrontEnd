@@ -13,8 +13,8 @@
         android:layout_marginStart="64dp"
         android:layout_marginTop="4dp"
         android:layout_marginBottom="4dp"
-        android:fontFamily="@font/sans_med"
         android:background="@drawable/send_message_box"
+        android:fontFamily="@font/sans_med"
         android:padding="8dp"
         android:text="Hello this is a sample message"
         android:textSize="16sp" />
