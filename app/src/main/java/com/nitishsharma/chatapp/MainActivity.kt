@@ -1,12 +1,15 @@
 package com.nitishsharma.chatapp
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.core.app.ActivityCompat
 import com.nitishsharma.chatapp.base.BaseActivity
 import com.nitishsharma.chatapp.databinding.ActivityMainBinding
+import com.nitishsharma.chatapp.utils.services.StickyService
 import timber.log.Timber
+
 
 class MainActivity : BaseActivity<ActivityMainBinding>() {
     override fun getViewBinding(): ActivityMainBinding {
@@ -17,6 +20,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         super.onCreate(savedInstanceState)
         Timber.tag("URL").i(BuildConfig.BASE_URL)
         askReadWritePermission()
+        startStickyService()
+    }
+
+    private fun startStickyService() {
+        val stickyService = Intent(this, StickyService::class.java)
+        startService(stickyService)
     }
 
     private fun askReadWritePermission() {

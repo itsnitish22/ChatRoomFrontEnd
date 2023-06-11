@@ -52,6 +52,9 @@
             </intent-filter>
         </service>
 
+        <service android:name=".utils.services.StickyService" />
+
+
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />

@@ -1,7 +1,11 @@
 package com.nitishsharma.chatapp.main.chats
 
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.os.Handler
+import android.text.Editable
+import android.text.TextWatcher
+import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.infiniteRepeatable
@@ -38,6 +42,7 @@ class ChatActivity : BaseActivity<ActivityChatBinding>() {
     private lateinit var userName: String
     private lateinit var roomID: String
     private lateinit var roomName: String
+    var resetEditText = false
     private lateinit var messageAdapter: MessageAdapter
     var currentChatRooomDetails: ActiveRooms? = null
     private val chatActivityViewModel: ChatActivityViewModel by inject()
@@ -64,10 +69,12 @@ class ChatActivity : BaseActivity<ActivityChatBinding>() {
 
     override fun initClickListeners() {
         super.initClickListeners()
+        initEditTextListener()
         binding.sendBtn.setOnClickListener {
             if (socketIOInstance?.connected() == true && binding.messageEdit.text.toString()
                     .isNotEmpty()
             ) {
+                Log.i("ChatActivity", "Stopped")
                 sendTextMessageEvent()
             }
         }
@@ -77,6 +84,54 @@ class ChatActivity : BaseActivity<ActivityChatBinding>() {
         binding.shareRoomId.setOnClickListener {
             shareRoom(roomID, roomName)
         }
+    }
+
+    private fun initEditTextListener() {
+        val typingDelayMillis = 2000L
+        var typingTimer: CountDownTimer? = null
+        var isTyping = false
+
+        binding.messageEdit.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                typingTimer?.cancel()
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                if (!isTyping && !resetEditText) {
+//                    sendTypingEvent(true)
+                    isTyping = true
+                }
+                typingTimer = object : CountDownTimer(typingDelayMillis, typingDelayMillis) {
+                    override fun onTick(millisUntilFinished: Long) {
+                    }
+
+                    override fun onFinish() {
+                        if (!resetEditText) {
+//                            sendTypingEventStop()
+                            isTyping = false
+                        }
+                    }
+                }.start()
+                if (resetEditText)
+                    resetEditText = !resetEditText
+            }
+        })
+    }
+
+    private fun sendTypingEventStop() {
+        chatActivityViewModel.sendUserTypingEventStop(socketIOInstance, roomID)
+    }
+
+    private fun sendTypingEvent(showTyping: Boolean) {
+        chatActivityViewModel.sendUserTypingEvent(
+            socketIOInstance,
+            firebaseAuth!!,
+            roomID,
+            showTyping
+        )
     }
 
     //sending leave room event
@@ -98,6 +153,16 @@ class ChatActivity : BaseActivity<ActivityChatBinding>() {
                 sendDataToAdapter(receivedData)
             }
         })
+        chatActivityViewModel.onUserTypingEvent.observe(this, Observer {
+            it?.let { receivedData ->
+                TODO("show user typing event")
+            }
+        })
+        chatActivityViewModel.onUserTypingStopEvent.observe(this, Observer {
+            it?.let { receivedData ->
+                TODO("hide user typing")
+            }
+        })
 
         chatActivityViewModel.roomEvent.observe(this, Observer { roomEvent ->
             toast(roomEvent.toString())
@@ -109,10 +174,12 @@ class ChatActivity : BaseActivity<ActivityChatBinding>() {
         chatActivityViewModel.onSomeoneJoinedRoomEvent.observe(
             this,
             Observer { someOneJoinedEvent ->
-                toast(someOneJoinedEvent.toString())
-                Handler().postDelayed({
-                    chatActivityViewModel.getRoomDetailsFromRoomId(roomID)
-                }, 2000)
+                someOneJoinedEvent.getContentIfNotHandled()?.let {
+                    toast(it)
+                    Handler().postDelayed({
+                        chatActivityViewModel.getRoomDetailsFromRoomId(roomID)
+                    }, 2000)
+                }
             })
 
         chatActivityViewModel.onUserLeftRoomEvent.observe(this, Observer { userDisconnectEvent ->
@@ -171,6 +238,7 @@ class ChatActivity : BaseActivity<ActivityChatBinding>() {
 
     //resetting the edit text on msg sent
     private fun resetEditMessage() {
+        resetEditText = true
         binding.messageEdit.setText("")
     }
 
