@@ -159,12 +159,12 @@ class ChatActivityViewModel : BaseViewModel(), KoinComponent {
         firebaseAuth: FirebaseAuth,
         roomId: String
     ) {
-        socketIOInstance?.emit("leave-room", Utility.bundleToJSONMapping(null, Bundle().apply {
-            putString("roomId", roomId)
-            putString("userId", firebaseAuth.currentUser?.uid)
-            putString("userName", firebaseAuth.currentUser?.displayName)
-            putBoolean("isFree", true)
-        }))
+        socketIOInstance?.emit("leave-room", JSONObject().apply {
+            put("roomId", roomId)
+            put("userId", firebaseAuth.currentUser?.uid)
+            put("userName", firebaseAuth.currentUser?.displayName)
+            put("isFree", true)
+        })
     }
 
     fun sendSomeoneJoinedRoomEvent(

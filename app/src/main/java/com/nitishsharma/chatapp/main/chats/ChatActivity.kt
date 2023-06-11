@@ -5,7 +5,6 @@ import android.os.CountDownTimer
 import android.os.Handler
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.infiniteRepeatable
@@ -32,12 +31,14 @@ import com.nitishsharma.chatapp.main.ui.utils.GroupAvatar2
 import com.nitishsharma.chatapp.utils.Utility.setStatusBarColor
 import com.nitishsharma.chatapp.utils.Utility.shareRoom
 import com.nitishsharma.chatapp.utils.Utility.toast
+import com.nitishsharma.domain.api.interactors.IsChatActivityOpenUseCase
 import com.nitishsharma.domain.api.models.roomsresponse.ActiveRooms
 import org.json.JSONObject
 import org.koin.android.ext.android.inject
+import org.koin.core.component.KoinComponent
 
 
-class ChatActivity : BaseActivity<ActivityChatBinding>() {
+class ChatActivity : BaseActivity<ActivityChatBinding>(), KoinComponent {
     override fun getViewBinding(): ActivityChatBinding = ActivityChatBinding.inflate(layoutInflater)
     private lateinit var userName: String
     private lateinit var roomID: String
@@ -46,6 +47,7 @@ class ChatActivity : BaseActivity<ActivityChatBinding>() {
     private lateinit var messageAdapter: MessageAdapter
     var currentChatRooomDetails: ActiveRooms? = null
     private val chatActivityViewModel: ChatActivityViewModel by inject()
+    private val isChatActivtyOpenUseCase: IsChatActivityOpenUseCase by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,6 +56,7 @@ class ChatActivity : BaseActivity<ActivityChatBinding>() {
         roomName = intent.getStringExtra("roomName").toString()
         setStatusBarColor(this, R.color.dark_gray)
         chatActivityViewModel.getRoomDetailsFromRoomId(roomID)
+        isChatActivtyOpenUseCase.setChatActivityOpen(true)
         initChatTopUi()
         initializeRecyclerAdapter()
     }
@@ -74,7 +77,6 @@ class ChatActivity : BaseActivity<ActivityChatBinding>() {
             if (socketIOInstance?.connected() == true && binding.messageEdit.text.toString()
                     .isNotEmpty()
             ) {
-                Log.i("ChatActivity", "Stopped")
                 sendTextMessageEvent()
             }
         }
@@ -138,6 +140,7 @@ class ChatActivity : BaseActivity<ActivityChatBinding>() {
     override fun onDestroy() {
         super.onDestroy()
         sendUserLeaveRoomEvent()
+        isChatActivtyOpenUseCase.setChatActivityOpen(false)
     }
 
     //leave room event function
