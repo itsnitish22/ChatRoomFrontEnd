@@ -6,6 +6,7 @@ import com.nitishsharma.domain.api.interactors.DeleteCurrentRoomUseCase
 import com.nitishsharma.domain.api.interactors.GetAllActiveRoomsUseCase
 import com.nitishsharma.domain.api.interactors.GetRoomDetailsUseCase
 import com.nitishsharma.domain.api.interactors.GetUserAvatarUseCase
+import com.nitishsharma.domain.api.interactors.IsChatActivityOpenUseCase
 import com.nitishsharma.domain.api.interactors.SaveUserToDbUseCase
 import com.nitishsharma.domain.api.interactors.UpdateRoomAvailableStatusUseCase
 import com.nitishsharma.domain.api.interactors.UpdateRoomJoinerIdUseCase
@@ -21,4 +22,5 @@ val useCaseModules = module {
     factory { GetUserAvatarUseCase(get()) }
     factory { AddRoomToOtherRoomsArrayUseCase(get()) }
     factory { GetRoomDetailsUseCase(get()) }
+    factory { IsChatActivityOpenUseCase(get()) }
 }

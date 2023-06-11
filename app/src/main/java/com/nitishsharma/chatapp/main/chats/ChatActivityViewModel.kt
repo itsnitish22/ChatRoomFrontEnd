@@ -7,10 +7,13 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.gson.Gson
 import com.nitishsharma.chatapp.base.BaseViewModel
+import com.nitishsharma.chatapp.utils.Event
 import com.nitishsharma.chatapp.utils.Utility
 import com.nitishsharma.domain.api.interactors.GetRoomDetailsUseCase
 import com.nitishsharma.domain.api.interactors.GetUserAvatarUseCase
+import com.nitishsharma.domain.api.models.chatresponse.parseMessageTyping
 import com.nitishsharma.domain.api.models.roomsresponse.ActiveRooms
+import com.nitishsharma.domain.api.utility.Utils
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
 import kotlinx.coroutines.launch
@@ -40,8 +43,8 @@ class ChatActivityViewModel : BaseViewModel(), KoinComponent {
     val onUserLeftRoomEvent: LiveData<String>
         get() = _onUserLeftRoomEvent
 
-    private val _onSomeoneJoinedRoomEvent: MutableLiveData<String> = MutableLiveData()
-    val onSomeoneJoinedRoomEvent: LiveData<String>
+    private val _onSomeoneJoinedRoomEvent: MutableLiveData<Event<String>> = MutableLiveData()
+    val onSomeoneJoinedRoomEvent: LiveData<Event<String>>
         get() = _onSomeoneJoinedRoomEvent
 
     private val _roomDetails: MutableLiveData<ActiveRooms> = MutableLiveData()
@@ -52,6 +55,16 @@ class ChatActivityViewModel : BaseViewModel(), KoinComponent {
         MutableLiveData()
     val mapOfCreatorAndJoinerAvatar: LiveData<Pair<String?, String?>>
         get() = _mapOfCreatorAndJoinerAvatar
+
+    private val _onUserTypingEvent: MutableLiveData<JSONObject> =
+        MutableLiveData()
+    val onUserTypingEvent: LiveData<JSONObject>
+        get() = _onUserTypingEvent
+
+    private val _onUserTypingStopEvent: MutableLiveData<Boolean> =
+        MutableLiveData()
+    val onUserTypingStopEvent: LiveData<Boolean>
+        get() = _onUserTypingStopEvent
 
 
     //socket listeners
@@ -65,6 +78,8 @@ class ChatActivityViewModel : BaseViewModel(), KoinComponent {
         socketIOInstance?.on("room-error", onRoomError)
         socketIOInstance?.on("leave-room-event", onUserLeftRoom)
         socketIOInstance?.on("join-room-event", onSomeoneJoinedRoom)
+        socketIOInstance?.on("typing-event", onUserTyping)
+        socketIOInstance?.on("user-typing-stop-event", onUserTypingStop)
     }
 
     private val onNewChatMessageEvent =
@@ -83,8 +98,29 @@ class ChatActivityViewModel : BaseViewModel(), KoinComponent {
     private val onUserLeftRoom = Emitter.Listener { args ->
         _onUserLeftRoomEvent.postValue(JSONArray(Gson().toJson(args))[0].toString())
     }
+
     private val onSomeoneJoinedRoom = Emitter.Listener { args ->
-        _onUserLeftRoomEvent.postValue(JSONArray(Gson().toJson(args))[0].toString())
+        _onSomeoneJoinedRoomEvent.postValue(Event(JSONArray(Gson().toJson(args))[0].toString()))
+    }
+
+    private val onUserTyping = Emitter.Listener { args ->
+        _onUserTypingEvent.postValue(onUserTypingDataConversion(args))
+    }
+
+    private val onUserTypingStop = Emitter.Listener { args ->
+        _onUserTypingStopEvent.postValue(true)
+    }
+
+    private fun onUserTypingDataConversion(args: Array<Any>? = null): JSONObject {
+        val json = JSONObject()
+        val receivedMessageFromServer =
+            parseMessageTyping(JSONArray(Gson().toJson(args))[0].toString())
+        json.put("roomId", receivedMessageFromServer.roomId)
+        json.put("userName", receivedMessageFromServer.userName)
+        json.put("isSent", receivedMessageFromServer.isSent)
+        json.put("typing", receivedMessageFromServer.typing)
+        json.put("showTyping", receivedMessageFromServer.showTyping)
+        return json
     }
 
 
@@ -97,17 +133,38 @@ class ChatActivityViewModel : BaseViewModel(), KoinComponent {
         socketIOInstance?.emit("chat-message", dataToSend)
     }
 
+    fun sendUserTypingEventStop(socketIOInstance: Socket?, roomId: String) {
+        socketIOInstance?.emit("user-typing-stop", Utils.bundleToJSONMapping(null, Bundle().apply {
+            putString("roomId", roomId)
+        }))
+    }
+
+    fun sendUserTypingEvent(
+        socketIOInstance: Socket?,
+        firebaseAuth: FirebaseAuth,
+        roomId: String,
+        showTyping: Boolean
+    ) {
+        socketIOInstance?.emit("user-typing", Utils.bundleToJSONMapping(null, Bundle().apply {
+            putString("roomId", roomId)
+            putString("userName", firebaseAuth?.currentUser?.displayName)
+            putBoolean("isSent", false)
+            putBoolean("typing", true)
+            putBoolean("showTyping", showTyping)
+        }))
+    }
+
     fun sendUserLeaveRoomEvent(
         socketIOInstance: Socket?,
         firebaseAuth: FirebaseAuth,
         roomId: String
     ) {
-        socketIOInstance?.emit("leave-room", Utility.bundleToJSONMapping(null, Bundle().apply {
-            putString("roomId", roomId)
-            putString("userId", firebaseAuth.currentUser?.uid)
-            putString("userName", firebaseAuth.currentUser?.displayName)
-            putBoolean("isFree", true)
-        }))
+        socketIOInstance?.emit("leave-room", JSONObject().apply {
+            put("roomId", roomId)
+            put("userId", firebaseAuth.currentUser?.uid)
+            put("userName", firebaseAuth.currentUser?.displayName)
+            put("isFree", true)
+        })
     }
 
     fun sendSomeoneJoinedRoomEvent(
@@ -117,7 +174,7 @@ class ChatActivityViewModel : BaseViewModel(), KoinComponent {
     ) {
         socketIOInstance?.emit(
             "user-joined-room",
-            Utility.bundleToJSONMapping(null, Bundle().apply {
+            Utils.bundleToJSONMapping(null, Bundle().apply {
                 putString("roomId", roomId)
                 putString("userName", firebaseAuth?.currentUser?.displayName)
             })

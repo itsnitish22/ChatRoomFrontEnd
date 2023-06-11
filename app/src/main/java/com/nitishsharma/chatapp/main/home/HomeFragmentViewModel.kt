@@ -54,9 +54,9 @@ class HomeFragmentViewModel : BaseViewModel() {
     val addRoomToOtherRoomsArraySuccess: LiveData<Boolean>
         get() = _addRoomToOtherRoomsArraySuccess
 
-    private val _responseAllUserActiveRoomsWithJoinerAvatar: MutableLiveData<MutableMap<ActiveRooms, Pair<String?, String?>?>> =
+    private val _responseAllUserActiveRoomsWithJoinerAvatar: MutableLiveData<MutableMap<ActiveRooms, Pair<String, String?>>> =
         MutableLiveData()
-    val responseAllUserActiveRoomsWithJoinerAvatar: LiveData<MutableMap<ActiveRooms, Pair<String?, String?>?>>
+    val responseAllUserActiveRoomsWithJoinerAvatar: LiveData<MutableMap<ActiveRooms, Pair<String, String?>>>
         get() = _responseAllUserActiveRoomsWithJoinerAvatar
 
     private val _canJoinRoom: MutableLiveData<CanJoinRoom> = MutableLiveData()

@@ -8,6 +8,7 @@ import com.nitishsharma.chatapp.BuildConfig
 import com.nitishsharma.chatapp.di.apiModule
 import com.nitishsharma.chatapp.di.networkModule
 import com.nitishsharma.chatapp.di.repositoryModule
+import com.nitishsharma.chatapp.di.sharedPrefModule
 import com.nitishsharma.chatapp.di.useCaseModules
 import com.nitishsharma.chatapp.di.viewModelModules
 import io.socket.client.IO
@@ -34,7 +35,14 @@ class FirstChat : Application() {
         org.koin.core.context.startKoin {
             androidLogger()
             androidContext(this@FirstChat)
-            modules(repositoryModule, apiModule, networkModule, useCaseModules, viewModelModules)
+            modules(
+                repositoryModule,
+                apiModule,
+                networkModule,
+                useCaseModules,
+                viewModelModules,
+                sharedPrefModule
+            )
         }
     }
 

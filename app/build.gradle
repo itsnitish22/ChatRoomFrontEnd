@@ -86,6 +86,9 @@ android {
     kotlinOptions {
         jvmTarget = '17'
     }
+    lintOptions {
+        disable 'NullSafeMutableLiveData'
+    }
 }
 
 dependencies {

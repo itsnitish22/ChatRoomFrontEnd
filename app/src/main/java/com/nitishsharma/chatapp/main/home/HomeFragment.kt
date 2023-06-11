@@ -380,7 +380,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(),
     @Composable
     fun SetupLazyColumn(
         mapOfActiveRoomsWithCreatorAndJoinerId:
-        MutableMap<ActiveRooms, Pair<String?, String?>?>,
+        MutableMap<ActiveRooms, Pair<String, String?>>,
         modifier: Modifier,
         firebaseInstance: FirebaseAuth?,
     ) {

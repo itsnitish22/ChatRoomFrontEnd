@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.nitishsharma.chatapp.databinding.ItemReceivedMessageBinding
 import com.nitishsharma.chatapp.databinding.ItemSentMessageBinding
+import com.nitishsharma.chatapp.databinding.ItemTypingMessageBinding
 import org.json.JSONObject
 
 class MessageAdapter(private val inflater: LayoutInflater) :
@@ -18,7 +19,11 @@ class MessageAdapter(private val inflater: LayoutInflater) :
         return if (message.getBoolean("isSent")) {
             if (message.has("message")) TYPE_MESSAGE_SENT else -1
         } else {
-            if (message.has("message")) TYPE_MESSAGE_RECEIVED else -1
+            if (message.has("message"))
+                TYPE_MESSAGE_RECEIVED
+            else if (message.has("typing"))
+                TYPE_USER_TYPING
+            else -1
         }
     }
 
@@ -26,11 +31,13 @@ class MessageAdapter(private val inflater: LayoutInflater) :
         val binding = when (viewType) {
             TYPE_MESSAGE_SENT -> ItemSentMessageBinding.inflate(inflater, parent, false)
             TYPE_MESSAGE_RECEIVED -> ItemReceivedMessageBinding.inflate(inflater, parent, false)
+            TYPE_USER_TYPING -> ItemTypingMessageBinding.inflate(inflater, parent, false)
             else -> throw IllegalArgumentException("Invalid view type")
         }
         return when (viewType) {
             TYPE_MESSAGE_SENT -> SentMessageVH(binding as ItemSentMessageBinding)
             TYPE_MESSAGE_RECEIVED -> ReceivedMessageVH(binding as ItemReceivedMessageBinding)
+            TYPE_USER_TYPING -> TypingMessageVH(binding as ItemTypingMessageBinding)
             else -> EmptyViewHolder(binding.root)
         }
     }
@@ -43,6 +50,15 @@ class MessageAdapter(private val inflater: LayoutInflater) :
                 is ReceivedMessageVH -> {
                     holder.binding.nameTxt.text = message.getString("userName")
                     holder.binding.receivedTxt.text = message.getString("message")
+                }
+            }
+        } else {
+            when (holder) {
+                is TypingMessageVH -> {
+                    if (message.has("showTyping")) {
+                        holder.itemView.visibility = View.VISIBLE
+                        holder.binding.nameTxt.text = message.getString("userName")
+                    }
                 }
             }
         }
@@ -61,10 +77,14 @@ class MessageAdapter(private val inflater: LayoutInflater) :
     inner class ReceivedMessageVH(val binding: ItemReceivedMessageBinding) :
         RecyclerView.ViewHolder(binding.root)
 
+    inner class TypingMessageVH(val binding: ItemTypingMessageBinding) :
+        RecyclerView.ViewHolder(binding.root)
+
     inner class EmptyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
     companion object {
         private const val TYPE_MESSAGE_SENT = 0
         private const val TYPE_MESSAGE_RECEIVED = 1
+        private const val TYPE_USER_TYPING = 2
     }
 }
