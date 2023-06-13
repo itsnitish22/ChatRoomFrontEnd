@@ -31,10 +31,13 @@ interface ChatRoomAPIService {
 
     @POST("db/getUserAvatar")
     suspend fun getUserAvatar(@Body userAvatarBody: JSONObject): Response<GetUserAvatar>
+
     @POST("db/addRoomToOtherRoomsArray")
     suspend fun addRoomToOtherRoomsArray(@Body roomToOtherRoomsBody: JSONObject): Response<Unit>
+
     @POST("db/getAllDistinctRoomsFromArrayOfOtherRooms")
     suspend fun getAllDistinctRoomsFromArrayOfOtherRooms(@Body gettingDistinctRoomsBody: JSONObject): Response<GetDistinctRoomIdsFromArray>
+
     @POST("db/getRoomDetailsFromRoomId")
     suspend fun getRoomDetailsFromRoomId(@Body roomDetailsFromRoomId: JSONObject): Response<AllUserActiveRooms>
 }

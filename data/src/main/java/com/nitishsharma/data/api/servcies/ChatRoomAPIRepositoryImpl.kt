@@ -1,5 +1,7 @@
 package com.nitishsharma.data.api.servcies
 
+import com.nitishsharma.domain.api.interactors.Resource
+import com.nitishsharma.domain.api.models.base.BaseResponse
 import com.nitishsharma.domain.api.models.canjoinroom.CanJoinRoom
 import com.nitishsharma.domain.api.models.deleteroom.DeleteRoom
 import com.nitishsharma.domain.api.models.otheroomsarray.GetDistinctRoomIdsFromArray
@@ -7,6 +9,8 @@ import com.nitishsharma.domain.api.models.roomsresponse.AllUserActiveRooms
 import com.nitishsharma.domain.api.models.roomsresponse.AllUserActiveRoomsBody
 import com.nitishsharma.domain.api.models.useravatar.GetUserAvatar
 import com.nitishsharma.domain.api.repository.ChatRoomAPIRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import org.json.JSONObject
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -14,6 +18,18 @@ import retrofit2.Response
 
 class ChatRoomAPIRepositoryImpl : ChatRoomAPIRepository, KoinComponent {
     private val chatRoomAPIService: ChatRoomAPIService by inject()
+
+    fun <R> toFlow(block: suspend () -> BaseResponse<R>): Flow<Resource<R>> = flow {
+        try {
+            emit(Resource.Loading<R>())
+            val data: BaseResponse<R> = block()
+            data.data?.let {
+                emit(Resource.Success<R>(it))
+            }
+        } catch (e: Exception) {
+            emit(Resource.Error<R>(e))
+        }
+    }
 
     override suspend fun saveUserToDb(saveUserToDbBody: JSONObject): Response<Unit> {
         return chatRoomAPIService.saveUserToDb(saveUserToDbBody)
