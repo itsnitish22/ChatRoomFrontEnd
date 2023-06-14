@@ -283,7 +283,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(),
 
         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
             ModalDrawer(
-                drawerShape = MaterialTheme.shapes.medium,
+                drawerShape = MaterialTheme.shapes.small,
                 modifier = Modifier
                     .fillMaxSize(),
                 drawerState = drawerState,

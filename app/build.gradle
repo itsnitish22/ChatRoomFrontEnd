@@ -89,6 +89,56 @@ android {
     lintOptions {
         disable 'NullSafeMutableLiveData'
     }
+
+    def changeApkName = { variant ->
+        variant.outputs.each { output ->
+            def apk = output.outputFile;
+            def addBrand = true
+            def addTime = false
+            def addGitBranch = true
+            def addVersionCode = true
+            def addVersionName = true
+
+            def newName = "";
+            if (addBrand) {
+                newName += "CHATAPP"
+            }
+            if (addGitBranch) {
+                newName += "-" + getGitRevParseInfo("--abbrev-ref")
+            }
+            if (addTime) {
+                newName += ("-" + new Date().format('h-m-aa'))
+            }
+            if (addVersionCode) {
+                newName += ("-v" + variant.mergedFlavor.versionCode)
+            }
+            if (addVersionName) {
+                newName += ("(" + variant.mergedFlavor.versionName + ")")
+            }
+            if (variant.buildType.name == "release") {
+                newName += "-release.apk";
+            } else {
+                newName += ".apk";
+            }
+            if (!output.zipAlign) {
+                newName = newName.replace(".apk", "-unaligned.apk");
+            }
+            output.outputFileName = newName;
+
+            println 'INFO: Set outputFile to ' + output.outputFile + " for [" + output.name + "]"
+        }
+    }
+
+    applicationVariants.all { variant ->
+        variant.outputs.each { output -> changeApkName(variant)
+        }
+    }
+}
+
+def getGitRevParseInfo(what) {
+    def cmd = "git rev-parse " + what + " HEAD"
+    def proc = cmd.execute()
+    proc.text.trim()
 }
 
 dependencies {
