@@ -10,4 +10,12 @@ class SharedSharedPreferenceImpl constructor(private val sharedPreferencesHelper
         set(value) {
             sharedPreferencesHelper.setBoolean("IS_CHAT_ACTIVITY_OPEN", value)
         }
+
+    override fun getUIDFromPref(): String? {
+        return sharedPreferencesHelper.getString("UserUID")
+    }
+
+    override fun saveUIDToPrefs(key: String, value: String) {
+        return sharedPreferencesHelper.setString(key, value)
+    }
 }

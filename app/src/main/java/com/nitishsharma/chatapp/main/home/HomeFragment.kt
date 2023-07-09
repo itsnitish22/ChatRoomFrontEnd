@@ -65,10 +65,11 @@ import com.nitishsharma.chatapp.utils.Utility.toast
 import com.nitishsharma.domain.api.models.roomsresponse.ActiveRooms
 import com.nitishsharma.domain.api.models.roomsresponse.ConvertToBodyForAllUserActiveRooms
 import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
 import timber.log.Timber
 
 class HomeFragment : BaseFragment<FragmentHomeBinding>(),
-    RoomUtilityBottomSheet.RoomUtilityCallback {
+    RoomUtilityBottomSheet.RoomUtilityCallback, KoinComponent {
     override fun getViewBinding() = FragmentHomeBinding.inflate(layoutInflater)
     private val homeFragmentArgs: HomeFragmentArgs by navArgs()
     private val homeFragmentVM: HomeFragmentViewModel by activityViewModels()

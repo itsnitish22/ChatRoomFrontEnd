@@ -1,7 +1,6 @@
 package com.nitishsharma.data.api.servcies
 
 import com.nitishsharma.domain.api.interactors.Resource
-import com.nitishsharma.domain.api.models.base.BaseResponse
 import com.nitishsharma.domain.api.models.canjoinroom.CanJoinRoom
 import com.nitishsharma.domain.api.models.deleteroom.DeleteRoom
 import com.nitishsharma.domain.api.models.otheroomsarray.GetDistinctRoomIdsFromArray
@@ -15,17 +14,33 @@ import org.json.JSONObject
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import retrofit2.Response
+import java.io.IOException
 
 class ChatRoomAPIRepositoryImpl : ChatRoomAPIRepository, KoinComponent {
     private val chatRoomAPIService: ChatRoomAPIService by inject()
 
-    fun <R> toFlow(block: suspend () -> BaseResponse<R>): Flow<Resource<R>> = flow {
+    inline fun <reified R> toFlow(
+        emitSuccessOnEmptyResponse: Boolean = false,
+        noinline block: suspend () -> Response<R>
+    ): Flow<Resource<R>> = flow {
         try {
             emit(Resource.Loading<R>())
-            val data: BaseResponse<R> = block()
-            data.data?.let {
-                emit(Resource.Success<R>(it))
-            }
+            val data: Response<R> = block()
+            if (data.isSuccessful) {
+                data.body()?.let {
+                    emit(Resource.Success<R>(it))
+                } ?: if (emitSuccessOnEmptyResponse) {
+                    emit(
+                        Resource.Success(
+                            when (R::class.java) {
+                                Unit::class.java -> Unit
+                                else -> error(error("Unsupported return type ${R::class.java}. Should use Response<Unit>"))
+                            } as R
+                        )
+                    )
+                }
+            } else
+                emit(Resource.Error<R>(IOException(data.message())))
         } catch (e: Exception) {
             emit(Resource.Error<R>(e))
         }

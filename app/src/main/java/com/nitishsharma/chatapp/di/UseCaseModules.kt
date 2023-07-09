@@ -15,7 +15,7 @@ import org.koin.dsl.module
 val useCaseModules = module {
     factory { GetAllActiveRoomsUseCase(get()) }
     factory { DeleteCurrentRoomUseCase(get()) }
-    factory { SaveUserToDbUseCase(get()) }
+    factory { SaveUserToDbUseCase(get(), get()) }
     factory { CanJoinRoomUseCase(get()) }
     factory { UpdateRoomAvailableStatusUseCase(get()) }
     factory { UpdateRoomJoinerIdUseCase(get()) }
