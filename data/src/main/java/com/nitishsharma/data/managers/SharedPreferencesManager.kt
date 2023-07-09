@@ -21,4 +21,13 @@ class SharedPreferencesManager constructor(appContext: Context) : KoinComponent 
             commit()
         }
     }
+
+    fun getString(key: String, defValue: String? = null): String? = prefs.getString(key, defValue)
+
+    fun setString(key: String, value: String?) {
+        prefs.edit().run {
+            putString(key, value)
+            commit()
+        }
+    }
 }

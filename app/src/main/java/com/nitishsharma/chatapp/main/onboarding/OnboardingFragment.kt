@@ -35,10 +35,11 @@ import com.nitishsharma.chatapp.base.BaseFragment
 import com.nitishsharma.chatapp.databinding.FragmentOnboardingBinding
 import com.nitishsharma.chatapp.utils.Utility.setStatusBarColor
 import com.nitishsharma.chatapp.utils.Utility.toast
+import org.koin.core.component.KoinComponent
 import timber.log.Timber
 
 
-class OnboardingFragment : BaseFragment<FragmentOnboardingBinding>() {
+class OnboardingFragment : BaseFragment<FragmentOnboardingBinding>(), KoinComponent {
     override fun getViewBinding() = FragmentOnboardingBinding.inflate(layoutInflater)
     private lateinit var googleSignInClient: GoogleSignInClient
     private val onboardingVM: OnboardingFragmentViewModel by viewModels()
