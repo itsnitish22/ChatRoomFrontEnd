@@ -33,6 +33,7 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.nitishsharma.chatapp.R
 import com.nitishsharma.chatapp.base.BaseFragment
 import com.nitishsharma.chatapp.databinding.FragmentOnboardingBinding
+import com.nitishsharma.chatapp.notification.FCMService
 import com.nitishsharma.chatapp.utils.Utility.setStatusBarColor
 import com.nitishsharma.chatapp.utils.Utility.toast
 import org.koin.core.component.KoinComponent
@@ -201,6 +202,7 @@ class OnboardingFragment : BaseFragment<FragmentOnboardingBinding>(), KoinCompon
     }
 
     private fun navigateToHomeFragment() {
+        FCMService.subscribeToFirebaseTopic(firebaseInstance.currentUser?.uid)
         binding.progressBar.visibility = View.GONE
         findNavController().navigate(
             OnboardingFragmentDirections.actionOnboardingFragmentToHomeFragment(
