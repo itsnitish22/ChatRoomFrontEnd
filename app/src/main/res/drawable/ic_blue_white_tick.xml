@@ -1,0 +1,12 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="16dp"
+    android:height="16dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+    <path
+        android:fillColor="@color/chatroom_light_blue"
+        android:pathData="M8,16L8,16A8,8 0,0 0,16 8L16,8A8,8 0,0 0,8 0L8,0A8,8 0,0 0,0 8L0,8A8,8 0,0 0,8 16z" />
+    <path
+        android:fillColor="#ffffff"
+        android:pathData="M6.4946,10.8394C6.7994,11.1442 7.2668,11.1442 7.5717,10.8394L11.7581,6.653C12.0629,6.3685 12.0832,5.8807 11.7987,5.5759C11.5142,5.2711 11.0265,5.2508 10.7216,5.5353C10.7013,5.5556 10.7013,5.5556 10.681,5.5759L7.023,9.2339L5.2752,7.4862C4.9704,7.2017 4.4827,7.222 4.1981,7.5269C3.9339,7.8114 3.9339,8.2788 4.1981,8.5633L6.4946,10.8394Z" />
+</vector>

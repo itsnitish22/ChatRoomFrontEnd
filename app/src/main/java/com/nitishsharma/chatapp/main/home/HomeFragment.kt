@@ -263,7 +263,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(),
         Handler().postDelayed({
             binding.progressBar.visibility = View.GONE
             startActivity(intent)
-        }, 3000)
+        }, 2000)
     }
 
     //logging out

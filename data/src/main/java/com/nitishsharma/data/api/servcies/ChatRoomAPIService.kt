@@ -6,6 +6,7 @@ import com.nitishsharma.domain.api.models.otheroomsarray.GetDistinctRoomIdsFromA
 import com.nitishsharma.domain.api.models.roomsresponse.AllUserActiveRooms
 import com.nitishsharma.domain.api.models.roomsresponse.AllUserActiveRoomsBody
 import com.nitishsharma.domain.api.models.useravatar.GetUserAvatar
+import com.nitishsharma.domain.api.models.userexists.UserExists
 import org.json.JSONObject
 import retrofit2.Response
 import retrofit2.http.*
@@ -40,4 +41,7 @@ interface ChatRoomAPIService {
 
     @POST("db/getRoomDetailsFromRoomId")
     suspend fun getRoomDetailsFromRoomId(@Body roomDetailsFromRoomId: JSONObject): Response<AllUserActiveRooms>
+
+    @POST("db/checkIfUserExists")
+    suspend fun checkIfUserExists(@Body userDetails: JSONObject): Response<UserExists>
 }
