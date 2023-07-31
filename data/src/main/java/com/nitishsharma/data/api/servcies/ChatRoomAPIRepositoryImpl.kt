@@ -7,6 +7,7 @@ import com.nitishsharma.domain.api.models.otheroomsarray.GetDistinctRoomIdsFromA
 import com.nitishsharma.domain.api.models.roomsresponse.AllUserActiveRooms
 import com.nitishsharma.domain.api.models.roomsresponse.AllUserActiveRoomsBody
 import com.nitishsharma.domain.api.models.useravatar.GetUserAvatar
+import com.nitishsharma.domain.api.models.userexists.UserExists
 import com.nitishsharma.domain.api.repository.ChatRoomAPIRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -38,6 +39,7 @@ class ChatRoomAPIRepositoryImpl : ChatRoomAPIRepository, KoinComponent {
                             } as R
                         )
                     )
+                } else {
                 }
             } else
                 emit(Resource.Error<R>(IOException(data.message())))
@@ -84,5 +86,9 @@ class ChatRoomAPIRepositoryImpl : ChatRoomAPIRepository, KoinComponent {
 
     override suspend fun getRoomDetailsFromRoomId(roomDetailsFromRoomId: JSONObject): Response<AllUserActiveRooms> {
         return chatRoomAPIService.getRoomDetailsFromRoomId(roomDetailsFromRoomId)
+    }
+
+    override suspend fun checkIfUserExists(userDetails: JSONObject): Response<UserExists> {
+        return chatRoomAPIService.checkIfUserExists(userDetails)
     }
 }

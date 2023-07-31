@@ -36,7 +36,7 @@ android {
     }
 
     namespace 'com.nitishsharma.chatapp'
-    compileSdk 33
+    compileSdk 34
 
     buildFeatures {
         viewBinding = true
@@ -46,7 +46,7 @@ android {
     defaultConfig {
         applicationId appConfig.applicationId
         minSdk 21
-        targetSdk 33
+        targetSdk 34
         versionCode appConfig.versionCode
         versionName appConfig.versionName
 
@@ -73,7 +73,7 @@ android {
             minifyEnabled false
             shrinkResources false
             applicationIdSuffix ".debug"
-            buildConfigField "String", "BASE_URL", "\"http://192.168.0.109:3000/\""
+            buildConfigField "String", "BASE_URL", "\"http://192.168.0.134:3000/\""
         }
     }
     compileOptions {
@@ -147,6 +147,7 @@ dependencies {
     implementation "com.google.android.material:material:1.9.0-alpha01"
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.test:core-ktx:1.5.0'
+    implementation 'androidx.core:core-ktx:+'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'

@@ -37,8 +37,6 @@ import com.nitishsharma.chatapp.notification.FCMService
 import com.nitishsharma.chatapp.utils.Utility.setStatusBarColor
 import com.nitishsharma.chatapp.utils.Utility.toast
 import org.koin.core.component.KoinComponent
-import timber.log.Timber
-
 
 class OnboardingFragment : BaseFragment<FragmentOnboardingBinding>(), KoinComponent {
     override fun getViewBinding() = FragmentOnboardingBinding.inflate(layoutInflater)
@@ -54,15 +52,6 @@ class OnboardingFragment : BaseFragment<FragmentOnboardingBinding>(), KoinCompon
         super.onViewCreated(view, savedInstanceState)
         initializeInstances() //initialize instances
         setupComposeView()
-    }
-
-    override fun initObservers() {
-        onboardingVM.userSavedSuccessfully.observe(requireActivity(), Observer {
-            if (it) {
-                Timber.tag("User Saved Successfully").i("User saved to DB")
-                navigateToHomeFragment()
-            }
-        })
     }
 
     private fun setupComposeView() {
@@ -187,18 +176,36 @@ class OnboardingFragment : BaseFragment<FragmentOnboardingBinding>(), KoinCompon
         val credential = GoogleAuthProvider.getCredential(account.idToken, null)
         firebaseInstance.signInWithCredential(credential).addOnCompleteListener {
             if (it.isSuccessful) {
-                if (saveToDB)
-                    saveUserToDb()
-                else
-                    navigateToHomeFragment()
+                if (saveToDB) {
+                    navigateToGenderSelectionFragment()
+                } else {
+                    checkIfUserExists()
+                }
             } else {
                 toast("Some error occurred")
             }
         }
     }
 
-    private fun saveUserToDb() {
-        onboardingVM.saveUserToDb(firebaseInstance.currentUser!!, "male")
+    override fun initObservers() {
+        super.initObservers()
+
+        onboardingVM.userExists.observe(viewLifecycleOwner, Observer { userExists ->
+            userExists.getContentIfNotHandled()?.let {
+                if (it)
+                    navigateToHomeFragment()
+                else
+                    navigateToGenderSelectionFragment()
+            }
+        })
+    }
+
+    fun checkIfUserExists() {
+        onboardingVM.checkIfUserExists(firebaseInstance.currentUser!!)
+    }
+
+    private fun navigateToGenderSelectionFragment() {
+        findNavController().navigate(OnboardingFragmentDirections.actionOnboardingFragmentToGenderSelectionFragment())
     }
 
     private fun navigateToHomeFragment() {
