@@ -5,8 +5,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
 import com.google.gson.Gson
 import com.nitishsharma.chatapp.base.BaseViewModel
+import com.nitishsharma.chatapp.main.chats.models.ChatMessage
 import com.nitishsharma.chatapp.utils.Event
 import com.nitishsharma.chatapp.utils.Utility
 import com.nitishsharma.domain.api.interactors.GetRoomDetailsUseCase
@@ -30,6 +34,10 @@ class ChatActivityViewModel : BaseViewModel(), KoinComponent {
     private val _receivedData: MutableLiveData<JSONObject?> = MutableLiveData()
     val receivedData: LiveData<JSONObject?>
         get() = _receivedData
+
+    private val _chatData: MutableLiveData<ArrayList<ChatMessage>> = MutableLiveData()
+    val chatData: LiveData<ArrayList<ChatMessage>>
+        get() = _chatData
 
     private val _roomError: MutableLiveData<String?> = MutableLiveData()
     val roomError: LiveData<String?>
@@ -210,5 +218,47 @@ class ChatActivityViewModel : BaseViewModel(), KoinComponent {
                 Timber.tag("Avtar Error").e(e.toString())
             }
         }
+    }
+
+    fun getAllChats(roomId: String) {
+        try {
+            val messagesReference = firebaseDb.getReference("rooms").child(roomId).child("messages")
+
+            messagesReference.addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val chatList = mutableListOf<ChatMessage>()
+
+                    for (childSnapshot in snapshot.children) {
+                        val chatMessage = childSnapshot.getValue(ChatMessage::class.java)
+                        chatMessage?.let {
+                            chatList.add(it)
+                        }
+                    }
+
+                    _chatData.postValue(chatList as ArrayList<ChatMessage>)
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Timber.e(error.message)
+                }
+            })
+        } catch (e: Exception) {
+            Timber.e(e.message.toString())
+        }
+    }
+
+
+    fun saveChatInDb(
+        roomId: String,
+        userId: String,
+        userName: String,
+        timeStamp: String,
+        msg: String
+    ) {
+        val chatMessage = ChatMessage(userId, userName, timeStamp, msg)
+        firebaseDb.getReference("rooms").child(roomId).child("messages").push()
+            .setValue(chatMessage).addOnFailureListener {
+                Timber.e(it.message.toString())
+            }
     }
 }

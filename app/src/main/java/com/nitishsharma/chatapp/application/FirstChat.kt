@@ -23,11 +23,14 @@ class FirstChat : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        socketIO?.connect()
+        try {
+            socketIO?.connect()
+        } catch (e: Exception) {
+            Timber.e("Can't connect to the servers")
+        }
         plant(Timber.DebugTree())
         FirebaseApp.initializeApp(this)
         getFirebaseMessagingToken()
-
         startKoin()
     }
 

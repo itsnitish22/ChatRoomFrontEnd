@@ -31,6 +31,7 @@ import org.json.JSONObject
 import java.net.InetAddress
 import java.net.NetworkInterface
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Locale
 import java.util.UUID
 
@@ -121,6 +122,13 @@ object Utility {
         val date = inputFormat.parse(dateTime)
         return date?.let { outputFormat.format(it) }
     }
+
+    fun getCurrentTimeStamp(): String {
+        val calendar = Calendar.getInstance()
+        val dateFormat = SimpleDateFormat("d MMM, yyyy h:mm a", Locale.getDefault())
+        return dateFormat.format(calendar.time)
+    }
+
 
     fun Fragment.shareRoom(roomId: String, roomName: String) {
         requireContext().shareRoom(roomId, roomName)

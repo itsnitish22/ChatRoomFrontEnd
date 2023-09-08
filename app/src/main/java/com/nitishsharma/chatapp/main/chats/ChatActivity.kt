@@ -28,14 +28,17 @@ import com.nitishsharma.chatapp.R
 import com.nitishsharma.chatapp.base.BaseActivity
 import com.nitishsharma.chatapp.databinding.ActivityChatBinding
 import com.nitishsharma.chatapp.main.ui.utils.GroupAvatar2
+import com.nitishsharma.chatapp.utils.Utility
 import com.nitishsharma.chatapp.utils.Utility.setStatusBarColor
 import com.nitishsharma.chatapp.utils.Utility.shareRoom
 import com.nitishsharma.chatapp.utils.Utility.toast
+import com.nitishsharma.chatapp.utils.observeOnce
 import com.nitishsharma.domain.api.interactors.IsChatActivityOpenUseCase
 import com.nitishsharma.domain.api.models.roomsresponse.ActiveRooms
 import org.json.JSONObject
 import org.koin.android.ext.android.inject
 import org.koin.core.component.KoinComponent
+import timber.log.Timber
 
 
 class ChatActivity : BaseActivity<ActivityChatBinding>(), KoinComponent {
@@ -57,6 +60,7 @@ class ChatActivity : BaseActivity<ActivityChatBinding>(), KoinComponent {
         setStatusBarColor(this, R.color.dark_gray)
         chatActivityViewModel.getRoomDetailsFromRoomId(roomID)
         isChatActivtyOpenUseCase.setChatActivityOpen(true)
+        chatActivityViewModel.getAllChats(roomID)
         initChatTopUi()
         initializeRecyclerAdapter()
     }
@@ -196,6 +200,19 @@ class ChatActivity : BaseActivity<ActivityChatBinding>(), KoinComponent {
             currentChatRooomDetails = roomDetails
             getCreatorAndJoinerAvatar(roomDetails.creatorId, roomDetails.joinerId)
         })
+        chatActivityViewModel.chatData.observeOnce(this, Observer { chatMessages ->
+            Timber.i("ChatMessages: $chatMessages")
+            for (messages in chatMessages) {
+                val jsonData = JSONObject()
+                jsonData.keys().forEach {
+                    jsonData.remove(it)
+                }
+                jsonData.put("userName", messages.userName)
+                jsonData.put("message", messages.message)
+                jsonData.put("isSent", messages.userId == firebaseAuth?.currentUser?.uid)
+                sendDataToAdapter(jsonData)
+            }
+        })
     }
 
     private fun initChatTopUi() {
@@ -220,6 +237,13 @@ class ChatActivity : BaseActivity<ActivityChatBinding>(), KoinComponent {
         val sendingData = jsonFromData()
         chatActivityViewModel.sendTextMessageEvent(socketIOInstance, sendingData)
         sendDataToAdapter(sendingData)
+        chatActivityViewModel.saveChatInDb(
+            roomID,
+            firebaseAuth?.currentUser?.uid!!,
+            userName,
+            Utility.getCurrentTimeStamp(),
+            binding.messageEdit.text?.trim().toString()
+        )
         resetEditMessage()
     }
 

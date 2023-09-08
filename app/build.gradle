@@ -73,7 +73,7 @@ android {
             minifyEnabled false
             shrinkResources false
             applicationIdSuffix ".debug"
-            buildConfigField "String", "BASE_URL", "\"http://192.168.0.134:3000/\""
+            buildConfigField "String", "BASE_URL", "\"http://192.168.18.4:3000/\""
         }
     }
     compileOptions {
@@ -187,11 +187,13 @@ dependencies {
     implementation 'androidx.fragment:fragment-ktx:1.5.7'
 
     //firebase
-    implementation platform('com.google.firebase:firebase-bom:30.2.0')
+//    implementation platform('com.google.firebase:firebase-bom:30.2.0')
     implementation 'com.google.firebase:firebase-auth-ktx'
     implementation 'com.google.android.gms:play-services-auth:20.5.0'
+    implementation 'com.google.firebase:firebase-database:20.2.2'
     implementation 'com.google.firebase:firebase-analytics-ktx'
     implementation 'com.google.firebase:firebase-firestore-ktx'
+    implementation("com.google.firebase:firebase-bom:32.2.3")
     implementation 'com.google.firebase:firebase-perf-ktx'
     implementation 'com.google.firebase:firebase-crashlytics-ktx'
     implementation 'com.google.firebase:firebase-storage-ktx'
