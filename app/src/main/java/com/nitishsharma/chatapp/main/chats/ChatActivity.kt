@@ -1,10 +1,8 @@
 package com.nitishsharma.chatapp.main.chats
 
 import android.os.Bundle
-import android.os.CountDownTimer
 import android.os.Handler
-import android.text.Editable
-import android.text.TextWatcher
+import android.view.View
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.infiniteRepeatable
@@ -26,20 +24,20 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.nitishsharma.chatapp.R
 import com.nitishsharma.chatapp.base.BaseActivity
+import com.nitishsharma.chatapp.base.common.LoadingModel
 import com.nitishsharma.chatapp.databinding.ActivityChatBinding
 import com.nitishsharma.chatapp.main.ui.utils.GroupAvatar2
 import com.nitishsharma.chatapp.utils.Utility
-import com.nitishsharma.chatapp.utils.Utility.setStatusBarColor
-import com.nitishsharma.chatapp.utils.Utility.shareRoom
-import com.nitishsharma.chatapp.utils.Utility.toast
 import com.nitishsharma.chatapp.utils.observeOnce
+import com.nitishsharma.chatapp.utils.setStatusBarColor
+import com.nitishsharma.chatapp.utils.setVisibilityBasedOnLoadingModel
+import com.nitishsharma.chatapp.utils.shareRoom
+import com.nitishsharma.chatapp.utils.toast
 import com.nitishsharma.domain.api.interactors.IsChatActivityOpenUseCase
 import com.nitishsharma.domain.api.models.roomsresponse.ActiveRooms
 import org.json.JSONObject
 import org.koin.android.ext.android.inject
 import org.koin.core.component.KoinComponent
-import timber.log.Timber
-
 
 class ChatActivity : BaseActivity<ActivityChatBinding>(), KoinComponent {
     override fun getViewBinding(): ActivityChatBinding = ActivityChatBinding.inflate(layoutInflater)
@@ -50,19 +48,27 @@ class ChatActivity : BaseActivity<ActivityChatBinding>(), KoinComponent {
     private lateinit var messageAdapter: MessageAdapter
     var currentChatRooomDetails: ActiveRooms? = null
     private val chatActivityViewModel: ChatActivityViewModel by inject()
-    private val isChatActivtyOpenUseCase: IsChatActivityOpenUseCase by inject()
+    private val isChatActivityOpenUseCase: IsChatActivityOpenUseCase by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        userName = intent.getStringExtra("userName").toString()
-        roomID = intent.getStringExtra("roomID").toString()
-        roomName = intent.getStringExtra("roomName").toString()
+        extractIntentData()
+        initUi()
+    }
+
+    private fun initUi() {
         setStatusBarColor(this, R.color.dark_gray)
         chatActivityViewModel.getRoomDetailsFromRoomId(roomID)
-        isChatActivtyOpenUseCase.setChatActivityOpen(true)
+        isChatActivityOpenUseCase.setChatActivityOpen(true)
         chatActivityViewModel.getAllChats(roomID)
         initChatTopUi()
         initializeRecyclerAdapter()
+    }
+
+    private fun extractIntentData() {
+        userName = intent.getStringExtra("userName").toString()
+        roomID = intent.getStringExtra("roomID").toString()
+        roomName = intent.getStringExtra("roomName").toString()
     }
 
     override fun onStart() {
@@ -76,7 +82,6 @@ class ChatActivity : BaseActivity<ActivityChatBinding>(), KoinComponent {
 
     override fun initClickListeners() {
         super.initClickListeners()
-        initEditTextListener()
         binding.sendBtn.setOnClickListener {
             if (socketIOInstance?.connected() == true && binding.messageEdit.text.toString()
                     .isNotEmpty()
@@ -92,82 +97,21 @@ class ChatActivity : BaseActivity<ActivityChatBinding>(), KoinComponent {
         }
     }
 
-    private fun initEditTextListener() {
-        val typingDelayMillis = 2000L
-        var typingTimer: CountDownTimer? = null
-        var isTyping = false
-
-        binding.messageEdit.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                typingTimer?.cancel()
-            }
-
-            override fun afterTextChanged(s: Editable?) {
-                if (!isTyping && !resetEditText) {
-//                    sendTypingEvent(true)
-                    isTyping = true
-                }
-                typingTimer = object : CountDownTimer(typingDelayMillis, typingDelayMillis) {
-                    override fun onTick(millisUntilFinished: Long) {
-                    }
-
-                    override fun onFinish() {
-                        if (!resetEditText) {
-//                            sendTypingEventStop()
-                            isTyping = false
-                        }
-                    }
-                }.start()
-                if (resetEditText)
-                    resetEditText = !resetEditText
-            }
-        })
-    }
-
-    private fun sendTypingEventStop() {
-        chatActivityViewModel.sendUserTypingEventStop(socketIOInstance, roomID)
-    }
-
-    private fun sendTypingEvent(showTyping: Boolean) {
-        chatActivityViewModel.sendUserTypingEvent(
-            socketIOInstance,
-            firebaseAuth!!,
-            roomID,
-            showTyping
-        )
-    }
-
-    //sending leave room event
     override fun onDestroy() {
         super.onDestroy()
         sendUserLeaveRoomEvent()
-        isChatActivtyOpenUseCase.setChatActivityOpen(false)
+        isChatActivityOpenUseCase.setChatActivityOpen(false)
     }
 
-    //leave room event function
     private fun sendUserLeaveRoomEvent() {
         chatActivityViewModel.sendUserLeaveRoomEvent(socketIOInstance, firebaseAuth!!, roomID)
     }
 
-    //initializing observers
     override fun initObservers() {
         super.initObservers()
         chatActivityViewModel.receivedData.observe(this, Observer { receivedData ->
             receivedData?.let {
                 sendDataToAdapter(receivedData)
-            }
-        })
-        chatActivityViewModel.onUserTypingEvent.observe(this, Observer {
-            it?.let { receivedData ->
-                TODO("show user typing event")
-            }
-        })
-        chatActivityViewModel.onUserTypingStopEvent.observe(this, Observer {
-            it?.let { receivedData ->
-                TODO("hide user typing")
             }
         })
 
@@ -201,17 +145,16 @@ class ChatActivity : BaseActivity<ActivityChatBinding>(), KoinComponent {
             getCreatorAndJoinerAvatar(roomDetails.creatorId, roomDetails.joinerId)
         })
         chatActivityViewModel.chatData.observeOnce(this, Observer { chatMessages ->
-            Timber.i("ChatMessages: $chatMessages")
             for (messages in chatMessages) {
-                val jsonData = JSONObject()
-                jsonData.keys().forEach {
-                    jsonData.remove(it)
-                }
-                jsonData.put("userName", messages.userName)
-                jsonData.put("message", messages.message)
-                jsonData.put("isSent", messages.userId == firebaseAuth?.currentUser?.uid)
-                sendDataToAdapter(jsonData)
+                sendDataToAdapter(
+                    chatActivityViewModel.messageToJson(
+                        messages.userId, messages.userName, messages.message
+                    )
+                )
             }
+        })
+        chatActivityViewModel.loadingModel.observe(this, Observer {
+            binding.loadingModel.progressBar.setVisibilityBasedOnLoadingModel(it)
         })
     }
 
@@ -225,14 +168,11 @@ class ChatActivity : BaseActivity<ActivityChatBinding>(), KoinComponent {
         chatActivityViewModel.getCreatorAndJoinerAvatarUrls(creatorId, joinerId)
     }
 
-
-    //initializing socket listeners
     override fun initSocketListeners() {
         super.initSocketListeners()
         chatActivityViewModel.initializeSocketListeners(socketIOInstance)
     }
 
-    //fun to send text message
     private fun sendTextMessageEvent() {
         val sendingData = jsonFromData()
         chatActivityViewModel.sendTextMessageEvent(socketIOInstance, sendingData)
@@ -247,13 +187,11 @@ class ChatActivity : BaseActivity<ActivityChatBinding>(), KoinComponent {
         resetEditMessage()
     }
 
-    //sending data to adapter
     private fun sendDataToAdapter(dataToAdapter: JSONObject) {
         messageAdapter.addItem(dataToAdapter)
         binding.recyclerView.smoothScrollToPosition(messageAdapter.itemCount - 1)
     }
 
-    //initializing recycler adapter
     private fun initializeRecyclerAdapter() {
         messageAdapter = MessageAdapter(layoutInflater)
         binding.recyclerView.adapter = messageAdapter
@@ -263,13 +201,11 @@ class ChatActivity : BaseActivity<ActivityChatBinding>(), KoinComponent {
 
     }
 
-    //resetting the edit text on msg sent
     private fun resetEditMessage() {
         resetEditText = true
         binding.messageEdit.setText("")
     }
 
-    //convert json from the data (RAW)
     private fun jsonFromData(): JSONObject {
         val jsonData = JSONObject()
         jsonData.put("userName", userName)
@@ -281,8 +217,7 @@ class ChatActivity : BaseActivity<ActivityChatBinding>(), KoinComponent {
     }
 
     @Composable
-    fun ChatTopView(
-    ) {
+    fun ChatTopView() {
         val pairOfCreatorAndJoiner =
             chatActivityViewModel.mapOfCreatorAndJoinerAvatar.observeAsState()
         val currentJoinedRoom = chatActivityViewModel.roomDetails.observeAsState()
@@ -292,11 +227,9 @@ class ChatActivity : BaseActivity<ActivityChatBinding>(), KoinComponent {
 
         LaunchedEffect(Unit) {
             scrollAnimatable.animateTo(
-                targetValue = -text.length * 10f, // Adjust the value to control the scrolling speed
-                animationSpec = infiniteRepeatable(
+                targetValue = -text.length * 10f, animationSpec = infiniteRepeatable(
                     animation = tween(
-                        durationMillis = 2000, // Adjust the duration for one complete scrolling animation
-                        easing = LinearEasing
+                        durationMillis = 2000, easing = LinearEasing
                     )
                 )
             )
@@ -315,33 +248,23 @@ class ChatActivity : BaseActivity<ActivityChatBinding>(), KoinComponent {
                 creatorAvatarUrl = pairOfCreatorAndJoiner.value?.first ?: "",
                 joinerAvatarUrl = pairOfCreatorAndJoiner.value?.second
             )
-            Text(
-                text = currentJoinedRoom.value?.roomName ?: "Your Room",
+            Text(text = currentJoinedRoom.value?.roomName ?: "Your Room",
                 color = Color.White,
                 style = TextStyle(
-                    fontFamily = FontFamily(Font(R.font.sans_bold)),
-                    fontSize = 18.sp
+                    fontFamily = FontFamily(Font(R.font.sans_bold)), fontSize = 18.sp
                 ),
                 modifier = Modifier.constrainAs(roomNameCv) {
                     start.linkTo(groupAvatar.end, 5.dp)
                     top.linkTo(groupAvatar.top)
                     bottom.linkTo(namesCv.top)
-                }
-            )
-            Text(
-                text = text,
-                color = Color.White,
-                style = TextStyle(
-                    fontFamily = FontFamily(Font(R.font.sans_med)),
-                    fontSize = 12.sp
-                ),
-                modifier = Modifier
-                    .constrainAs(namesCv) {
-                        start.linkTo(groupAvatar.end, 5.dp)
-                        bottom.linkTo(groupAvatar.bottom)
-                        top.linkTo(roomNameCv.bottom)
-                    }
-            )
+                })
+            Text(text = text, color = Color.White, style = TextStyle(
+                fontFamily = FontFamily(Font(R.font.sans_med)), fontSize = 12.sp
+            ), modifier = Modifier.constrainAs(namesCv) {
+                start.linkTo(groupAvatar.end, 5.dp)
+                bottom.linkTo(groupAvatar.bottom)
+                top.linkTo(roomNameCv.bottom)
+            })
         }
     }
 }

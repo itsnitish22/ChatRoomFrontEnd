@@ -10,7 +10,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.nitishsharma.chatapp.base.BaseFragment
 import com.nitishsharma.chatapp.databinding.FragmentSplashBinding
 import com.nitishsharma.chatapp.main.onboarding.OnboardingFragmentViewModel
-import com.nitishsharma.chatapp.utils.Utility.setStatusBarColor
+import com.nitishsharma.chatapp.utils.setStatusBarColor
 
 class SplashFragment : BaseFragment<FragmentSplashBinding>() {
     override fun getViewBinding(): FragmentSplashBinding =

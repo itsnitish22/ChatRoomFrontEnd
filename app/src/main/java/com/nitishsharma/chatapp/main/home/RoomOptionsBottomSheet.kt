@@ -7,9 +7,9 @@ import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.nitishsharma.chatapp.databinding.RoomOptionsBottomSheetBinding
-import com.nitishsharma.chatapp.utils.Utility.copyTextToClipboard
-import com.nitishsharma.chatapp.utils.Utility.shareRoom
-import com.nitishsharma.chatapp.utils.Utility.toast
+import com.nitishsharma.chatapp.utils.copyTextToClipboard
+import com.nitishsharma.chatapp.utils.shareRoom
+import com.nitishsharma.chatapp.utils.toast
 
 class RoomOptionsBottomSheet : BottomSheetDialogFragment() {
     private val bottomSheetVM: HomeFragmentViewModel by activityViewModels()

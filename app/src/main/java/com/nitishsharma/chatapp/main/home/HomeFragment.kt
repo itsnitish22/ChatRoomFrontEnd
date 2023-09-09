@@ -49,6 +49,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.auth.FirebaseAuth
 import com.nitishsharma.chatapp.R
 import com.nitishsharma.chatapp.base.BaseFragment
+import com.nitishsharma.chatapp.base.common.LoadingModel
 import com.nitishsharma.chatapp.databinding.FragmentHomeBinding
 import com.nitishsharma.chatapp.main.chats.ChatActivity
 import com.nitishsharma.chatapp.main.home.ui.components.AppName
@@ -60,8 +61,9 @@ import com.nitishsharma.chatapp.main.home.ui.components.RandomButton
 import com.nitishsharma.chatapp.main.home.ui.components.ShimmerItem
 import com.nitishsharma.chatapp.main.ui.theme.AppTheme
 import com.nitishsharma.chatapp.main.ui.utils.Avatar
-import com.nitishsharma.chatapp.utils.Utility.setStatusBarColor
-import com.nitishsharma.chatapp.utils.Utility.toast
+import com.nitishsharma.chatapp.utils.setStatusBarColor
+import com.nitishsharma.chatapp.utils.setVisibilityBasedOnLoadingModel
+import com.nitishsharma.chatapp.utils.toast
 import com.nitishsharma.domain.api.models.roomsresponse.ActiveRooms
 import com.nitishsharma.domain.api.models.roomsresponse.ConvertToBodyForAllUserActiveRooms
 import kotlinx.coroutines.launch
@@ -160,7 +162,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(),
                         updateRoomIsAvailableStatus(false, it)
                     }
                 } else {
-                    binding.progressBar.visibility = View.GONE
+                    homeFragmentVM.updateLoadingModel(LoadingModel.COMPLETED)
                     toast(canJoinRoom.actionForUser)
                 }
             }
@@ -210,6 +212,10 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(),
                     binding.swipeRefresh.isRefreshing = false
             }
         })
+        
+        homeFragmentVM.loadingModel.observe(viewLifecycleOwner, Observer {
+            binding.loadingModel.progressBar.setVisibilityBasedOnLoadingModel(it)
+        })
     }
 
     private fun updateRoomJoinerId(uid: String?, roomId: String) {
@@ -236,17 +242,17 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(),
     }
 
     private fun checkIfCanJoinRoom(roomId: String) {
-        binding.progressBar.visibility = View.VISIBLE
+        homeFragmentVM.updateLoadingModel(LoadingModel.LOADING)
         homeFragmentVM.checkIfCanJoinRoom(firebaseInstance, roomId)
     }
 
     private fun joinChatRoom(roomId: String): String {
-        binding.progressBar.visibility = View.VISIBLE
+        homeFragmentVM.updateLoadingModel(LoadingModel.LOADING)
         return homeFragmentVM.joinRoom(socketIOInstance, roomId, firebaseInstance)
     }
 
     private fun createAndJoinRoom(roomName: String): String {
-        binding.progressBar.visibility = View.VISIBLE
+        homeFragmentVM.updateLoadingModel(LoadingModel.LOADING)
         return homeFragmentVM.createAndJoinRoom(socketIOInstance, firebaseInstance, roomName)
     }
 
@@ -261,7 +267,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(),
         Timber.tag("ChatActivity")
             .d("UserName: ${firebaseInstance.currentUser?.displayName}\nRoomId: $roomId\nRoomName: $roomName")
         Handler().postDelayed({
-            binding.progressBar.visibility = View.GONE
+            homeFragmentVM.updateLoadingModel(LoadingModel.COMPLETED)
             startActivity(intent)
         }, 2000)
     }

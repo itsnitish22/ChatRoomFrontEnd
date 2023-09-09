@@ -1,13 +1,6 @@
 package com.nitishsharma.chatapp.utils
 
-import android.app.Activity
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
-import android.view.WindowManager
-import android.widget.Toast
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -21,8 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
 import com.google.gson.Gson
 import com.nitishsharma.domain.api.models.chatresponse.parseMessage
 import org.json.JSONArray
@@ -83,39 +74,6 @@ object Utility {
         return ""
     }
 
-    fun Context.toast(message: String) {
-        Toast.makeText(
-            this, message,
-            if (message.length <= 25) Toast.LENGTH_SHORT else Toast.LENGTH_LONG
-        ).show()
-    }
-
-    fun Fragment.toast(msg: String) {
-        requireContext().toast(msg)
-    }
-
-    fun Context.copyTextToClipboard(textToCopy: String, label: String) {
-        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        val clip = ClipData.newPlainText(label, textToCopy)
-        clipboard.setPrimaryClip(clip)
-    }
-
-    fun Fragment.copyTextToClipboard(textToCopy: String, label: String) {
-        requireContext().copyTextToClipboard(textToCopy, label)
-    }
-
-    fun Context.shareRoom(roomID: String, roomName: String) {
-        val shareIntent = Intent().apply {
-            action = Intent.ACTION_SEND
-            type = "text/html"
-            putExtra(
-                Intent.EXTRA_TEXT,
-                "Join my Room: $roomName\nusing\nRoomID: $roomID"
-            )
-        }
-        startActivity(Intent.createChooser(shareIntent, "Share RoomID using"))
-    }
-
     fun formatDateTime(dateTime: String): String? {
         val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
         val outputFormat = SimpleDateFormat("dd MMMM, yyyy hh:mm a", Locale.getDefault())
@@ -127,22 +85,6 @@ object Utility {
         val calendar = Calendar.getInstance()
         val dateFormat = SimpleDateFormat("d MMM, yyyy h:mm a", Locale.getDefault())
         return dateFormat.format(calendar.time)
-    }
-
-
-    fun Fragment.shareRoom(roomId: String, roomName: String) {
-        requireContext().shareRoom(roomId, roomName)
-    }
-
-    fun Context.setStatusBarColor(activity: Activity, colorResId: Int) {
-        val window = activity.window
-        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-        window.statusBarColor = ContextCompat.getColor(this, colorResId)
-    }
-
-    fun Fragment.setStatusBarColor(activity: Activity, colorResId: Int) {
-        requireContext().setStatusBarColor(activity, colorResId)
     }
 
     enum class ButtonState { Pressed, Idle }
@@ -173,5 +115,4 @@ object Utility {
                 }
             }
     }
-
 }

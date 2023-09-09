@@ -32,10 +32,12 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.GoogleAuthProvider
 import com.nitishsharma.chatapp.R
 import com.nitishsharma.chatapp.base.BaseFragment
+import com.nitishsharma.chatapp.base.common.LoadingModel
 import com.nitishsharma.chatapp.databinding.FragmentOnboardingBinding
 import com.nitishsharma.chatapp.notification.FCMService
-import com.nitishsharma.chatapp.utils.Utility.setStatusBarColor
-import com.nitishsharma.chatapp.utils.Utility.toast
+import com.nitishsharma.chatapp.utils.setStatusBarColor
+import com.nitishsharma.chatapp.utils.setVisibilityBasedOnLoadingModel
+import com.nitishsharma.chatapp.utils.toast
 import org.koin.core.component.KoinComponent
 
 class OnboardingFragment : BaseFragment<FragmentOnboardingBinding>(), KoinComponent {
@@ -50,7 +52,7 @@ class OnboardingFragment : BaseFragment<FragmentOnboardingBinding>(), KoinCompon
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initializeInstances() //initialize instances
+        initializeInstances()
         setupComposeView()
     }
 
@@ -109,17 +111,10 @@ class OnboardingFragment : BaseFragment<FragmentOnboardingBinding>(), KoinCompon
         }
     }
 
-    /**
-    this is [google] authentication/ sign in
-    no need to touch anything here
-     */
-
-    //initializing instances
     private fun initializeInstances() {
         initializeGoogleAuthentication()
     }
 
-    //initializing google authentication
     private fun initializeGoogleAuthentication() {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
@@ -129,13 +124,11 @@ class OnboardingFragment : BaseFragment<FragmentOnboardingBinding>(), KoinCompon
         googleSignInClient = GoogleSignIn.getClient(requireContext(), gso)
     }
 
-    //authenticating with google
     private fun authenticateWithGoogle() {
-        binding.progressBar.visibility = View.VISIBLE
+        onboardingVM.updateLoadingModel(LoadingModel.LOADING)
         launcher.launch(googleSignInClient.signInIntent)
     }
 
-    //launcher dealing w results
     private val launcher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
@@ -149,16 +142,15 @@ class OnboardingFragment : BaseFragment<FragmentOnboardingBinding>(), KoinCompon
                             else
                                 handleResults(task, false)
                         } else {
-                            binding.progressBar.visibility = View.GONE
+                            onboardingVM.updateLoadingModel(LoadingModel.ERROR)
                             toast("oops!")
                         }
                     }
             } else {
-                binding.progressBar.visibility = View.GONE
+                onboardingVM.updateLoadingModel(LoadingModel.ERROR)
             }
         }
 
-    //handling google authenticate results
     private fun handleResults(task: Task<GoogleSignInAccount>, saveToDB: Boolean) {
         if (task.isSuccessful) {
             val account: GoogleSignInAccount? = task.result
@@ -166,12 +158,11 @@ class OnboardingFragment : BaseFragment<FragmentOnboardingBinding>(), KoinCompon
                 updateUI(it, saveToDB)
             }
         } else {
-            binding.progressBar.visibility = View.GONE
+            onboardingVM.updateLoadingModel(LoadingModel.ERROR)
             toast("Some error occurred")
         }
     }
 
-    //updating the ui on successful authentication
     private fun updateUI(account: GoogleSignInAccount, saveToDB: Boolean) {
         val credential = GoogleAuthProvider.getCredential(account.idToken, null)
         firebaseInstance.signInWithCredential(credential).addOnCompleteListener {
@@ -198,9 +189,12 @@ class OnboardingFragment : BaseFragment<FragmentOnboardingBinding>(), KoinCompon
                     navigateToGenderSelectionFragment()
             }
         })
+        onboardingVM.loadingModel.observe(viewLifecycleOwner, Observer {
+            binding.loadingModel.progressBar.setVisibilityBasedOnLoadingModel(it)
+        })
     }
 
-    fun checkIfUserExists() {
+    private fun checkIfUserExists() {
         onboardingVM.checkIfUserExists(firebaseInstance.currentUser!!)
     }
 
@@ -210,7 +204,7 @@ class OnboardingFragment : BaseFragment<FragmentOnboardingBinding>(), KoinCompon
 
     private fun navigateToHomeFragment() {
         FCMService.subscribeToFirebaseTopic(firebaseInstance.currentUser?.uid)
-        binding.progressBar.visibility = View.GONE
+        onboardingVM.updateLoadingModel(LoadingModel.COMPLETED)
         findNavController().navigate(
             OnboardingFragmentDirections.actionOnboardingFragmentToHomeFragment(
                 firebaseUser = firebaseInstance.currentUser

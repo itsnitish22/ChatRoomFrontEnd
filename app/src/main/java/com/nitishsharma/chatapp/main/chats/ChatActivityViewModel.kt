@@ -10,6 +10,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.gson.Gson
 import com.nitishsharma.chatapp.base.BaseViewModel
+import com.nitishsharma.chatapp.base.common.LoadingModel
 import com.nitishsharma.chatapp.main.chats.models.ChatMessage
 import com.nitishsharma.chatapp.utils.Event
 import com.nitishsharma.chatapp.utils.Utility
@@ -222,8 +223,8 @@ class ChatActivityViewModel : BaseViewModel(), KoinComponent {
 
     fun getAllChats(roomId: String) {
         try {
+            updateLoadingModel(LoadingModel.LOADING)
             val messagesReference = firebaseDb.getReference("rooms").child(roomId).child("messages")
-
             messagesReference.addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     val chatList = mutableListOf<ChatMessage>()
@@ -234,15 +235,17 @@ class ChatActivityViewModel : BaseViewModel(), KoinComponent {
                             chatList.add(it)
                         }
                     }
-
                     _chatData.postValue(chatList as ArrayList<ChatMessage>)
+                    updateLoadingModel(LoadingModel.COMPLETED)
                 }
 
                 override fun onCancelled(error: DatabaseError) {
                     Timber.e(error.message)
+                    updateLoadingModel(LoadingModel.ERROR)
                 }
             })
         } catch (e: Exception) {
+            updateLoadingModel(LoadingModel.ERROR)
             Timber.e(e.message.toString())
         }
     }
@@ -260,5 +263,13 @@ class ChatActivityViewModel : BaseViewModel(), KoinComponent {
             .setValue(chatMessage).addOnFailureListener {
                 Timber.e(it.message.toString())
             }
+    }
+
+    fun messageToJson(userId: String?, userName: String?, message: String?): JSONObject {
+        val jsonData = JSONObject()
+        jsonData.put("userName", userName)
+        jsonData.put("message", message)
+        jsonData.put("isSent", userId == firebaseInstance.currentUser?.uid)
+        return jsonData
     }
 }
