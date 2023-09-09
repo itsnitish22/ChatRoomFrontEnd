@@ -212,7 +212,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(),
                     binding.swipeRefresh.isRefreshing = false
             }
         })
-        
+
         homeFragmentVM.loadingModel.observe(viewLifecycleOwner, Observer {
             binding.loadingModel.progressBar.setVisibilityBasedOnLoadingModel(it)
         })

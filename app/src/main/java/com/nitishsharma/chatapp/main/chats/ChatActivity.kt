@@ -2,7 +2,6 @@ package com.nitishsharma.chatapp.main.chats
 
 import android.os.Bundle
 import android.os.Handler
-import android.view.View
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.infiniteRepeatable
@@ -24,7 +23,6 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.nitishsharma.chatapp.R
 import com.nitishsharma.chatapp.base.BaseActivity
-import com.nitishsharma.chatapp.base.common.LoadingModel
 import com.nitishsharma.chatapp.databinding.ActivityChatBinding
 import com.nitishsharma.chatapp.main.ui.utils.GroupAvatar2
 import com.nitishsharma.chatapp.utils.Utility
