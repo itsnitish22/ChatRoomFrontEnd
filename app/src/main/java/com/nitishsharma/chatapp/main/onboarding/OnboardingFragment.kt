@@ -32,7 +32,7 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.GoogleAuthProvider
 import com.nitishsharma.chatapp.R
 import com.nitishsharma.chatapp.base.BaseFragment
-import com.nitishsharma.chatapp.base.common.LoadingModel
+import com.nitishsharma.chatapp.base.common.model.LoadingModel
 import com.nitishsharma.chatapp.databinding.FragmentOnboardingBinding
 import com.nitishsharma.chatapp.notification.FCMService
 import com.nitishsharma.chatapp.utils.setStatusBarColor

@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
-import com.nitishsharma.chatapp.base.common.LoadingModel
+import com.nitishsharma.chatapp.base.common.model.LoadingModel
 import org.koin.core.component.KoinComponent
 
 open class BaseViewModel : ViewModel(), KoinComponent {

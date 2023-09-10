@@ -19,7 +19,6 @@ import com.nitishsharma.domain.api.models.chatresponse.parseMessage
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
-import java.net.InetAddress
 import java.net.NetworkInterface
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -55,23 +54,28 @@ object Utility {
         return UUID.randomUUID().toString()
     }
 
-    fun getCurrentNetworkIPAddress(): String? {
-        val interfaces = NetworkInterface.getNetworkInterfaces()
-        while (interfaces.hasMoreElements()) {
-            val networkInterface = interfaces.nextElement()
-            val addresses = networkInterface.inetAddresses
-            while (addresses.hasMoreElements()) {
-                val address = addresses.nextElement()
-                if (!address.isLoopbackAddress && address is InetAddress) {
-                    val ipv4Address = address.hostAddress
-                    val isIPv4 = ipv4Address.indexOf(':') < 0
-                    if (isIPv4) {
-                        return ipv4Address
+    fun getCurrentIPv4Address(): String? {
+        try {
+            val interfaces = NetworkInterface.getNetworkInterfaces()
+            while (interfaces.hasMoreElements()) {
+                val networkInterface = interfaces.nextElement()
+                val addresses = networkInterface.inetAddresses
+                while (addresses.hasMoreElements()) {
+                    val address = addresses.nextElement()
+                    address.hostAddress?.let {
+                        if (!address.isLoopbackAddress && address.isSiteLocalAddress && it.contains(
+                                "."
+                            )
+                        ) {
+                            return address.hostAddress
+                        }
                     }
                 }
             }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
-        return ""
+        return null
     }
 
     fun formatDateTime(dateTime: String): String? {

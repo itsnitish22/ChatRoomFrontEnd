@@ -49,7 +49,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.auth.FirebaseAuth
 import com.nitishsharma.chatapp.R
 import com.nitishsharma.chatapp.base.BaseFragment
-import com.nitishsharma.chatapp.base.common.LoadingModel
+import com.nitishsharma.chatapp.base.common.model.LoadingModel
 import com.nitishsharma.chatapp.databinding.FragmentHomeBinding
 import com.nitishsharma.chatapp.main.chats.ChatActivity
 import com.nitishsharma.chatapp.main.home.ui.components.AppName
@@ -80,6 +80,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(),
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        binding.homeVM = homeFragmentVM
         setStatusBarColor(requireActivity(), R.color.app_bg)
     }
 

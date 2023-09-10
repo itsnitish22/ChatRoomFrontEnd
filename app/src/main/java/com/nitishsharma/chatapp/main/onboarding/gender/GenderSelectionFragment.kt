@@ -10,7 +10,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.nitishsharma.chatapp.base.BaseFragment
-import com.nitishsharma.chatapp.base.common.LoadingModel
+import com.nitishsharma.chatapp.base.common.model.LoadingModel
 import com.nitishsharma.chatapp.databinding.FragmentGenderSelectionBinding
 import com.nitishsharma.chatapp.main.onboarding.OnboardingFragmentViewModel
 import com.nitishsharma.chatapp.main.onboarding.gender.model.GenderModel

@@ -13,6 +13,7 @@ import com.nitishsharma.chatapp.di.useCaseModules
 import com.nitishsharma.chatapp.di.viewModelModules
 import io.socket.client.IO
 import io.socket.client.Socket
+import io.socket.client.SocketIOException
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import timber.log.Timber
@@ -32,6 +33,34 @@ class FirstChat : Application() {
         FirebaseApp.initializeApp(this)
         getFirebaseMessagingToken()
         startKoin()
+    }
+
+    private fun connectSocket() {
+        try {
+            val socketConfig = IO.Options().apply {
+                forceNew = true
+                reconnection = true
+            }
+            IO.socket(BuildConfig.BASE_URL, socketConfig)
+            socketIO?.connect()
+            socketIO?.on(Socket.EVENT_CONNECT) {
+                Timber.tag("Socket Log").i("Socket Connected")
+            }
+            socketIO?.on(Socket.EVENT_DISCONNECT) {
+                reconnectSocket()
+            }
+
+        } catch (e: Exception) {
+            Timber.tag("Socket Log").e("Can't connect to the servers")
+        }
+    }
+
+    private fun reconnectSocket() {
+        try {
+            socketIO?.connect()
+        } catch (e: SocketIOException) {
+            Timber.tag("Socket Log").e("Failed to reconnect Socket.IO: ${e.message}")
+        }
     }
 
     private fun startKoin() {

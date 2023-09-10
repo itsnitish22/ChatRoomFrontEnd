@@ -39,6 +39,7 @@ android {
     compileSdk 34
 
     buildFeatures {
+        dataBinding = true
         viewBinding = true
         compose = true
     }
@@ -73,7 +74,7 @@ android {
             minifyEnabled false
             shrinkResources false
             applicationIdSuffix ".debug"
-            buildConfigField "String", "BASE_URL", "\"http://192.168.18.4:3000/\""
+            buildConfigField "String", "BASE_URL", "\"http://192.168.0.122:3000/\""
         }
     }
     compileOptions {

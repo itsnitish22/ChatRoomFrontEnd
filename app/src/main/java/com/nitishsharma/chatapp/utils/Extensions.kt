@@ -10,7 +10,7 @@ import android.view.WindowManager
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import com.nitishsharma.chatapp.base.common.LoadingModel
+import com.nitishsharma.chatapp.base.common.model.LoadingModel
 
 fun Context.toast(message: String) {
     Toast.makeText(

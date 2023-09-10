@@ -10,7 +10,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.gson.Gson
 import com.nitishsharma.chatapp.base.BaseViewModel
-import com.nitishsharma.chatapp.base.common.LoadingModel
+import com.nitishsharma.chatapp.base.common.model.LoadingModel
 import com.nitishsharma.chatapp.main.chats.models.ChatMessage
 import com.nitishsharma.chatapp.utils.Event
 import com.nitishsharma.chatapp.utils.Utility
