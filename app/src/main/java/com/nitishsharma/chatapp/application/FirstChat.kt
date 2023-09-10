@@ -1,7 +1,7 @@
 package com.nitishsharma.chatapp.application
 
 import android.app.Application
-import com.google.android.gms.tasks.OnCompleteListener
+import android.os.Handler
 import com.google.firebase.FirebaseApp
 import com.google.firebase.messaging.FirebaseMessaging
 import com.nitishsharma.chatapp.BuildConfig
@@ -16,23 +16,30 @@ import io.socket.client.Socket
 import io.socket.client.SocketIOException
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
+import org.koin.core.context.startKoin
 import timber.log.Timber
-import timber.log.Timber.Forest.plant
+import timber.log.Timber.DebugTree
 
 class FirstChat : Application() {
-    var socketIO: Socket? = IO.socket(BuildConfig.BASE_URL)
+    var socketIO: Socket? = null
+    private val handler = Handler()
+    private var isRetrying = false
 
     override fun onCreate() {
         super.onCreate()
-        try {
-            socketIO?.connect()
-        } catch (e: Exception) {
-            Timber.e("Can't connect to the servers")
-        }
-        plant(Timber.DebugTree())
+        initTimber()
+        initFirebase()
+        connectSocket()
+        startKoin()
+    }
+
+    private fun initTimber() {
+        Timber.plant(DebugTree())
+    }
+
+    private fun initFirebase() {
         FirebaseApp.initializeApp(this)
         getFirebaseMessagingToken()
-        startKoin()
     }
 
     private fun connectSocket() {
@@ -41,30 +48,41 @@ class FirstChat : Application() {
                 forceNew = true
                 reconnection = true
             }
-            IO.socket(BuildConfig.BASE_URL, socketConfig)
+            socketIO = IO.socket(BuildConfig.BASE_URL, socketConfig)
             socketIO?.connect()
             socketIO?.on(Socket.EVENT_CONNECT) {
                 Timber.tag("Socket Log").i("Socket Connected")
+                isRetrying = false // Reset the retry flag
             }
             socketIO?.on(Socket.EVENT_DISCONNECT) {
-                reconnectSocket()
+                Timber.tag("Socket Log").e("Socket Disconnected")
+                if (!isRetrying) {
+                    retrySocketConnection()
+                }
             }
-
+            socketIO?.on(Socket.EVENT_CONNECT_ERROR) {
+                Timber.tag("Socket Log").e("Socket Connection Error")
+            }
         } catch (e: Exception) {
             Timber.tag("Socket Log").e("Can't connect to the servers")
         }
     }
 
-    private fun reconnectSocket() {
-        try {
-            socketIO?.connect()
-        } catch (e: SocketIOException) {
-            Timber.tag("Socket Log").e("Failed to reconnect Socket.IO: ${e.message}")
-        }
+    private fun retrySocketConnection() {
+        isRetrying = true
+        handler.postDelayed({
+            try {
+                Timber.tag("Socket Log").i("Retrying socket connection...")
+                socketIO?.connect()
+            } catch (e: SocketIOException) {
+                Timber.tag("Socket Log").e("Failed to reconnect Socket.IO: ${e.message}")
+                retrySocketConnection()
+            }
+        }, 5000)
     }
 
     private fun startKoin() {
-        org.koin.core.context.startKoin {
+        startKoin {
             androidLogger()
             androidContext(this@FirstChat)
             modules(
@@ -79,12 +97,12 @@ class FirstChat : Application() {
     }
 
     private fun getFirebaseMessagingToken() {
-        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
             if (!task.isSuccessful) {
                 Timber.tag("FirstChat").w(task.exception, "Fetching FCM registration token failed")
-                return@OnCompleteListener
+                return@addOnCompleteListener
             }
             Timber.tag("FCM Token").d(task.result)
-        })
+        }
     }
 }
