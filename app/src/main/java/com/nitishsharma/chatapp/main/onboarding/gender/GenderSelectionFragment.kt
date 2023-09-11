@@ -10,11 +10,13 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.nitishsharma.chatapp.base.BaseFragment
+import com.nitishsharma.chatapp.base.common.model.LoadingModel
 import com.nitishsharma.chatapp.databinding.FragmentGenderSelectionBinding
 import com.nitishsharma.chatapp.main.onboarding.OnboardingFragmentViewModel
 import com.nitishsharma.chatapp.main.onboarding.gender.model.GenderModel
 import com.nitishsharma.chatapp.notification.FCMService
-import com.nitishsharma.chatapp.utils.Utility.setStatusBarColor
+import com.nitishsharma.chatapp.utils.setStatusBarColor
+import com.nitishsharma.chatapp.utils.setVisibilityBasedOnLoadingModel
 import timber.log.Timber
 
 @RequiresApi(Build.VERSION_CODES.M)
@@ -45,11 +47,14 @@ class GenderSelectionFragment : BaseFragment<FragmentGenderSelectionBinding>() {
                 navigateToHomeFragment()
             }
         })
+        viewModel.loadingModel.observe(viewLifecycleOwner, Observer {
+            binding.loadingModel.progressBar.setVisibilityBasedOnLoadingModel(it)
+        })
     }
 
     private fun navigateToHomeFragment() {
         FCMService.subscribeToFirebaseTopic(firebaseInstance.currentUser?.uid)
-        binding.progressBar.visibility = View.GONE
+        viewModel.updateLoadingModel(LoadingModel.COMPLETED)
         findNavController().navigate(
             GenderSelectionFragmentDirections.actionGenderSelectionFragmentToHomeFragment(
                 firebaseUser = firebaseInstance.currentUser
@@ -60,7 +65,7 @@ class GenderSelectionFragment : BaseFragment<FragmentGenderSelectionBinding>() {
     override fun initClickListeners() {
         super.initClickListeners()
         binding.setGendereButton.setOnClickListener {
-            binding.progressBar.visibility = View.VISIBLE
+            viewModel.updateLoadingModel(LoadingModel.LOADING)
             viewModel.saveUserToDb(firebaseInstance.currentUser!!, currentSelectedGender)
         }
     }
