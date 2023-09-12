@@ -10,6 +10,7 @@ import android.view.WindowManager
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import com.google.android.material.snackbar.Snackbar
 import com.nitishsharma.chatapp.base.common.model.LoadingModel
 
 fun Context.toast(message: String) {
@@ -65,4 +66,8 @@ fun View.setVisibilityBasedOnLoadingModel(loadingModel: LoadingModel) {
         LoadingModel.LOADING -> View.VISIBLE
         else -> View.GONE
     }
+}
+
+fun View.showSnackBar(message: String) {
+    Snackbar.make(this, message, Snackbar.LENGTH_SHORT).show()
 }

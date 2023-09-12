@@ -37,6 +37,7 @@ import com.nitishsharma.chatapp.databinding.FragmentOnboardingBinding
 import com.nitishsharma.chatapp.notification.FCMService
 import com.nitishsharma.chatapp.utils.setStatusBarColor
 import com.nitishsharma.chatapp.utils.setVisibilityBasedOnLoadingModel
+import com.nitishsharma.chatapp.utils.showSnackBar
 import com.nitishsharma.chatapp.utils.toast
 import org.koin.core.component.KoinComponent
 
@@ -143,7 +144,7 @@ class OnboardingFragment : BaseFragment<FragmentOnboardingBinding>(), KoinCompon
                                 handleResults(task, false)
                         } else {
                             onboardingVM.updateLoadingModel(LoadingModel.ERROR)
-                            toast("oops!")
+                            binding.root.showSnackBar("oops!")
                         }
                     }
             } else {
@@ -159,7 +160,7 @@ class OnboardingFragment : BaseFragment<FragmentOnboardingBinding>(), KoinCompon
             }
         } else {
             onboardingVM.updateLoadingModel(LoadingModel.ERROR)
-            toast("Some error occurred")
+            binding.root.showSnackBar("Some error occurred")
         }
     }
 

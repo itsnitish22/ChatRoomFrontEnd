@@ -30,6 +30,7 @@ import com.nitishsharma.chatapp.utils.observeOnce
 import com.nitishsharma.chatapp.utils.setStatusBarColor
 import com.nitishsharma.chatapp.utils.setVisibilityBasedOnLoadingModel
 import com.nitishsharma.chatapp.utils.shareRoom
+import com.nitishsharma.chatapp.utils.showSnackBar
 import com.nitishsharma.chatapp.utils.toast
 import com.nitishsharma.domain.api.interactors.IsChatActivityOpenUseCase
 import com.nitishsharma.domain.api.models.roomsresponse.ActiveRooms
@@ -114,11 +115,11 @@ class ChatActivity : BaseActivity<ActivityChatBinding>(), KoinComponent {
         })
 
         chatActivityViewModel.roomEvent.observe(this, Observer { roomEvent ->
-            toast(roomEvent.toString())
+            binding.root.showSnackBar(roomEvent.toString())
         })
 
         chatActivityViewModel.roomError.observe(this, Observer { roomError ->
-            toast(roomError.toString())
+            binding.root.showSnackBar(roomError.toString())
         })
         chatActivityViewModel.onSomeoneJoinedRoomEvent.observe(
             this,
@@ -132,7 +133,7 @@ class ChatActivity : BaseActivity<ActivityChatBinding>(), KoinComponent {
             })
 
         chatActivityViewModel.onUserLeftRoomEvent.observe(this, Observer { userDisconnectEvent ->
-            toast(userDisconnectEvent)
+            binding.root.showSnackBar(userDisconnectEvent)
             Handler().postDelayed({
                 chatActivityViewModel.getRoomDetailsFromRoomId(roomID)
             }, 2000)

@@ -9,7 +9,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.nitishsharma.chatapp.databinding.RoomOptionsBottomSheetBinding
 import com.nitishsharma.chatapp.utils.copyTextToClipboard
 import com.nitishsharma.chatapp.utils.shareRoom
-import com.nitishsharma.chatapp.utils.toast
+import com.nitishsharma.chatapp.utils.showSnackBar
 
 class RoomOptionsBottomSheet : BottomSheetDialogFragment() {
     private val bottomSheetVM: HomeFragmentViewModel by activityViewModels()
@@ -58,7 +58,7 @@ class RoomOptionsBottomSheet : BottomSheetDialogFragment() {
         binding.apply {
             copyRoomId.setOnClickListener {
                 copyTextToClipboard(roomId, "Room ID")
-                toast("Copied")
+                root.showSnackBar("Copied")
                 dismiss()
             }
             inviteSomeone.setOnClickListener {
