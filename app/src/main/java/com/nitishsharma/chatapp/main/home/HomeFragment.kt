@@ -63,7 +63,7 @@ import com.nitishsharma.chatapp.main.ui.theme.AppTheme
 import com.nitishsharma.chatapp.main.ui.utils.Avatar
 import com.nitishsharma.chatapp.utils.setStatusBarColor
 import com.nitishsharma.chatapp.utils.setVisibilityBasedOnLoadingModel
-import com.nitishsharma.chatapp.utils.toast
+import com.nitishsharma.chatapp.utils.showSnackBar
 import com.nitishsharma.domain.api.models.roomsresponse.ActiveRooms
 import com.nitishsharma.domain.api.models.roomsresponse.ConvertToBodyForAllUserActiveRooms
 import kotlinx.coroutines.launch
@@ -148,7 +148,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(),
                 if (deleteRoomResponse.deletedRoom) {
                     getAllUserActiveRooms()
                 } else {
-                    toast(deleteRoomResponse.message)
+                    binding.root.showSnackBar(deleteRoomResponse.message)
                 }
             })
 
@@ -164,7 +164,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(),
                     }
                 } else {
                     homeFragmentVM.updateLoadingModel(LoadingModel.COMPLETED)
-                    toast(canJoinRoom.actionForUser)
+                    binding.root.showSnackBar(canJoinRoom.actionForUser)
                 }
             }
         })
@@ -178,7 +178,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(),
                             updateRoomJoinerId(firebaseInstance.currentUser?.uid, it)
                         }
                     } else {
-                        toast("room is not available")
+                        binding.root.showSnackBar("room is not available")
                     }
                 }
             })
@@ -208,7 +208,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(),
 
         homeFragmentVM.serverError.observe(viewLifecycleOwner, Observer { error ->
             if (error) {
-                toast("Internal Server Error")
+                binding.root.showSnackBar("Internal Server Error")
                 if (binding.swipeRefresh.isRefreshing)
                     binding.swipeRefresh.isRefreshing = false
             }
@@ -363,7 +363,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(),
                                         top.linkTo(darkSurface.top)
                                     }
                                     .padding(top = 15.dp, end = 15.dp),
-                                    onClick = { toast("Coming soon") })
+                                    onClick = { binding.root.showSnackBar("Coming soon") })
 
                                 if (isLoading == true) {
                                     Text(
