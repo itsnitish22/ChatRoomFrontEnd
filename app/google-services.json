@@ -15,11 +15,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "467369143362-ogfg79ps7hiv2dknbres75ip13dcaq2g.apps.googleusercontent.com",
+          "client_id": "467369143362-if9iqj3jql85prpikf7jv4ju2f8oku70.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.nitishsharma.chatapp",
-            "certificate_hash": "52b98d59806160b3bf4dd071e817b8dad7d054f9"
+            "certificate_hash": "539f25e95a9d96b07cc2c713b79d46f18cd0ec7b"
           }
         },
         {
@@ -52,11 +52,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "467369143362-hg29r5086rh41v71f5fjssvdlbpk2pm6.apps.googleusercontent.com",
+          "client_id": "467369143362-q87q8d8v5ej5iq1ud7vfle8mvr5gnomi.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.nitishsharma.chatapp.debug",
-            "certificate_hash": "52b98d59806160b3bf4dd071e817b8dad7d054f9"
+            "certificate_hash": "539f25e95a9d96b07cc2c713b79d46f18cd0ec7b"
           }
         },
         {

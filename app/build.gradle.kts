@@ -1,4 +1,6 @@
 import com.project.starter.easylauncher.filter.ColorRibbonFilter
+import java.io.FileInputStream
+import java.util.Properties
 
 val appConfig = rootProject.extra["appConfig"] as Map<String, Any>
 val compose_version: String by rootProject.extra
@@ -21,33 +23,33 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
-//val debugKeystorePropertiesFile = rootProject.file("env/debug_keystore.properties")
-//val debugKeystoreProperties = Properties().apply {
-//    load(FileInputStream(debugKeystorePropertiesFile))
-//}
-//
-//val releaseKeystorePropertiesFile = rootProject.file("env/chatroom_release_keystore.properties")
-//val releaseKeystoreProperties = Properties().apply {
-//    if (releaseKeystorePropertiesFile.exists()) {
-//        load(FileInputStream(releaseKeystorePropertiesFile))
-//    }
-//}
+val debugKeystorePropertiesFile = rootProject.file("env/debug_keystore.properties")
+val debugKeystoreProperties = Properties().apply {
+    load(FileInputStream(debugKeystorePropertiesFile))
+}
+
+val releaseKeystorePropertiesFile = rootProject.file("env/debug_keystore.properties")
+val releaseKeystoreProperties = Properties().apply {
+    if (releaseKeystorePropertiesFile.exists()) {
+        load(FileInputStream(releaseKeystorePropertiesFile))
+    }
+}
 
 android {
-//    signingConfigs {
-//        getByName("debug") {
-//            storeFile = file("$rootDir\\env\\debug_keystore.jks")
-//            storePassword = debugKeystoreProperties["storePassword"] as String
-//            keyAlias = debugKeystoreProperties["keyAlias"] as String
-//            keyPassword = debugKeystoreProperties["keyPassword"] as String
-//        }
-//        create("release") {
-//            storeFile = file("$rootDir\\env\\release_keystore.jks")
-//            storePassword = releaseKeystoreProperties["storePassword"] as String
-//            keyAlias = releaseKeystoreProperties["keyAlias"] as String
-//            keyPassword = releaseKeystoreProperties["keyPassword"] as String
-//        }
-//    }
+    signingConfigs {
+        getByName("debug") {
+            storeFile = file("$rootDir\\env\\debug_keystore.jks")
+            storePassword = debugKeystoreProperties["storePassword"] as String
+            keyAlias = debugKeystoreProperties["keyAlias"] as String
+            keyPassword = debugKeystoreProperties["keyPassword"] as String
+        }
+        create("release") {
+            storeFile = file("$rootDir\\env\\release_keystore.jks")
+            storePassword = releaseKeystoreProperties["storePassword"] as String
+            keyAlias = releaseKeystoreProperties["keyAlias"] as String
+            keyPassword = releaseKeystoreProperties["keyPassword"] as String
+        }
+    }
 
     namespace = "com.nitishsharma.chatapp"
     compileSdk = 35
@@ -69,13 +71,13 @@ android {
         versionName = appConfig["versionName"] as String
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        // signingConfig = signingConfigs.getByName("debug")
+        signingConfig = signingConfigs.getByName("debug")
     }
 
     buildTypes {
         getByName("release") {
             isMinifyEnabled = false
-            isDebuggable = false
+//            isDebuggable = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -83,7 +85,7 @@ android {
             buildConfigField(
                 "String",
                 "BASE_URL",
-                "\"https://chatroom-backend-websocket.azurewebsites.net/\""
+                "\"https://chatroommainbe.azurewebsites.net/\""
             )
         }
         getByName("debug") {
@@ -91,7 +93,7 @@ android {
             isMinifyEnabled = false
             isShrinkResources = false
             applicationIdSuffix = ".debug"
-            buildConfigField("String", "BASE_URL", "\"http://192.168.0.122:3000/\"")
+            buildConfigField("String", "BASE_URL", "\"http://192.168.18.103:3000/\"")
         }
     }
 
@@ -158,7 +160,7 @@ dependencies {
     implementation("androidx.fragment:fragment-ktx:1.5.7")
 
     // Firebase
-    // implementation(platform("com.google.firebase:firebase-bom:30.2.0"))
+    implementation(platform("com.google.firebase:firebase-bom:30.2.0"))
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.android.gms:play-services-auth:20.5.0")
     implementation("com.google.firebase:firebase-database:20.2.2")

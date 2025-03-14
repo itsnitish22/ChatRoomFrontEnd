@@ -14,6 +14,7 @@ import com.nitishsharma.chatapp.di.viewModelModules
 import io.socket.client.IO
 import io.socket.client.Socket
 import io.socket.client.SocketIOException
+import io.socket.engineio.client.transports.WebSocket
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -61,7 +62,7 @@ class FirstChat : Application() {
                 }
             }
             socketIO?.on(Socket.EVENT_CONNECT_ERROR) {
-                Timber.tag("Socket Log").e("Socket Connection Error")
+                Timber.tag("Socket Log").e("Socket Connection Error: ${it.joinToString()}")
             }
         } catch (e: Exception) {
             Timber.tag("Socket Log").e("Can't connect to the servers")
